@@ -112,15 +112,15 @@
     <h1>Kochspiel</h1>
 
     <!-- Kundenbereich -->
-    <div id="customers"></div>
+    <div id="customers" ondrop="giveDishToCustomer(event)" ondragover="allowDrop(event)"></div>
 
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
         <div id="tablet1" class="tablet" ontouchend="dropIngredient('tablet1')" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">Tablet 1</div>
         <div id="tablet2" class="tablet" ontouchend="dropIngredient('tablet2')" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)">Tablet 2</div>
     </div>
-    <button class="button" onclick="prepareDish('tablet1')">Zubereiten - Tablet 1</button>
-    <button class="button" onclick="prepareDish('tablet2')">Zubereiten - Tablet 2</button>
+    <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet1')" draggable="true">Tablet 1</div>
+<div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">Tablet 2</div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
@@ -199,28 +199,31 @@
 
     // Gericht zubereiten
     function prepareDish(tabletId) {
-        const recipes = {
-            "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
-            "Salat": ["Salat", "Tomate", "Käse"],
-            "Sandwich": ["Brot", "Käse", "Salat"]
-        };
-        let preparedDish = null;
+    const recipes = {
+        "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
+        "Salat": ["Salat", "Tomate", "Käse"],
+        "Sandwich": ["Brot", "Käse", "Salat"]
+    };
+    let preparedDish = null;
 
-        for (let dish in recipes) {
-            if (arraysEqual(tabletContents[tabletId], recipes[dish])) {
-                preparedDish = dish;
-                break;
-            }
-        }
-
-        if (preparedDish) {
-            document.getElementById(tabletId).innerText = preparedDish;
-            tabletContents[tabletId] = [preparedDish]; // Markiere das Tablett mit dem Gericht
-            document.getElementById("message").innerText = `Gericht ${preparedDish} auf ${tabletId} zubereitet!`;
-        } else {
-            document.getElementById("message").innerText = "Ungültige Zutatenkombination!";
+    for (let dish in recipes) {
+        if (arraysEqual(tabletContents[tabletId], recipes[dish])) {
+            preparedDish = dish;
+            break;
         }
     }
+
+    if (preparedDish) {
+        document.getElementById(tabletId).innerText = preparedDish;
+        tabletContents[tabletId] = [preparedDish]; // Markiere das Tablett mit dem Gericht
+        document.getElementById("message").innerText = `Gericht ${preparedDish} auf ${tabletId} zubereitet!`;
+        
+        // Setze Tablett als draggable, um Gericht zu Kunden zu ziehen
+        document.getElementById(tabletId).setAttribute("draggable", "true");
+    } else {
+        document.getElementById("message").innerText = "Ungültige Zutatenkombination!";
+    }
+}
 
     // Gericht zu einem Kunden ziehen
     function startDragDish(event, tabletId) {
