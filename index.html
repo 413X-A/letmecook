@@ -235,27 +235,24 @@
     }
 
     function dropDishToCustomer(event, customerId) {
-        event.preventDefault();
-        const dish = event.dataTransfer.getData("dish");
-        const tabletId = event.dataTransfer.getData("tabletId");
-        const customer = customers.find(c => c.id === parseInt(customerId));
+    event.preventDefault();
+    const dish = event.dataTransfer.getData("dish");
+    const tabletId = event.dataTransfer.getData("tabletId");
+    const customer = customers.find(c => c.id === parseInt(customerId));
 
-        if (customer && dish === customer.order) {
-            // Entfernen des Kunden bei korrektem Gericht
-            customers = customers.filter(c => c.id !== customer.id);
-            displayCustomers();
-            document.getElementById("message").innerText = `Kunde zufrieden mit ${dish}!`;
-            tabletContents[tabletId] = []; // Leere das Tablett nach der Bestellung
-            document.getElementById(tabletId).innerText = `Tablet ${tabletId.charAt(tabletId.length - 1)}`;
-        } else {
-            document.getElementById("message").innerText = "Falsches Gericht für den Kunden!";
-        }
+    if (customer && dish === customer.order) {
+        // Gericht korrekt: Kunde entfernen und Tablett zurücksetzen
+        customers = customers.filter(c => c.id !== customer.id);
+        displayCustomers();
+        document.getElementById("message").innerText = `Kunde zufrieden mit ${dish}!`;
+        tabletContents[tabletId] = []; // Leere das Tablett nach der Bestellung
+        document.getElementById(tabletId).innerText = `Tablet ${tabletId.charAt(tabletId.length - 1)}`;
+        document.getElementById(tabletId).removeAttribute("draggable"); // Gericht kann nicht mehr gezogen werden
+    } else {
+        // Falsches Gericht: Nachricht anzeigen und Gericht auf dem Tablett lassen
+        document.getElementById("message").innerText = "Falsches Gericht für den Kunden!";
     }
-
-    // Hilfsfunktion zur Überprüfung von Arrays
-    function arraysEqual(arr1, arr2) {
-        return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
-    }
+}
 
     // Funktion für neue Kunden
     function newCustomer() {
