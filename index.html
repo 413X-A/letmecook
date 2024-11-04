@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kochspiel mit Kunden und Geduldsanzeige</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+        }
+        #game {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            width: 600px;
+            background-color: #fff;
+            position: relative;
+        }
+        #customers {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+        .customer {
+            width: 100px;
+            text-align: center;
+            position: relative;
+        }
+        .customer img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+        }
+        .bubble {
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            border-radius: 5px;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .patience-bar {
+            height: 10px;
+            background-color: #4caf50;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .ingredients {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .ingredient {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            cursor: pointer;
+            background-size: cover;
+            border: 2px solid #eee;
+            border-radius: 10px;
+        }
+        .ingredient:hover {
+            border-color: #aaa;
+        }
+        #tablet {
+            width: 100%;
+            height: 70px;
+            margin: 15px 0;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            border-radius: 10px;
+        }
+        #message {
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game">
+    <h1>Kochspiel mit Kunden</h1>
+
+    <!-- Kundenbereich -->
+    <div id="customers"></div>
+
+    <!-- Zutatenbereich -->
+    <div class="ingredients">
+        <div class="ingredient" style="background-image: url('brot.png');" onclick="addIngredient('Brot')"></div>
+        <div class="ingredient" style="background-image: url('fleisch.png');" onclick="addIngredient('Fleisch')"></div>
+        <div class="ingredient" style="background-image: url('salat.png');" onclick="addIngredient('Salat')"></div>
+        <div class="ingredient" style="background-image: url('tomate.png');" onclick="addIngredient('Tomate')"></div>
+        <div class="ingredient" style="background-image: url('käse.png');" onclick="addIngredient('Käse')"></div>
+    </div>
+
+    <!-- Zubereitungsbereich -->
+    <button onclick="prepareDish()">Zubereiten</button>
+    <div id="tablet" draggable="true" ondragstart="dragStart(event)">Tablet - Fertiges Gericht</div>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    let dish = [];
+    let orders = ["Burger", "Salat", "Sandwich"];
+    let recipes = {
+        "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
+        "Salat": ["Salat", "Tomate", "Käse"],
+        "Sandwich": ["Brot", "Käse", "Salat"]
+    };
+    let customers = [];
+
+    function addIngredient(ingredient) {
+        dish.push(ingredient);
+        document.getElementById("message").innerText = `Zutat hinzugefügt: ${ingredient}`;
+    }
+
+    function prepareDish() {
+        const preparedDish = dish.join(", ");
+        document.getElementById("tablet").innerText = preparedDish || "Leeres Tablet";
+        document.getElementById("message").innerText = `Gericht zubereitet: ${preparedDish}`;
+        dish = [];
+    }
+
+    function newCustomer() {
+        const order = orders[Math.floor(Math.random() * orders.length)];
+        const patience = 100;
+        const customer = { order, patience, id: Date.now() };
+        customers.push(customer);
+        displayCustomers();
+    }
+
+    function displayCustomers() {
+        const customerDiv = document.getElementById("customers");
+        customerDiv.innerHTML = "";
+
+        customers.forEach((customer) => {
+            const customerElement = document.createElement("div");
+            customerElement.classList.add("customer");
+            customerElement.setAttribute("data-id", customer.id);
+            customerElement.innerHTML = `
+                <img src="customer.png" alt="Kunde">
+                <div class="bubble">
+                    Bestellung: ${customer.order}
+                </div>
+                <div class="patience-bar" style="width: ${customer.patience}%"></div>
+            `;
+            customerElement.ondrop = drop;
+            customerElement.ondragover = allowDrop;
+            customerDiv.appendChild(customerElement);
+        });
+    }
+
+    function updatePatience() {
+        customers = customers.map((customer) => {
+            customer.patience -= 1;
+            return customer;
+        });
+        customers = customers.filter((customer) => customer.patience > 0);
+        displayCustomers();
+    }
+
+    setInterval(updatePatience, 1000);
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function dragStart(event) {
+        event.dataTransfer.setData("text", event.target.innerText);
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const preparedDish = event.dataTransfer.getData("text");
+        const customerId = event.target.closest(".customer").getAttribute("data-id");
+        const customer = customers.find((c) => c.id == customerId);
+        if (preparedDish === customer.order) {
+            document.getElementById("message").innerText = `Kunde zufrieden: ${customer.order} geliefert!`;
+            customers = customers.filter((c) => c.id != customerId);
+            displayCustomers();
+        } else {
+            document.getElementById("message").innerText = `Falsches Gericht!`;
+        }
+    }
+
+    // Initialisiere 5 Kunden
+    for (let i = 0; i < 5; i++) newCustomer();
+
+</script>
+
+</body>
+</html>
