@@ -185,22 +185,18 @@
             });
 
             if (matchedDish) {
-                if (matchedDish === expectedDish) {
-                    displayDish(matchedDish);
-                    // Alle Zutaten aus dem Tablett entfernen
-                    while (tray.firstChild) {
-                        tray.removeChild(tray.firstChild);
-                    }
-                    setTimeout(() => {
-                        // Generiere neue Kunden nach 2 Sekunden
-                        generateCustomers();
-                    }, 2000);
-                } else {
-                    displayDish(matchedDish);
-                    document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
+                // Gericht im Tablett anzeigen, aber nicht direkt geben
+                displayDish(matchedDish);
+                // Alle Zutaten aus dem Tablett entfernen
+                while (tray.firstChild) {
+                    tray.removeChild(tray.firstChild);
                 }
+                setTimeout(() => {
+                    // Generiere neue Kunden nach 2 Sekunden
+                    generateCustomers();
+                }, 2000);
             } else {
-                document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
+                document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
             }
         }
 
@@ -231,17 +227,13 @@
                 return recipes[dish].every(item => ingredientsOnTray.includes(item));
             });
 
-            // Überprüfen, ob ein passendes Gericht gefunden wurde
             if (matchedDish) {
+                // Gericht im Tablett anzeigen
                 displayDish(matchedDish);
                 // Alle Zutaten aus dem Tablett entfernen
                 while (tray.firstChild) {
                     tray.removeChild(tray.firstChild);
                 }
-                setTimeout(() => {
-                    // Generiere neue Kunden nach 2 Sekunden
-                    generateCustomers();
-                }, 2000);
             } else {
                 // Ungültiges Gericht zurück auf das Tablett legen
                 tray.innerHTML = '';
@@ -255,6 +247,9 @@
 
         function displayDish(dish) {
             document.getElementById('message').innerText = `Zubereitung: ${dish}`;
+            // Hinzufügen einer visuellen Anzeige für das Gericht im Tablett
+            const tray = document.getElementById('tray1');
+            tray.innerHTML = `<div class="ingredient" style="background-image: url('${dish.toLowerCase()}.png'); width: 70%; height: 70%;"></div>`;
         }
 
         // Initialisiere das Spiel
