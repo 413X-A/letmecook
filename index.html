@@ -243,28 +243,27 @@
             messageDiv.innerHTML = `Gericht zubereitet: <strong>${dish}</strong>. Ziehe es zu einem Kunden!`;
         }
 
-        function handleDropOnCustomer(event) {
-            const customerDiv = event.target.closest('.customer');
+        // Kunde mit dem Gericht verbinden
+        document.addEventListener('dragend', function(event) {
             const dishId = event.dataTransfer.getData("text");
-            if (customerDiv && dishId) {
-                const customerOrder = customerDiv.querySelector('.customer-order').textContent;
-                if (dishId === customerOrder.toLowerCase()) {
-                    customerDiv.remove(); // Kunde wird entfernt, wenn das Gericht stimmt
-                    document.getElementById('message').innerText = `Bestellung von ${customerDiv.querySelector('.customer-name').textContent} angenommen!`;
-                    setTimeout(generateCustomers, 2000); // 2 Sekunden warten, bevor neue Kunden erscheinen
-                } else {
-                    document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
-                }
-            }
-        }
+            const dishElement = document.getElementById(dishId);
 
-        // Event Listener für das Drop-Event
-        document.addEventListener('dragover', allowDrop);
-        document.addEventListener('drop', handleDropOnCustomer);
+            customers.forEach(customer => {
+                const customerDiv = document.getElementById(customer.name);
+                const customerOrder = customer.dish.toLowerCase();
+                if (customerOrder === dishId) {
+                    customerDiv.remove(); // Kunde entfernen, wenn das Gericht passt
+                    document.getElementById('message').innerText = `${customer.name} hat das Gericht angenommen!`;
+                    document.getElementById('tray1').removeChild(dishElement); // Gericht entfernen
+                }
+            });
+        });
 
         // Initialisiere das Spiel
-        createIngredients();
-        generateCustomers();
+        window.onload = function() {
+            createIngredients();
+            generateCustomers();
+        }
     </script>
 </body>
 </html>
