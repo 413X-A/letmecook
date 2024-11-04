@@ -128,7 +128,7 @@
     </div>
     
     <!-- Button zum Zubereiten -->
-    <button class="button" onclick="prepareDish('tablet1')">Gericht Zubereiten</button>
+    <button class="button" onclick="prepareDish()">Gericht Zubereiten</button>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
@@ -216,7 +216,7 @@
     }
 
     // Gericht zubereiten
-    function prepareDish(tabletId) {
+    function prepareDish() {
         const recipes = {
             "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
             "Salat": ["Salat", "Tomate", "Käse"],
@@ -225,7 +225,7 @@
         let preparedDish = null;
 
         for (let dish in recipes) {
-            if (arraysEqual(tabletContents[tabletId], recipes[dish])) {
+            if (arraysEqual(tabletContents.tablet1, recipes[dish])) {
                 preparedDish = dish;
                 break;
             }
@@ -233,10 +233,24 @@
 
         if (preparedDish) {
             showMessage(`${preparedDish} zubereitet!`);
-            tabletContents[tabletId] = [preparedDish]; // Reset contents to the prepared dish
-            renderTabletItems(tabletId); // Update the displayed items on the tablet
+            serveDish(preparedDish);
+            tabletContents.tablet1 = []; // Reset contents after serving
+            renderTabletItems("tablet1"); // Update the displayed items on the tablet
         } else {
             showMessage("Zutaten sind nicht korrekt!");
+        }
+    }
+
+    function serveDish(preparedDish) {
+        const customerDiv = document.querySelector("#customers .customer");
+        if (customerDiv) {
+            const customerId = customerDiv.querySelector(".bubble").innerText;
+            const servedDishDiv = document.createElement("div");
+            servedDishDiv.innerText = `Gericht ${preparedDish} wurde serviert!`;
+            customerDiv.appendChild(servedDishDiv);
+            customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
+            renderCustomers();
+            showMessage(`Gericht ${preparedDish} wurde zu ${customerId} serviert!`);
         }
     }
 
@@ -244,10 +258,9 @@
         return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
     }
 
-    // Neuer Kunde erstellen
     function newCustomer() {
         const customerId = `Kunde ${customers.length + 1}`;
-        const patience = Math.floor(Math.random() * 26) + 75; // Geduld zwischen 75 und 100
+        const patience = 100; // Vollständige Geduld
 
         customers.push({ id: customerId, patience: patience });
         renderCustomers();
