@@ -109,10 +109,14 @@
         <div id="header">Let Me Cook</div>
         <div id="customers"></div>
         <div id="trays">
-            <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-            <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
-            <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-            <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
+            <div>
+                <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
+            </div>
+            <div>
+                <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
+            </div>
         </div>
         <button id="garbage" onclick="clearTrays()">Mülleimer</button>
         <div id="ingredients"></div>
