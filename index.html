@@ -112,51 +112,36 @@
     </style>
 </head>
 <body>
-
-<div id="game">
-    <h1>Kochspiel</h1>
-
-    <!-- Kundenbereich -->
-    <div id="customers" ondrop="dropDishToCustomer(event)" ondragover="allowDrop(event)"></div>
-
-    <!-- Tablett-Bereich -->
-    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">
-            Deine Zutaten:
-            <div class="tablet-items" id="tabletItems"></div>
-        </div>
+    <h1>Restaurant Spiel</h1>
+    <div class="tablet" id="tablet1" ondrop="allowDrop(event)" ondragover="allowDrop(event)">
+        <h3>Tablet</h3>
+        <div id="tabletItems" class="tablet-items"></div>
+        <button onclick="prepareDish()">Zubereiten</button>
     </div>
-    
-    <!-- Button zum Zubereiten -->
-    <button class="button" onclick="prepareDish()">Gericht Zubereiten</button>
 
-    <!-- Zutatenbereich -->
+    <div id="customers" class="customers">
+        <h3>Kunden</h3>
+    </div>
+
+    <div id="message" class="message"></div>
+
     <div class="ingredients">
-        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
-            <div class="ingredient" style="background-image: url('brot.png');"></div>
-            <div class="ingredient-label">Brot</div>
+        <h3>Zutaten</h3>
+        <div class="ingredient" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
+            <img src="brot.png" alt="Brot" />Brot
         </div>
-        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
-            <div class="ingredient" style="background-image: url('fleisch.png');"></div>
-            <div class="ingredient-label">Fleisch</div>
+        <div class="ingredient" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
+            <img src="fleisch.png" alt="Fleisch" />Fleisch
         </div>
-        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
-            <div class="ingredient" style="background-image: url('salat.png');"></div>
-            <div class="ingredient-label">Salat</div>
+        <div class="ingredient" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
+            <img src="salat.png" alt="Salat" />Salat
         </div>
-        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
-            <div class="ingredient" style="background-image: url('tomate.png');"></div>
-            <div class="ingredient-label">Tomate</div>
+        <div class="ingredient" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
+            <img src="tomate.png" alt="Tomate" />Tomate
         </div>
-        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
-            <div class="ingredient" style="background-image: url('kaese.png');"></div>
-            <div class="ingredient-label">Käse</div>
+        <div class="ingredient" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
+            <img src="kaese.png" alt="Käse" />Käse
         </div>
-    </div>
-
-    <button class="button" onclick="newCustomer()">Neuer Kunde</button>
-    <button class="button" onclick="clearTablets()">Mülleimer</button>
-    <div id="message"></div>
 </div>
 
 <script>
