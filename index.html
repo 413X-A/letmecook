@@ -122,7 +122,7 @@
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: center; margin-bottom: 10px;">
         <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">
-            Tablet 1
+            Deine Zutaten:
             <div class="tablet-items" id="tabletItems"></div>
         </div>
     </div>
@@ -165,7 +165,13 @@
     let customers = [];
     let patienceDecreaseInterval;
 
-    // Touch-Event-Handler
+    // Rezepte definieren
+    const recipes = {
+        "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
+        "Sandwich": ["Brot", "Käse", "Salat"],
+        "Mischsalat": ["Salat", "Tomate", "Käse"]
+    };
+
     function startDrag(ingredient) {
         draggedIngredient = ingredient;
     }
@@ -181,7 +187,6 @@
         draggedIngredient = null;
     }
 
-    // Desktop-Event-Handler
     function startDragDesktop(event, ingredient) {
         draggedIngredient = ingredient;
     }
@@ -190,47 +195,16 @@
         event.preventDefault();
     }
 
-    function dropIngredientDesktop(event, tabletId) {
-        event.preventDefault();
-        dropIngredient(tabletId);
-    }
-
-    // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
     function dropIngredient(tabletId) {
         if (draggedIngredient && tabletContents[tabletId].length < 4) {
             tabletContents[tabletId].push(draggedIngredient);
-
-            // Hinzufügen der Zutat zum Tablett mit Bild
             renderTabletItems(tabletId);
             showMessage(`${draggedIngredient} zum Tablett hinzugefügt!`);
         }
     }
 
-    // Funktion zur Rückgabe der Bild-URL basierend auf der Zutat
-    function getImageURL(ingredient) {
-        switch (ingredient) {
-            case 'Brot':
-                return 'brot.png';
-            case 'Fleisch':
-                return 'fleisch.png';
-            case 'Salat':
-                return 'salat.png';
-            case 'Tomate':
-                return 'tomate.png';
-            case 'Käse':
-                return 'kaese.png';
-            default:
-                return '';
-        }
-    }
-
     // Neues Gericht zubereiten
     function prepareDish() {
-        const recipes = {
-            "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
-            "Salat": ["Salat", "Tomate", "Käse"],
-            "Sandwich": ["Brot", "Käse", "Salat"]
-        };
         let preparedDish = null;
 
         for (let dish in recipes) {
@@ -241,27 +215,21 @@
         }
 
         if (preparedDish) {
-            showMessage(`${preparedDish} zubereitet!`);
-            serveDish(preparedDish);
-            tabletContents.tablet1 = []; // Reset contents after serving
-            renderTabletItems("tablet1"); // Update the displayed items on the tablet
+            showPreparedDish(preparedDish);
         } else {
             showMessage("Zutaten sind nicht korrekt!");
         }
     }
 
-    function serveDish(preparedDish) {
-        const customerDiv = document.querySelector("#customers .customer");
-        if (customerDiv) {
-            const servedDishDiv = document.createElement("div");
-            servedDishDiv.innerText = `Gericht ${preparedDish} wurde serviert!`;
-            customerDiv.appendChild(servedDishDiv);
-
-            // Kunde entfernen
-            customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
-            renderCustomers();
-            showMessage(`Gericht ${preparedDish} wurde serviert!`);
-        }
+    function showPreparedDish(preparedDish) {
+        const preparedDishDiv = document.createElement("div");
+        preparedDishDiv.innerText = preparedDish;
+        preparedDishDiv.className = "prepared-dish"; // Klasse für das fertige Gericht
+        preparedDishDiv.draggable = true; // Ermöglicht Drag-and-Drop
+        preparedDishDiv.ondragstart = () => startDrag(preparedDish); // Start-Drag
+        document.getElementById("tabletItems").appendChild(preparedDishDiv); // Zeige das fertige Gericht auf dem Tablet
+        tabletContents.tablet1 = []; // Reset contents after serving
+        renderTabletItems("tablet1"); // Update the displayed items on the tablet
     }
 
     function arraysEqual(a, b) {
@@ -276,7 +244,6 @@
         customers.push({ id: customerId, dish: dishPreference, patience: patience });
         renderCustomers();
 
-        // Setze Geduld für neue Kunden
         if (!patienceDecreaseInterval) {
             decreasePatience();
         }
@@ -285,6 +252,8 @@
     function createCustomer(customer) {
         const customerDiv = document.createElement("div");
         customerDiv.className = "customer";
+        customerDiv.draggable = true; // Ermöglicht Drag-and-Drop
+        customerDiv.ondragstart = () => startDrag(customer.dish); // Start-Drag
         customerDiv.innerHTML = `<img src="kunde.png" alt="${customer.id}"><div class="bubble">${customer.id} möchte: ${customer.dish}</div><div class="patience-bar" style="width: ${customer.patience}%;"></div>`;
         document.getElementById("customers").appendChild(customerDiv);
     }
@@ -295,7 +264,6 @@
         customers.forEach(customer => createCustomer(customer));
     }
 
-    // Geduld verringern
     function decreasePatience() {
         patienceDecreaseInterval = setInterval(() => {
             customers.forEach(customer => {
@@ -304,7 +272,6 @@
                 }
             });
             renderCustomers();
-            // Entfernen von Kunden ohne Geduld
             customers = customers.filter(customer => customer.patience > 0);
             if (customers.length === 0) {
                 clearInterval(patienceDecreaseInterval);
@@ -328,6 +295,23 @@
         });
     }
 
+    function getImageURL(ingredient) {
+        switch (ingredient) {
+            case 'Brot':
+                return 'brot.png';
+            case 'Fleisch':
+                return 'fleisch.png';
+            case 'Salat':
+                return 'salat.png';
+            case 'Tomate':
+                return 'tomate.png';
+            case 'Käse':
+                return 'kaese.png';
+            default:
+                return '';
+        }
+    }
+
     function showMessage(message) {
         document.getElementById("message").innerText = message;
         setTimeout(() => {
@@ -338,6 +322,7 @@
     // Starte das Spiel mit 1 Kunden
     newCustomer();
 </script>
+
 
 
 </body>
