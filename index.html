@@ -50,7 +50,7 @@
         }
         .tray {
             width: 200px;
-            height: 100px;
+            height: 120px; /* Erhöhte Höhe des Tabletts */
             background-color: #d3d3d3; /* Graue Hintergrundfarbe */
             border: 2px solid #555; /* Dunkelgraue Umrandung */
             display: inline-block;
@@ -149,7 +149,9 @@
             const ingredientElement = document.getElementById(ingredientId);
             // Füge die Zutat nur hinzu, wenn sie nicht bereits auf dem Tablett ist
             if (!event.target.contains(ingredientElement)) {
-                event.target.appendChild(ingredientElement.cloneNode(false)); // Keine Kopie, nur Referenz
+                const clonedIngredient = ingredientElement.cloneNode(true); // Klone das Element
+                clonedIngredient.setAttribute("draggable", false); // Setze draggable auf false
+                event.target.appendChild(clonedIngredient); // Füge das Element hinzu
             }
         }
 
