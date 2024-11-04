@@ -9,6 +9,8 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
         }
         #header {
             font-size: 2em;
@@ -21,12 +23,14 @@
             display: inline-block;
             margin: 10px;
             position: relative;
+            background-size: cover;
         }
         .customer-name {
             position: absolute;
             bottom: 40px;
             left: 10px;
             color: white;
+            font-weight: bold;
         }
         .customer-order {
             position: absolute;
@@ -41,6 +45,7 @@
             display: inline-block;
             margin: 20px;
             position: relative;
+            background-color: #fff;
         }
         .ingredient {
             width: 50px;
@@ -49,6 +54,7 @@
             margin: 5px;
             background-color: #eee;
             cursor: pointer;
+            background-size: cover;
         }
         #garbage {
             margin: 20px;
@@ -62,6 +68,18 @@
         #message {
             margin: 20px;
             font-size: 1.5em;
+        }
+        @media (max-width: 600px) {
+            .tray {
+                width: 80%;
+            }
+            .customer {
+                width: 100px;
+                height: 100px;
+            }
+            #header {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
@@ -117,7 +135,7 @@
             event.preventDefault();
             const ingredientId = event.dataTransfer.getData("text");
             const ingredientElement = document.getElementById(ingredientId);
-            event.target.appendChild(ingredientElement);
+            event.target.appendChild(ingredientElement.cloneNode()); // Cloning the ingredient for unlimited use
         }
 
         function createIngredients() {
