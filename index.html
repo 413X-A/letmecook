@@ -200,8 +200,13 @@
 
             // Hinzufügen der eingerahmten Zutat zum Tablett
             document.getElementById(tabletId).appendChild(framedIngredient);
-            document.getElementById(tabletId).innerText = "Inhalt auf " + tabletId;
+            updateTabletDisplay(tabletId);
         }
+    }
+
+    function updateTabletDisplay(tabletId) {
+        document.getElementById(tabletId).innerText = tabletContents[tabletId].length > 0 ? 
+            "Inhalt: " + tabletContents[tabletId].join(", ") : "Tablet " + tabletId.charAt(6);
     }
 
     function isDishPrepared(tabletId) {
@@ -280,9 +285,13 @@
 
     // Geduld der Kunden verringern
     function decreasePatience() {
-        customers.forEach(customer => {
+        customers = customers.filter(customer => {
             customer.patience -= 5; // Verringert die Geduld um 5
-            if (customer.patience < 75) customer.patience = 75; // Verhindert, dass die Geduld unter 75 sinkt
+            if (customer.patience <= 0) {
+                showMessage(`${customer.id} hat gewartet zu lange und ist gegangen!`);
+                return false; // Entferne den Kunden
+            }
+            return true; // Behalte den Kunden
         });
         renderCustomers();
     }
