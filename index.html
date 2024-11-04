@@ -48,13 +48,13 @@
         .customer-order {
             margin-top: 5px;
         }
-        #trays {
-            display: flex; /* Flexbox für nebeneinander stehende Tabletts */
-            justify-content: space-between; /* Platz zwischen den Tabletts */
+        #tray-container {
+            display: flex; /* Flexbox für das Tablett und den Button */
+            align-items: flex-start; /* Vertikale Ausrichtung */
             margin-top: 20px;
         }
         .tray {
-            width: 45%; /* 45% der Breite des Containers */
+            width: 70%; /* 70% der Breite des Containers */
             height: 120px; /* Erhöhte Höhe des Tabletts */
             background-color: #d3d3d3; /* Graue Hintergrundfarbe */
             border: 2px solid #555; /* Dunkelgraue Umrandung */
@@ -81,12 +81,15 @@
             font-size: 1em;
         }
         .prepare-button {
-            margin: 10px;
+            width: 25%; /* Breite des Zubereiten-Buttons */
+            height: 120px; /* Gleiche Höhe wie das Tablett */
+            margin-left: 10px; /* Abstand zum Tablett */
             padding: 10px;
             background-color: #4CAF50; /* Grüne Farbe für den Button */
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 1.2em; /* Größere Schrift */
         }
         #message {
             margin: 20px;
@@ -111,13 +114,9 @@
     <div id="container">
         <div id="header">Let Me Cook</div>
         <div id="customers"></div>
-        <div id="trays">
+        <div id="tray-container">
             <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-            <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        </div>
-        <div id="buttons" style="display: flex; justify-content: space-between; margin-top: 10px;">
             <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
-            <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
         </div>
         <button id="garbage" onclick="clearTrays()">Mülleimer</button>
         <div id="ingredients"></div>
@@ -192,9 +191,8 @@
         }
 
         function clearTrays() {
-            document.querySelectorAll('.tray').forEach(tray => {
-                tray.innerHTML = '';
-            });
+            const tray = document.getElementById('tray1');
+            tray.innerHTML = '';
             document.getElementById('message').innerText = '';
         }
 
@@ -249,9 +247,10 @@
             this.style.top = '';
         }
 
-        // Initialisierung der Kunden und Zutaten
-        generateCustomers();
+        // Initialisiere Zutaten und Kunden
         createIngredients();
+        generateCustomers();
     </script>
+
 </body>
 </html>
