@@ -116,14 +116,11 @@
 
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet1')" draggable="true">
-            Tablet 1
-            <button class="button" onclick="prepareDish('tablet1')">Zubereiten</button>
-        </div>
-        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">
-            Tablet 2
-            <button class="button" onclick="prepareDish('tablet2')">Zubereiten</button>
-        </div>
+        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet1')" draggable="true">Tablet 1</div>
+        <button class="button" onclick="prepareDish('tablet1')">Zubereiten</button>
+        
+        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">Tablet 2</div>
+        <button class="button" onclick="prepareDish('tablet2')">Zubereiten</button>
     </div>
 
     <!-- Zutatenbereich -->
