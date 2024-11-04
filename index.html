@@ -162,8 +162,9 @@
             event.preventDefault();
             const ingredientId = event.dataTransfer.getData("text");
             const ingredientElement = document.getElementById(ingredientId);
-            // Füge die Zutat nur hinzu, wenn sie nicht bereits auf dem Tablett ist und maximal 9 Items sind
             const tray = event.target;
+
+            // Überprüfen, ob die Zutat bereits im Tablett ist und die maximale Anzahl nicht überschreitet
             if (tray.children.length < 9 && !tray.contains(ingredientElement)) {
                 const clonedIngredient = ingredientElement.cloneNode(true); // Klone das Element
                 clonedIngredient.setAttribute("draggable", false); // Setze draggable auf false
@@ -203,7 +204,6 @@
                 tray.innerHTML = '';
                 setTimeout(generateCustomers, 2000);
             } else {
-                tray.innerHTML = tray.innerHTML; // Revert to original ingredients
                 document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
             }
         }
