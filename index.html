@@ -12,6 +12,16 @@
             margin: 0;
             padding: 0;
         }
+        #container {
+            width: 100%;
+            max-width: 600px; /* Breite des Containers */
+            margin: auto;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
         #header {
             font-size: 2em;
             margin: 20px 0;
@@ -41,11 +51,11 @@
         .tray {
             width: 200px;
             height: 100px;
-            border: 2px dashed #333;
+            background-color: #d3d3d3; /* Graue Hintergrundfarbe */
+            border: 2px solid #555; /* Dunkelgraue Umrandung */
             display: inline-block;
             margin: 20px;
             position: relative;
-            background-color: #fff;
         }
         .ingredient {
             width: 50px;
@@ -85,15 +95,17 @@
 </head>
 <body>
 
-    <div id="header">Let Me Cook</div>
-    <div id="customers"></div>
-    <div id="trays">
-        <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    <div id="container">
+        <div id="header">Let Me Cook</div>
+        <div id="customers"></div>
+        <div id="trays">
+            <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <button id="garbage" onclick="clearTrays()">Mülleimer</button>
+        <div id="ingredients"></div>
+        <div id="message"></div>
     </div>
-    <button id="garbage" onclick="clearTrays()">Mülleimer</button>
-    <div id="ingredients"></div>
-    <div id="message"></div>
 
     <script>
         const recipes = {
@@ -135,7 +147,10 @@
             event.preventDefault();
             const ingredientId = event.dataTransfer.getData("text");
             const ingredientElement = document.getElementById(ingredientId);
-            event.target.appendChild(ingredientElement.cloneNode()); // Cloning the ingredient for unlimited use
+            // Füge die Zutat nur hinzu, wenn sie nicht bereits auf dem Tablett ist
+            if (!event.target.contains(ingredientElement)) {
+                event.target.appendChild(ingredientElement.cloneNode(false)); // Keine Kopie, nur Referenz
+            }
         }
 
         function createIngredients() {
