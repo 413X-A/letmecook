@@ -184,9 +184,15 @@
                 return recipes[dish].every(item => ingredientsOnTray.includes(item));
             });
 
-            if (matchedDish) {
+            if (matchedDish === expectedDish) {
                 // Gericht im Tablett anzeigen
-                displayDish(matchedDish, expectedDish);
+                displayDish(matchedDish);
+                // Entferne den Kunden nach 2 Sekunden
+                setTimeout(() => {
+                    document.getElementById(customers[0].name).remove(); // Entferne den aktuellen Kunden aus der Anzeige
+                    customers.shift(); // Entferne den Kunden aus dem Array
+                    generateCustomers(); // Erzeuge neue Kunden
+                }, 2000);
             } else {
                 document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
             }
@@ -221,7 +227,7 @@
 
             if (matchedDish) {
                 // Gericht im Tablett anzeigen
-                displayDish(matchedDish, matchedDish);
+                displayDish(matchedDish);
                 // Alle Zutaten aus dem Tablett entfernen
                 while (tray.firstChild) {
                     tray.removeChild(tray.firstChild);
@@ -235,14 +241,14 @@
                     const ingredientElement = document.getElementById(id);
                     tray.appendChild(ingredientElement.cloneNode(true));
                 });
-                document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
+                document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
             }
         }
 
         function createDishObject(dish) {
             const tray = document.getElementById('tray1');
             const dishElement = document.createElement('div');
-            dishElement.className = 'ingredient';
+            dishElement.className = "ingredient";
             dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
             dishElement.style.width = '70%';
             dishElement.style.height = '70%';
@@ -251,17 +257,9 @@
                 event.dataTransfer.setData("text", dish.toLowerCase());
             };
             tray.appendChild(dishElement);
-            // Setze Timer für neuen Kunden
-            setTimeout(() => {
-                const customer = customers.shift(); // Entferne den aktuellen Kunden
-                if (customer) {
-                    document.getElementById(customer.name).remove(); // Entferne den Kunden aus der Anzeige
-                }
-                generateCustomers(); // Erzeuge neue Kunden
-            }, 2000); // Warte 2 Sekunden
         }
 
-        function displayDish(dish, expectedDish) {
+        function displayDish(dish) {
             const tray = document.getElementById('tray1');
             tray.innerHTML = `<div class="ingredient" style="background-image: url('${dish.toLowerCase()}.png'); width: 70%; height: 70%;"></div>`;
         }
