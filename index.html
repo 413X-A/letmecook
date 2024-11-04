@@ -27,26 +27,26 @@
             margin: 20px 0;
         }
         .customer {
-            background-image: url('customer.png');
-            width: 150px;
-            height: 150px;
             display: inline-block;
             margin: 10px;
             position: relative;
+        }
+        .customer-image {
+            background-image: url('customer.png');
+            width: 150px;
+            height: 150px;
             background-size: cover;
         }
+        .customer-info {
+            background-color: #d3d3d3; /* Hellgrauer Kasten */
+            padding: 5px;
+            text-align: center;
+        }
         .customer-name {
-            position: absolute;
-            bottom: 40px;
-            left: 10px;
-            color: white;
             font-weight: bold;
         }
         .customer-order {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: white;
+            margin-top: 5px;
         }
         .tray {
             width: 200px;
@@ -56,10 +56,11 @@
             display: inline-block;
             margin: 20px;
             position: relative;
+            overflow: hidden; /* Verhindert, dass Zutaten über den Rand hinausgehen */
         }
         .ingredient {
-            width: 50px;
-            height: 50px;
+            width: 40px; /* Kleinere Breite für Zutaten */
+            height: 40px; /* Kleinere Höhe für Zutaten */
             display: inline-block;
             margin: 5px;
             background-color: #eee;
@@ -83,7 +84,7 @@
             .tray {
                 width: 80%;
             }
-            .customer {
+            .customer-image {
                 width: 100px;
                 height: 100px;
             }
@@ -132,8 +133,11 @@
             customers.forEach(customer => {
                 customerDiv.innerHTML += `
                     <div class="customer">
-                        <div class="customer-name">${customer.name}</div>
-                        <div class="customer-order">${customer.dish}</div>
+                        <div class="customer-image"></div>
+                        <div class="customer-info">
+                            <div class="customer-name">${customer.name}</div>
+                            <div class="customer-order">${customer.dish}</div>
+                        </div>
                     </div>
                 `;
             });
@@ -147,11 +151,12 @@
             event.preventDefault();
             const ingredientId = event.dataTransfer.getData("text");
             const ingredientElement = document.getElementById(ingredientId);
-            // Füge die Zutat nur hinzu, wenn sie nicht bereits auf dem Tablett ist
-            if (!event.target.contains(ingredientElement)) {
+            // Füge die Zutat nur hinzu, wenn sie nicht bereits auf dem Tablett ist und maximal 9 Items sind
+            const tray = event.target;
+            if (tray.children.length < 9 && !tray.contains(ingredientElement)) {
                 const clonedIngredient = ingredientElement.cloneNode(true); // Klone das Element
                 clonedIngredient.setAttribute("draggable", false); // Setze draggable auf false
-                event.target.appendChild(clonedIngredient); // Füge das Element hinzu
+                tray.appendChild(clonedIngredient); // Füge das Element hinzu
             }
         }
 
@@ -193,6 +198,38 @@
 
         function displayDish(dish) {
             document.getElementById('message').innerText = `Zubereitung: ${dish}`;
+        }
+
+        // Touch Event Handler für Drag and Drop
+        document.querySelectorAll('.ingredient').forEach(item => {
+            item.addEventListener('touchstart', dragStart);
+            item.addEventListener('touchmove', dragMove);
+            item.addEventListener('touchend', dragEnd);
+        });
+
+        function dragStart(event) {
+            const touch = event.touches[0];
+            const ingredientId = this.id;
+            event.dataTransfer.setData("text", ingredientId);
+            event.dataTransfer.effectAllowed = "move";
+            // Speichere die Position des Touches
+            this.style.position = 'absolute';
+            this.style.left = touch.pageX - (this.offsetWidth / 2) + 'px';
+            this.style.top = touch.pageY - (this.offsetHeight / 2) + 'px';
+        }
+
+        function dragMove(event) {
+            const touch = event.touches[0];
+            // Bewege das Element mit dem Finger
+            this.style.left = touch.pageX - (this.offsetWidth / 2) + 'px';
+            this.style.top = touch.pageY - (this.offsetHeight / 2) + 'px';
+        }
+
+        function dragEnd(event) {
+            // Bei Touch-Ende wird die Zutat wieder auf die ursprüngliche Position gebracht
+            this.style.position = '';
+            this.style.left = '';
+            this.style.top = '';
         }
 
         createIngredients();
