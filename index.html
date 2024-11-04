@@ -48,13 +48,16 @@
         .customer-order {
             margin-top: 5px;
         }
+        #trays {
+            display: flex; /* Flexbox für nebeneinander stehende Tabletts */
+            justify-content: space-between; /* Platz zwischen den Tabletts */
+            margin-top: 20px;
+        }
         .tray {
             width: 45%; /* 45% der Breite des Containers */
             height: 120px; /* Erhöhte Höhe des Tabletts */
             background-color: #d3d3d3; /* Graue Hintergrundfarbe */
             border: 2px solid #555; /* Dunkelgraue Umrandung */
-            display: inline-block;
-            margin: 20px 2.5%; /* 2.5% margin, um die Ausrichtung zu ermöglichen */
             position: relative;
             overflow: hidden; /* Verhindert, dass Zutaten über den Rand hinausgehen */
             text-align: left; /* Zutaten links ausrichten */
@@ -109,14 +112,12 @@
         <div id="header">Let Me Cook</div>
         <div id="customers"></div>
         <div id="trays">
-            <div>
-                <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
-            </div>
-            <div>
-                <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
-            </div>
+            <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div id="buttons" style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
+            <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
         </div>
         <button id="garbage" onclick="clearTrays()">Mülleimer</button>
         <div id="ingredients"></div>
@@ -248,8 +249,9 @@
             this.style.top = '';
         }
 
-        createIngredients();
+        // Initialisierung der Kunden und Zutaten
         generateCustomers();
+        createIngredients();
     </script>
 </body>
 </html>
