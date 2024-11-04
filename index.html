@@ -147,7 +147,7 @@
             customerDiv.innerHTML = '';
             customers.forEach(customer => {
                 customerDiv.innerHTML += `
-                    <div class="customer">
+                    <div class="customer" ondrop="dropToCustomer(event, '${customer.dish}')" ondragover="allowDrop(event)">
                         <div class="customer-image"></div>
                         <div class="customer-info">
                             <div class="customer-name">${customer.name}</div>
@@ -173,6 +173,34 @@
                 const clonedIngredient = ingredientElement.cloneNode(true); // Klone das Element
                 clonedIngredient.setAttribute("draggable", false); // Setze draggable auf false
                 tray.appendChild(clonedIngredient); // Füge das Element hinzu
+            }
+        }
+
+        function dropToCustomer(event, expectedDish) {
+            event.preventDefault();
+            const tray = document.getElementById('tray1');
+            const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
+            const matchedDish = Object.keys(recipes).find(dish => {
+                return recipes[dish].every(item => ingredientsOnTray.includes(item));
+            });
+
+            if (matchedDish) {
+                if (matchedDish === expectedDish) {
+                    displayDish(matchedDish);
+                    // Alle Zutaten aus dem Tablett entfernen
+                    while (tray.firstChild) {
+                        tray.removeChild(tray.firstChild);
+                    }
+                    setTimeout(() => {
+                        // Generiere neue Kunden nach 2 Sekunden
+                        generateCustomers();
+                    }, 2000);
+                } else {
+                    displayDish(matchedDish);
+                    document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
+                }
+            } else {
+                document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
             }
         }
 
@@ -202,11 +230,25 @@
             const matchedDish = Object.keys(recipes).find(dish => {
                 return recipes[dish].every(item => ingredientsOnTray.includes(item));
             });
+
+            // Überprüfen, ob ein passendes Gericht gefunden wurde
             if (matchedDish) {
                 displayDish(matchedDish);
-                tray.innerHTML = '';
-                setTimeout(generateCustomers, 2000);
+                // Alle Zutaten aus dem Tablett entfernen
+                while (tray.firstChild) {
+                    tray.removeChild(tray.firstChild);
+                }
+                setTimeout(() => {
+                    // Generiere neue Kunden nach 2 Sekunden
+                    generateCustomers();
+                }, 2000);
             } else {
+                // Ungültiges Gericht zurück auf das Tablett legen
+                tray.innerHTML = '';
+                ingredientsOnTray.forEach(id => {
+                    const ingredientElement = document.getElementById(id);
+                    tray.appendChild(ingredientElement.cloneNode(true));
+                });
                 document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
             }
         }
@@ -215,42 +257,9 @@
             document.getElementById('message').innerText = `Zubereitung: ${dish}`;
         }
 
-        // Touch Event Handler für Drag und Drop
-        document.querySelectorAll('.ingredient').forEach(item => {
-            item.addEventListener('touchstart', dragStart);
-            item.addEventListener('touchmove', dragMove);
-            item.addEventListener('touchend', dragEnd);
-        });
-
-        function dragStart(event) {
-            const touch = event.touches[0];
-            const ingredientId = this.id;
-            event.dataTransfer.setData("text", ingredientId);
-            event.dataTransfer.effectAllowed = "move";
-            // Speichere die Position des Touches
-            this.style.position = 'absolute';
-            this.style.left = touch.pageX - (this.offsetWidth / 2) + 'px';
-            this.style.top = touch.pageY - (this.offsetHeight / 2) + 'px';
-        }
-
-        function dragMove(event) {
-            const touch = event.touches[0];
-            // Bewege das Element mit dem Finger
-            this.style.left = touch.pageX - (this.offsetWidth / 2) + 'px';
-            this.style.top = touch.pageY - (this.offsetHeight / 2) + 'px';
-        }
-
-        function dragEnd(event) {
-            // Bei Touch-Ende wird die Zutat wieder auf die ursprüngliche Position gebracht
-            this.style.position = '';
-            this.style.left = '';
-            this.style.top = '';
-        }
-
-        // Initialisiere Zutaten und Kunden
+        // Initialisiere das Spiel
         createIngredients();
         generateCustomers();
     </script>
-
 </body>
 </html>
