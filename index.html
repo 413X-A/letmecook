@@ -77,6 +77,14 @@
             border: none;
             font-size: 1em;
         }
+        .prepare-button {
+            margin: 10px;
+            padding: 10px;
+            background-color: #4CAF50; /* Grüne Farbe für den Button */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
         #message {
             margin: 20px;
             font-size: 1.5em;
@@ -102,7 +110,9 @@
         <div id="customers"></div>
         <div id="trays">
             <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <button class="prepare-button" onclick="prepareDish('tray1')">Zubereiten</button>
             <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <button class="prepare-button" onclick="prepareDish('tray2')">Zubereiten</button>
         </div>
         <button id="garbage" onclick="clearTrays()">Mülleimer</button>
         <div id="ingredients"></div>
@@ -194,6 +204,7 @@
                 setTimeout(generateCustomers, 2000);
             } else {
                 tray.innerHTML = tray.innerHTML; // Revert to original ingredients
+                document.getElementById('message').innerText = 'Das Gericht ist nicht korrekt!';
             }
         }
 
@@ -201,7 +212,7 @@
             document.getElementById('message').innerText = `Zubereitung: ${dish}`;
         }
 
-        // Touch Event Handler für Drag and Drop
+        // Touch Event Handler für Drag und Drop
         document.querySelectorAll('.ingredient').forEach(item => {
             item.addEventListener('touchstart', dragStart);
             item.addEventListener('touchmove', dragMove);
