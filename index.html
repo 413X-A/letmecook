@@ -211,6 +211,7 @@
             dishDiv.textContent = dish;
             dishDiv.draggable = true;
             dishDiv.ondragstart = (event) => event.dataTransfer.setData("dish", dish); // Gericht drag-fähig machen
+            dishDiv.ondrop = (event) => dropDishOnCustomer(event, dish); // Gericht zu einem Kunden ziehen
             document.getElementById(`tabletItems${tabletNumber}`).appendChild(dishDiv);
         }
 
@@ -224,6 +225,22 @@
                 document.getElementById("tabletItems2").innerHTML = '';
             }
             document.getElementById("message").textContent = "";
+        }
+
+        // Funktion, um das Gericht auf einen Kundenbereich zu ziehen
+        function dropDishOnCustomer(event, dish) {
+            event.preventDefault();
+            const customerIndex = customers.findIndex(customer => customer.order === dish);
+            
+            if (customerIndex >= 0) {
+                document.getElementById("message").textContent = `Kunde ${customers[customerIndex].id} hat sein Gericht erhalten!`;
+                document.getElementById(customers[customerIndex].id).style.display = "none"; // Kunde ausblenden
+                customers.splice(customerIndex, 1); // Kunde aus der Liste entfernen
+                setTimeout(addNewCustomer, 2000); // Neuen Kunden nach 2 Sekunden hinzufügen
+                clearTablet(1); // Tablet leeren
+            } else {
+                document.getElementById("message").textContent = "Das Gericht entspricht nicht der Bestellung.";
+            }
         }
 
         // Funktion zum Hinzufügen eines neuen Kunden
