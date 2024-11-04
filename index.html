@@ -189,6 +189,7 @@
 
     function startDragDesktop(event, ingredient) {
         draggedIngredient = ingredient;
+        event.dataTransfer.setData("text/plain", ingredient); // Set data for desktop drag
     }
 
     function allowDrop(event) {
@@ -322,7 +323,6 @@
     // Starte das Spiel mit 1 Kunden
     newCustomer();
 </script>
-
 
 
 </body>
