@@ -23,6 +23,7 @@
             display: flex;
             justify-content: space-around;
             margin: 10px 0;
+            position: relative; /* Position für Kunden */
         }
         .customer {
             width: 70px;
@@ -250,9 +251,13 @@
 
         customers.push({ id: customerId, patience: patience });
         renderCustomers();
+
+        // Setze Geduld für neue Kunden
+        if (!patienceDecreaseInterval) {
+            decreasePatience();
+        }
     }
 
-    // Kunden initial erstellen
     function createCustomer(customerId) {
         const customerDiv = document.createElement("div");
         customerDiv.className = "customer";
@@ -264,7 +269,6 @@
         const customersDiv = document.getElementById("customers");
         customersDiv.innerHTML = ""; // Leeren der Kundenanzeige
         customers.forEach(customer => createCustomer(customer.id));
-        decreasePatience();
     }
 
     // Geduld verringern
@@ -301,6 +305,22 @@
             itemDiv.innerText = item;
             tabletItemsContainer.appendChild(itemDiv);
         });
+    }
+
+    function dropDishToCustomer(event) {
+        event.preventDefault();
+        if (event.dataTransfer.getData("ingredient")) {
+            const preparedDish = event.dataTransfer.getData("ingredient");
+            const customerDiv = document.createElement("div");
+            customerDiv.innerText = preparedDish;
+
+            event.target.appendChild(customerDiv);
+            showMessage(`Gericht ${preparedDish} wurde serviert!`);
+
+            // Kunde entfernen
+            customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
+            renderCustomers();
+        }
     }
 
     function showMessage(message) {
