@@ -27,6 +27,8 @@
         .customer {
             width: 70px;
             text-align: center;
+            border: 2px solid transparent;
+            border-radius: 5px;
         }
         .customer img {
             width: 50px;
@@ -99,6 +101,16 @@
             margin-top: 10px;
             font-size: 14px;
         }
+        #preparedDish {
+            margin-top: 10px;
+            width: 70px;
+            height: 70px;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            background-size: cover;
+            display: none;
+            cursor: grab;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +129,9 @@
 
     <!-- Button zum Zubereiten -->
     <button class="button" onclick="prepareDish()">Gericht Zubereiten</button>
+
+    <!-- Bereich für fertiges Gericht -->
+    <div id="preparedDish" ondragstart="startDragDish(event)" draggable="true"></div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
@@ -154,6 +169,7 @@
         "Sandwich": ["Brot", "Käse", "Salat"]
     };
     const randomDishes = ["Burger", "Salat", "Sandwich"];
+    let preparedDishName = "";
 
     function initializeGame() {
         for (let i = 0; i < 3; i++) {
@@ -172,6 +188,8 @@
         bubble.textContent = dish;
         customerDiv.appendChild(img);
         customerDiv.appendChild(bubble);
+        customerDiv.ondrop = (event) => dropDishOnCustomer(event, dish, customerDiv);
+        customerDiv.ondragover = allowDrop;
         document.getElementById("customers").appendChild(customerDiv);
     }
 
@@ -201,9 +219,12 @@
             JSON.stringify(tabletContents.sort()) === JSON.stringify(recipes[dish].sort())
         );
         if (preparedDish) {
-            showMessage(`${preparedDish} zubereitet!`);
+            preparedDishName = preparedDish;
+            const preparedDishDiv = document.getElementById("preparedDish");
+            preparedDishDiv.style.backgroundImage = `url(${preparedDish.toLowerCase()}.png)`;
+            preparedDishDiv.style.display = "block";
             clearTablet();
-            serveDish(preparedDish);
+            showMessage(`${preparedDish} zubereitet! Ziehe das Gericht zum Kunden.`);
         } else {
             showMessage("Zutaten sind nicht korrekt!");
         }
@@ -214,14 +235,20 @@
         document.getElementById("tabletItems").innerHTML = "";
     }
 
-    function serveDish(dish) {
-        const customers = document.querySelectorAll(".customer");
-        customers.forEach(customer => {
-            if (customer.querySelector(".bubble").textContent === dish) {
-                customer.remove();
-                showMessage(`${dish} serviert!`);
-            }
-        });
+    function startDragDish(event) {
+        event.dataTransfer.setData("text", preparedDishName);
+    }
+
+    function dropDishOnCustomer(event, requestedDish, customerDiv) {
+        event.preventDefault();
+        const dish = event.dataTransfer.getData("text");
+        if (dish === requestedDish) {
+            customerDiv.remove();
+            document.getElementById("preparedDish").style.display = "none";
+            showMessage(`${dish} erfolgreich serviert!`);
+        } else {
+            showMessage("Das Gericht stimmt nicht überein!");
+        }
     }
 
     function showMessage(text) {
