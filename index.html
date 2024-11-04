@@ -430,36 +430,5 @@
             tabletItemsContainer.innerHTML = "";
 
     window.onload = initializeGame;
-</script>
-            tabletContents[tabletId].forEach(item => {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = "ingredient-framed";
-                itemDiv.style.backgroundImage = `url(${getImageURL(item)})`;
-                itemDiv.style.backgroundSize = "cover";
-                tabletItemsContainer.appendChild(itemDiv);
-            });
-        }
-        function getImageURL(item) {
-            switch (item) {
-                case 'Brot': return 'brot.png';
-                case 'Fleisch': return 'fleisch.png';
-                case 'Salat': return 'salat.png';
-                case 'Tomate': return 'tomate.png';
-                case 'Käse': return 'kaese.png';
-                case 'Burger': return 'burger.png';
-                case 'Salat': return 'salat_dish.png';
-                case 'Sandwich': return 'sandwich.png';
-                default: return '';
-            }
-        }
-        function showMessage(message) {
-            document.getElementById("message").innerText = message;
-            setTimeout(() => {
-                document.getElementById("message").innerText = "";
-            }, 3000);
-        }
-
-        newCustomer();
-    </script>
 </body>
 </html>
