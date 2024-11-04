@@ -176,29 +176,6 @@
             }
         }
 
-        function dropToCustomer(event, expectedDish) {
-            event.preventDefault();
-            const tray = document.getElementById('tray1');
-            const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
-            const matchedDish = Object.keys(recipes).find(dish => {
-                return recipes[dish].every(item => ingredientsOnTray.includes(item));
-            });
-
-            if (matchedDish === expectedDish) {
-                // Gericht im Tablett anzeigen
-                displayDish(matchedDish);
-                // Erstelle ein draggable Gericht für die Übergabe
-                createDishObject(matchedDish);
-                // Entferne den Kunden nach 2 Sekunden
-                setTimeout(() => {
-                    customers.shift(); // Entferne den Kunden aus dem Array
-                    generateCustomers(); // Erzeuge neue Kunden
-                }, 2000);
-            } else {
-                document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
-            }
-        }
-
         function createIngredients() {
             const ingredientsDiv = document.getElementById('ingredients');
             ingredientNames.forEach(name => {
@@ -251,19 +228,14 @@
             const dishElement = document.createElement('div');
             dishElement.className = "ingredient";
             dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
-            dishElement.style.width = '70%';
-            dishElement.style.height = '70%';
+            dishElement.style.width = '40px'; // Setze die Breite des Gerichts
+            dishElement.style.height = '40px'; // Setze die Höhe des Gerichts
             dishElement.setAttribute('draggable', true);
             dishElement.setAttribute('id', dish.toLowerCase()); // Füge eine ID für das Gericht hinzu
             dishElement.ondragstart = (event) => {
                 event.dataTransfer.setData("text", dish.toLowerCase());
             };
             tray.appendChild(dishElement);
-        }
-
-        function displayDish(dish) {
-            const tray = document.getElementById('tray1');
-            tray.innerHTML = `<div class="ingredient" style="background-image: url('${dish.toLowerCase()}.png'); width: 70%; height: 70%;"></div>`;
         }
 
         // Initialisiere das Spiel
