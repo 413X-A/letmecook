@@ -68,13 +68,6 @@
             border: 2px solid #eee;
             border-radius: 10px;
         }
-        .ingredient-framed {
-            border: 2px solid #007bff; /* Rahmenfarbe */
-            padding: 5px; /* Abstand zum Rand */
-            border-radius: 10px; /* Abrundung */
-            display: inline-block; /* Damit die Rahmen korrekt angezeigt werden */
-            position: relative; /* Ermöglicht die absolute Positionierung innerhalb */
-        }
         .tablet {
             width: 45%;
             height: 60px;
@@ -119,30 +112,30 @@
 
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet1')" draggable="true">Tablet 1</div>
-        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">Tablet 2</div>
+        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">Tablet 1</div>
+        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)">Tablet 2</div>
     </div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
-        <div class="ingredient-container" ontouchstart="startDrag('Brot')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
-            <div class="ingredient"><img src="brot.png" class="ingredient" alt="Brot"></div>
+        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
+            <div class="ingredient" style="background-image: url('brot.png');"></div>
             <div class="ingredient-label">Brot</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Fleisch')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
-            <div class="ingredient"><img src="fleisch.png" class="ingredient" alt="Fleisch"></div>
+        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
+            <div class="ingredient" style="background-image: url('fleisch.png');"></div>
             <div class="ingredient-label">Fleisch</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Salat')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
-            <div class="ingredient"><img src="salat.png" class="ingredient" alt="Salat"></div>
+        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
+            <div class="ingredient" style="background-image: url('salat.png');"></div>
             <div class="ingredient-label">Salat</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Tomate')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
-            <div class="ingredient"><img src="tomate.png" class="ingredient" alt="Tomate"></div>
+        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
+            <div class="ingredient" style="background-image: url('tomate.png');"></div>
             <div class="ingredient-label">Tomate</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Käse')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
-            <div class="ingredient"><img src="kaese.png" class="ingredient" alt="Käse"></div>
+        <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
+            <div class="ingredient" style="background-image: url('kaese.png');"></div>
             <div class="ingredient-label">Käse</div>
         </div>
     </div>
@@ -157,20 +150,16 @@
     let tabletContents = { tablet1: [], tablet2: [] };
     let customers = [];
 
+    // Initialisiere 3 Kunden
+    function initializeCustomers() {
+        for (let i = 0; i < 3; i++) {
+            newCustomer();
+        }
+    }
+
     // Touch-Event-Handler
     function startDrag(ingredient) {
         draggedIngredient = ingredient;
-    }
-
-    function endDrag(event) {
-        const touch = event.changedTouches[0];
-        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
-
-        if (targetElement && targetElement.classList.contains("tablet")) {
-            const tabletId = targetElement.id;
-            dropIngredient(tabletId);
-        }
-        draggedIngredient = null;
     }
 
     // Desktop-Event-Handler
@@ -192,17 +181,8 @@
         if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
             tabletContents[tabletId].push(draggedIngredient);
 
-            const framedIngredient = document.createElement("div");
-            framedIngredient.classList.add("ingredient-framed");
-            framedIngredient.innerText = draggedIngredient; 
-            framedIngredient.setAttribute("draggable", "true");
-            framedIngredient.ondragstart = function (event) {
-                event.dataTransfer.setData("ingredient", draggedIngredient);
-            };
-
-            // Hinzufügen der eingerahmten Zutat zum Tablett
-            document.getElementById(tabletId).appendChild(framedIngredient);
-            document.getElementById(tabletId).innerText = "Inhalt auf " + tabletId;
+            // Hinzufügen der Zutat zum Tablett
+            document.getElementById(tabletId).innerText = tabletContents[tabletId].join(", ");
         }
     }
 
@@ -279,6 +259,9 @@
             messageDiv.innerText = '';
         }, 3000);
     }
+
+    // Starte das Spiel mit 3 Kunden
+    initializeCustomers();
 </script>
 
 </body>
