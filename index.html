@@ -3,236 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kunden und Gerichte</title>
+    <title>Let Me Cook</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f8f8;
         }
-        #customers {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
+        #header {
+            font-size: 2em;
+            margin: 20px 0;
         }
         .customer {
-            position: relative;
-            width: 100px;
-            text-align: center;
-        }
-        .bubble {
-            display: inline-block;
-            background-color: #f2f2f2;
-            border-radius: 10px;
-            padding: 5px;
-            margin-top: 5px;
-        }
-        .patience-container {
-            width: 100px;
-            height: 10px;
-            background-color: #ccc;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-        .patience-bar {
-            height: 100%;
-            background-color: green;
-            transition: width 1s linear;
-        }
-        .tablet {
-            border: 2px solid #ccc;
-            width: 200px;
+            background-image: url('customer.png');
+            width: 150px;
             height: 150px;
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+        }
+        .customer-name {
+            position: absolute;
+            bottom: 40px;
+            left: 10px;
+            color: white;
+        }
+        .customer-order {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+        }
+        .tray {
+            width: 200px;
+            height: 100px;
+            border: 2px dashed #333;
+            display: inline-block;
             margin: 20px;
             position: relative;
         }
-        .tablet .ingredients {
-            height: 100px;
-            overflow-y: auto;
-        }
-        .ingredient, .dish {
-            padding: 5px;
-            background-color: #e0e0e0;
+        .ingredient {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
             margin: 5px;
-            border-radius: 5px;
-            cursor: move;
+            background-color: #eee;
+            cursor: pointer;
+        }
+        #garbage {
+            margin: 20px;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            font-size: 1em;
         }
         #message {
-            margin-top: 20px;
-            font-weight: bold;
+            margin: 20px;
+            font-size: 1.5em;
         }
     </style>
 </head>
 <body>
-    <h1>Kunden und Gerichte</h1>
-    <!-- Kundenbereich -->
-    <div id="customers">
-        <div class="customer" id="customer1">
-            <img src="customer.png" alt="Kunde 1">
-            <div class="bubble" data-order="Burger">Burger</div>
-            <div class="patience-container">
-                <div class="patience-bar" id="patience1" style="width: 100%;"></div>
-            </div>
-        </div>
-        <div class="customer" id="customer2">
-            <img src="customer.png" alt="Kunde 2">
-            <div class="bubble" data-order="Salat">Salat</div>
-            <div class="patience-container">
-                <div class="patience-bar" id="patience2" style="width: 100%;"></div>
-            </div>
-        </div>
-        <div class="customer" id="customer3">
-            <img src="customer.png" alt="Kunde 3">
-            <div class="bubble" data-order="Sandwich">Sandwich</div>
-            <div class="patience-container">
-                <div class="patience-bar" id="patience3" style="width: 100%;"></div>
-            </div>
-        </div>
+
+    <div id="header">Let Me Cook</div>
+    <div id="customers"></div>
+    <div id="trays">
+        <div class="tray" id="tray1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="tray" id="tray2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
     </div>
-    
-    <!-- Tablets -->
-    <div id="tablets">
-        <div class="tablet" id="tablet1" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
-            <div class="ingredients" id="tabletItems1"></div>
-            <button onclick="prepareDish(1)">Zubereiten</button>
-        </div>
-        <div class="tablet" id="tablet2" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
-            <div class="ingredients" id="tabletItems2"></div>
-            <button onclick="prepareDish(2)">Zubereiten</button>
-        </div>
-    </div>
-    
+    <button id="garbage" onclick="clearTrays()">Mülleimer</button>
+    <div id="ingredients"></div>
     <div id="message"></div>
 
     <script>
-    const recipes = {
-        'Burger': ['Brot', 'Fleisch', 'Salat'],
-        'Salat': ['Salat', 'Tomate', 'Käse'],
-        'Sandwich': ['Brot', 'Käse', 'Tomate']
-    };
-    
-    let tablet1Items = [];
-    let tablet2Items = [];
-    let preparedDish = null;  // Speichert das aktuelle Gericht nach der Zubereitung
-    let customerCount = 3; // Anzahl der Kunden, die gestartet sind
+        const recipes = {
+            'Burger': ['brot', 'fleisch', 'kaese', 'tomate', 'salat'],
+            'Sandwich': ['brot', 'kaese', 'salat', 'tomate'],
+            'Mischsalat': ['tomate', 'salat']
+        };
+        let customers = [];
+        const ingredientNames = ['brot', 'fleisch', 'kaese', 'salat', 'tomate'];
 
-    // Funktion zum Starten des Draggens
-    function startDrag(event, ingredient) {
-        event.dataTransfer.setData("ingredient", ingredient);
-    }
-    
-    // Funktion zum Erlauben des Drop auf einem Tablet oder Kundenbereich
-    function allowDrop(event) {
-        event.preventDefault();
-    }
-
-    // Funktion zum Droppen der Zutat auf ein Tablet
-    function dropIngredient(event) {
-        event.preventDefault();
-        const ingredient = event.dataTransfer.getData("ingredient");
-        const tabletItemsId = event.target.id === "tablet1" ? "tabletItems1" : "tabletItems2";
-        const tabletArray = event.target.id === "tablet1" ? tablet1Items : tablet2Items;
-
-        // Zutat zur Tablet-Liste hinzufügen, wenn sie nicht bereits vorhanden ist
-        if (!tabletArray.includes(ingredient)) {
-            tabletArray.push(ingredient);
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "ingredient";
-            itemDiv.textContent = ingredient;
-            document.getElementById(tabletItemsId).appendChild(itemDiv);
+        function generateCustomers() {
+            customers = [];
+            for (let i = 0; i < 3; i++) {
+                const randomName = 'Kunde ' + (i + 1);
+                const randomDish = Object.keys(recipes)[Math.floor(Math.random() * Object.keys(recipes).length)];
+                customers.push({ name: randomName, dish: randomDish });
+            }
+            displayCustomers();
         }
-    }
 
-    // Funktion zur Vorbereitung des Gerichts
-    function prepareDish() {
-        preparedDish = getPreparedDish(tablet1Items);
-        
-        if (preparedDish) {
-            document.getElementById("message").textContent = `Gericht ${preparedDish} zubereitet!`;
-            displayDishOnTablet(preparedDish);  // Gericht im Tablet anzeigen
-            clearTablet();  // Zutaten entfernen
-        } else {
-            document.getElementById("message").textContent = "Die Zutaten passen zu keinem Rezept.";
+        function displayCustomers() {
+            const customerDiv = document.getElementById('customers');
+            customerDiv.innerHTML = '';
+            customers.forEach(customer => {
+                customerDiv.innerHTML += `
+                    <div class="customer">
+                        <div class="customer-name">${customer.name}</div>
+                        <div class="customer-order">${customer.dish}</div>
+                    </div>
+                `;
+            });
         }
-    }
 
-    // Funktion, um zu prüfen, ob die Zutaten zu einem Rezept gehören
-    function getPreparedDish(tabletItems) {
-        for (const [dish, ingredients] of Object.entries(recipes)) {
-            if (ingredients.length === tabletItems.length && ingredients.every(item => tabletItems.includes(item))) {
-                return dish;
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const ingredientId = event.dataTransfer.getData("text");
+            const ingredientElement = document.getElementById(ingredientId);
+            event.target.appendChild(ingredientElement);
+        }
+
+        function createIngredients() {
+            const ingredientsDiv = document.getElementById('ingredients');
+            ingredientNames.forEach(name => {
+                ingredientsDiv.innerHTML += `
+                    <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name}.png');">
+                    </div>
+                `;
+            });
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function clearTrays() {
+            document.querySelectorAll('.tray').forEach(tray => {
+                tray.innerHTML = '';
+            });
+            document.getElementById('message').innerText = '';
+        }
+
+        function prepareDish(trayId) {
+            const tray = document.getElementById(trayId);
+            const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
+            const matchedDish = Object.keys(recipes).find(dish => {
+                return recipes[dish].every(item => ingredientsOnTray.includes(item));
+            });
+            if (matchedDish) {
+                displayDish(matchedDish);
+                tray.innerHTML = '';
+                setTimeout(generateCustomers, 2000);
+            } else {
+                tray.innerHTML = tray.innerHTML; // Revert to original ingredients
             }
         }
-        return null;
-    }
 
-    // Funktion, um das Gericht auf dem Tablet anzuzeigen und drag-fähig zu machen
-    function displayDishOnTablet(dish) {
-        const dishDiv = document.createElement("div");
-        dishDiv.className = "dish";
-        dishDiv.textContent = dish;
-        dishDiv.draggable = true;
-        dishDiv.ondragstart = (event) => event.dataTransfer.setData("dish", dish); // Gericht drag-fähig machen
-        document.getElementById("tabletItems1").appendChild(dishDiv);
-    }
-
-    // Funktion, um die Tablets zu leeren
-    function clearTablet() {
-        tablet1Items = [];
-        tablet2Items = [];
-        document.getElementById("tabletItems1").innerHTML = '';
-        document.getElementById("tabletItems2").innerHTML = '';
-        document.getElementById("message").textContent = "";
-    }
-
-    // Funktion, um das Gericht auf einen Kundenbereich zu ziehen
-    function dropDishOnCustomer(event, customerOrder, customerId) {
-        event.preventDefault();
-        const dish = event.dataTransfer.getData("dish");
-        
-        if (dish === customerOrder) {
-            document.getElementById("message").textContent = `Kunde ${customerId} hat sein Gericht erhalten!`;
-            document.getElementById(customerId).style.display = "none"; // Kunde ausblenden
-            clearTablet();  // Tablet leeren
-            setTimeout(() => {
-                addNewCustomer(); // Neuen Kunden nach 2 Sekunden hinzufügen
-            }, 2000);
-        } else {
-            document.getElementById("message").textContent = "Das Gericht entspricht nicht der Bestellung.";
+        function displayDish(dish) {
+            document.getElementById('message').innerText = `Zubereitung: ${dish}`;
         }
-    }
 
-    // Funktion zum Hinzufügen eines neuen Kunden
-    function addNewCustomer() {
-        customerCount++;
-        const newCustomer = document.createElement('div');
-        newCustomer.classList.add('customer');
-        newCustomer.id = `customer${customerCount}`;
-        newCustomer.innerHTML = `
-            <img src="customer.png" alt="Kunde ${customerCount}">
-            <div class="bubble" ondrop="dropDishOnCustomer(event, this.getAttribute('data-order'), 'customer${customerCount}')" ondragover="allowDrop(event)">
-                <span></span>
-            </div>
-        `;
-        document.getElementById('customers').appendChild(newCustomer);
-        generateRandomOrders(`customer${customerCount}`); // Zufällige Bestellung generieren
-    }
-
-    // Funktion zum Generieren zufälliger Bestellungen
-    function generateRandomOrders(customerId) {
-        const randomIndex = Math.floor(Math.random() * Object.keys(recipes).length);
-        const randomDish = Object.keys(recipes)[randomIndex];
-        const customerBubble = document.querySelector(`#${customerId} .bubble`);
-        customerBubble.textContent = randomDish; // Setze den Text der Blase auf das zufällige Gericht
-        customerBubble.setAttribute('data-order', randomDish); // Speichere das Gericht in einem Datenattribut
-    }
-
-    // Bei Seitenladung zufällige Bestellungen generieren
-    window.onload = function() {
-        for (let i = 1; i <= customerCount; i++) {
-            generateRandomOrders(`customer${i}`);
-        }
-    };
-</script>
-
+        createIngredients();
+        generateCustomers();
+    </script>
 </body>
 </html>
