@@ -134,8 +134,8 @@
 
         function generateCustomers() {
             customers = [];
-            for (let i = 0; i < 3; i++) {
-                const randomName = 'Kunde ' + (i + 1);
+            for (let i = 0; i < 1; i++) { // Generiere nur 1 neuen Kunden
+                const randomName = 'Kunde ' + (customers.length + 1);
                 const randomDish = Object.keys(recipes)[Math.floor(Math.random() * Object.keys(recipes).length)];
                 customers.push({ name: randomName, dish: randomDish });
             }
@@ -232,18 +232,26 @@
             dishElement.style.height = '40px'; // Setze die Höhe des Gerichts
             dishElement.setAttribute('draggable', true);
             dishElement.setAttribute('id', dish.toLowerCase()); // Füge eine ID für das Gericht hinzu
-            dishElement.ondragstart = (event) => {
-                event.dataTransfer.setData("text", dish.toLowerCase());
-            };
+            dishElement.addEventListener('dragstart', drag);
+
             tray.appendChild(dishElement);
         }
 
         function displayDish(dish) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `Gericht zubereitet: <strong>${dish}</strong>. Ziehe es zu einem Kunden!`;
+            const tray = document.getElementById('tray1');
+            const dishElement = document.createElement('div');
+            dishElement.innerText = dish; // Text für das Gericht anzeigen
+            dishElement.className = "ingredient";
+            dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
+            dishElement.style.width = '40px';
+            dishElement.style.height = '40px';
+            dishElement.setAttribute('draggable', true);
+            dishElement.setAttribute('id', dish.toLowerCase());
+            dishElement.addEventListener('dragstart', drag);
+            tray.appendChild(dishElement);
         }
 
-        // Kunde mit dem Gericht verbinden
+        // Übergabe des Gerichts an den Kunden
         document.addEventListener('dragend', function(event) {
             const dishId = event.dataTransfer.getData("text");
             const dishElement = document.getElementById(dishId);
@@ -252,9 +260,12 @@
                 const customerDiv = document.getElementById(customer.name);
                 const customerOrder = customer.dish.toLowerCase();
                 if (customerOrder === dishId) {
-                    customerDiv.remove(); // Kunde entfernen, wenn das Gericht passt
+                    customerDiv.remove(); // Entferne den Kunden
                     document.getElementById('message').innerText = `${customer.name} hat das Gericht angenommen!`;
                     document.getElementById('tray1').removeChild(dishElement); // Gericht entfernen
+
+                    // Generiere nach 2 Sekunden einen neuen Kunden
+                    setTimeout(generateCustomers, 2000);
                 }
             });
         });
