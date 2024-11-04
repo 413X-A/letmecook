@@ -88,7 +88,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column; /* Vertikale Ausrichtung */
         }
         .button {
             margin-top: 5px;
@@ -120,30 +119,30 @@
 
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">Tablet 1</div>
-        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)">Tablet 2</div>
+        <div id="tablet1" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet1')" draggable="true">Tablet 1</div>
+        <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">Tablet 2</div>
     </div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
         <div class="ingredient-container" ontouchstart="startDrag('Brot')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
-            <div class="ingredient" style="background-image: url('brot.png');"></div>
+            <div class="ingredient"><img src="brot.png" class="ingredient" alt="Brot"></div>
             <div class="ingredient-label">Brot</div>
         </div>
         <div class="ingredient-container" ontouchstart="startDrag('Fleisch')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
-            <div class="ingredient" style="background-image: url('fleisch.png');"></div>
+            <div class="ingredient"><img src="fleisch.png" class="ingredient" alt="Fleisch"></div>
             <div class="ingredient-label">Fleisch</div>
         </div>
         <div class="ingredient-container" ontouchstart="startDrag('Salat')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
-            <div class="ingredient" style="background-image: url('salat.png');"></div>
+            <div class="ingredient"><img src="salat.png" class="ingredient" alt="Salat"></div>
             <div class="ingredient-label">Salat</div>
         </div>
         <div class="ingredient-container" ontouchstart="startDrag('Tomate')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
-            <div class="ingredient" style="background-image: url('tomate.png');"></div>
+            <div class="ingredient"><img src="tomate.png" class="ingredient" alt="Tomate"></div>
             <div class="ingredient-label">Tomate</div>
         </div>
         <div class="ingredient-container" ontouchstart="startDrag('Käse')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
-            <div class="ingredient" style="background-image: url('kaese.png');"></div>
+            <div class="ingredient"><img src="kaese.png" class="ingredient" alt="Käse"></div>
             <div class="ingredient-label">Käse</div>
         </div>
     </div>
@@ -190,10 +189,9 @@
 
     // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
     function dropIngredient(tabletId) {
-        if (draggedIngredient && tabletContents[tabletId].length < 4) {
+        if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
             tabletContents[tabletId].push(draggedIngredient);
 
-            // Hinzufügen der eingerahmten Zutat zum Tablett
             const framedIngredient = document.createElement("div");
             framedIngredient.classList.add("ingredient-framed");
             framedIngredient.innerText = draggedIngredient; 
@@ -202,16 +200,10 @@
                 event.dataTransfer.setData("ingredient", draggedIngredient);
             };
 
-            // Zeigt den Inhalt des Tabletts an
-            const tabletDiv = document.getElementById(tabletId);
-            tabletDiv.appendChild(framedIngredient);
-            updateTabletContent(tabletId);
+            // Hinzufügen der eingerahmten Zutat zum Tablett
+            document.getElementById(tabletId).appendChild(framedIngredient);
+            document.getElementById(tabletId).innerText = "Inhalt auf " + tabletId;
         }
-    }
-
-    function updateTabletContent(tabletId) {
-        const tabletDiv = document.getElementById(tabletId);
-        tabletDiv.innerText = tabletContents[tabletId].length ? "Inhalt auf " + tabletId : tabletId;
     }
 
     function isDishPrepared(tabletId) {
@@ -235,6 +227,8 @@
         }
 
         if (preparedDish) {
+            document.getElementById(tabletId).innerText = preparedDish;
+            tabletContents[tabletId] = [preparedDish];
             showMessage(`${preparedDish} zubereitet!`);
         } else {
             showMessage("Zutaten sind nicht korrekt!");
@@ -273,8 +267,8 @@
     // Alle Tablets leeren
     function clearTablets() {
         tabletContents = { tablet1: [], tablet2: [] };
-        document.getElementById("tablet1").innerHTML = "Tablet 1";
-        document.getElementById("tablet2").innerHTML = "Tablet 2";
+        document.getElementById("tablet1").innerText = "Tablet 1";
+        document.getElementById("tablet2").innerText = "Tablet 2";
         showMessage("Alle Tablets wurden geleert!");
     }
 
