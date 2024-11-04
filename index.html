@@ -21,7 +21,7 @@
         }
         #customers {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             margin: 10px 0;
         }
         .customer {
@@ -69,7 +69,12 @@
             border-radius: 10px;
         }
         .tablet {
-            display: none; /* Tablet entfernt */
+            width: 100%;
+            height: 50px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-top: 10px;
         }
         .button {
             margin-top: 5px;
@@ -97,7 +102,7 @@
     <h1>Kochspiel</h1>
 
     <!-- Kundenbereich -->
-    <div id="customers" ondrop="dropDishToCustomer(event)" ondragover="allowDrop(event)"></div>
+    <div id="customers"></div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
@@ -122,6 +127,8 @@
             <div class="ingredient-label">Käse</div>
         </div>
     </div>
+
+    <div class="tablet"></div> <!-- Tablett bleibt vorhanden -->
 
     <button class="button" onclick="newCustomer()">Neuer Kunde</button>
     <button class="button" onclick="clearTablets()">Mülleimer</button>
@@ -164,7 +171,11 @@
             const requestedDish = getRandomDish(); // Zufälliges Gericht anfordern
             customers.push({ id: customerId, patience, requestedDish });
             updateCustomerDisplay();
-            startPatienceDecrease(customerId, patience);
+
+            if (customers.length === 1) { // Geduld nur für den ersten Kunden verringern
+                startPatienceDecrease(customerId, patience);
+            }
+
             showMessage(`${customerId} fordert ein ${requestedDish}!`);
         } else {
             showMessage("Maximale Anzahl an Kunden erreicht!");
@@ -232,10 +243,8 @@
         }, 3000);
     }
 
-    // Starte das Spiel mit 3 Kunden
-    for (let i = 0; i < 3; i++) {
-        newCustomer();
-    }
+    // Starte das Spiel mit 1 Kunden
+    newCustomer();
 
 </script>
 
