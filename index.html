@@ -75,6 +75,22 @@
             border: 1px solid #ccc;
             border-radius: 10px;
             margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .tablet-items {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .tablet-item {
+            width: 50px;
+            height: 50px;
+            background-size: cover;
+            margin: 5px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
         }
         .button {
             margin-top: 5px;
@@ -104,6 +120,11 @@
     <!-- Kundenbereich -->
     <div id="customers"></div>
 
+    <!-- Tablett -->
+    <div class="tablet" ondrop="dropToTablet(event)" ondragover="allowDrop(event)">
+        <div class="tablet-items" id="tabletItems"></div>
+    </div>
+
     <!-- Zutatenbereich -->
     <div class="ingredients">
         <div class="ingredient-container" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
@@ -127,8 +148,6 @@
             <div class="ingredient-label">Käse</div>
         </div>
     </div>
-
-    <div class="tablet"></div> <!-- Tablett bleibt vorhanden -->
 
     <button class="button" onclick="newCustomer()">Neuer Kunde</button>
     <button class="button" onclick="clearTablets()">Mülleimer</button>
@@ -154,13 +173,21 @@
         event.preventDefault();
     }
 
-    function dropDishToCustomer(event) {
+    function dropToTablet(event) {
         event.preventDefault();
-        const dish = draggedIngredient;
-        if (customers.length > 0 && dish) {
-            processCustomerRequest(dish);
+        const ingredient = draggedIngredient;
+        if (ingredient) {
+            addIngredientToTablet(ingredient);
             draggedIngredient = null; // Dragging completed
         }
+    }
+
+    function addIngredientToTablet(ingredient) {
+        const tabletItemsContainer = document.getElementById("tabletItems");
+        const newItem = document.createElement("div");
+        newItem.className = "tablet-item";
+        newItem.style.backgroundImage = `url('${ingredient.toLowerCase()}.png')`; // Set image based on ingredient name
+        tabletItemsContainer.appendChild(newItem);
     }
 
     // Neuer Kunde erstellen
@@ -233,7 +260,10 @@
     }
 
     function clearTablets() {
-        showMessage("Das Tablett wurde entfernt!"); // Informiere den Benutzer
+        const tabletItemsContainer = document.get
+        tabletItemsContainer = document.getElementById("tabletItems");
+        tabletItemsContainer.innerHTML = ""; // Alle Elemente vom Tablett entfernen
+        showMessage("Das Tablett wurde geleert!");
     }
 
     function showMessage(message) {
@@ -245,7 +275,6 @@
 
     // Starte das Spiel mit 1 Kunden
     newCustomer();
-
 </script>
 
 </body>
