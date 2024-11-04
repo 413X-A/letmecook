@@ -116,31 +116,31 @@
 
     <!-- Tablett-Bereich -->
     <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-        <div id="tablet1" class="tablet" ontouchend="dropIngredient('tablet1')">Tablet 1</div>
-        <div id="tablet2" class="tablet" ontouchend="dropIngredient('tablet2')">Tablet 2</div>
+        <div id="tablet1" class="tablet" ontouchend="dropIngredient('tablet1')" ondrop="dropIngredientDesktop(event, 'tablet1')" ondragover="allowDrop(event)">Tablet 1</div>
+        <div id="tablet2" class="tablet" ontouchend="dropIngredient('tablet2')" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)">Tablet 2</div>
     </div>
     <button class="button" onclick="prepareDish('tablet1')">Zubereiten - Tablet 1</button>
     <button class="button" onclick="prepareDish('tablet2')">Zubereiten - Tablet 2</button>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
-        <div class="ingredient-container" ontouchstart="startDrag('Brot')" ontouchend="endDrag(event)">
+        <div class="ingredient-container" ontouchstart="startDrag('Brot')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Brot')">
             <div class="ingredient" style="background-image: url('brot.png');"></div>
             <div class="ingredient-label">Brot</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Fleisch')" ontouchend="endDrag(event)">
+        <div class="ingredient-container" ontouchstart="startDrag('Fleisch')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Fleisch')">
             <div class="ingredient" style="background-image: url('fleisch.png');"></div>
             <div class="ingredient-label">Fleisch</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Salat')" ontouchend="endDrag(event)">
+        <div class="ingredient-container" ontouchstart="startDrag('Salat')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Salat')">
             <div class="ingredient" style="background-image: url('salat.png');"></div>
             <div class="ingredient-label">Salat</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Tomate')" ontouchend="endDrag(event)">
+        <div class="ingredient-container" ontouchstart="startDrag('Tomate')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Tomate')">
             <div class="ingredient" style="background-image: url('tomate.png');"></div>
             <div class="ingredient-label">Tomate</div>
         </div>
-        <div class="ingredient-container" ontouchstart="startDrag('Käse')" ontouchend="endDrag(event)">
+        <div class="ingredient-container" ontouchstart="startDrag('Käse')" ontouchend="endDrag(event)" draggable="true" ondragstart="startDragDesktop(event, 'Käse')">
             <div class="ingredient" style="background-image: url('kaese.png');"></div>
             <div class="ingredient-label">Käse</div>
         </div>
@@ -154,6 +154,7 @@
     let tabletContents = { tablet1: [], tablet2: [] };
     let customers = [];
 
+    // Touch-Event-Handler
     function startDrag(ingredient) {
         draggedIngredient = ingredient;
     }
@@ -169,6 +170,21 @@
         draggedIngredient = null;
     }
 
+    // Desktop-Event-Handler
+    function startDragDesktop(event, ingredient) {
+        draggedIngredient = ingredient;
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function dropIngredientDesktop(event, tabletId) {
+        event.preventDefault();
+        dropIngredient(tabletId);
+    }
+
+    // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
     function dropIngredient(tabletId) {
         if (draggedIngredient && tabletContents[tabletId].length < 4) {
             tabletContents[tabletId].push(draggedIngredient);
@@ -176,6 +192,7 @@
         }
     }
 
+    // Gericht zubereiten
     function prepareDish(tabletId) {
         const recipes = {
             "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
@@ -200,10 +217,12 @@
         }
     }
 
+    // Hilfsfunktion zur Überprüfung von Arrays
     function arraysEqual(arr1, arr2) {
         return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
     }
 
+    // Funktion für neue Kunden
     function newCustomer() {
         const orders = ["Burger", "Salat", "Sandwich"];
         const order = orders[Math.floor(Math.random() * orders.length)];
@@ -230,11 +249,13 @@
         });
     }
 
+    // Kunden-Patienzanzeige aktualisieren
     setInterval(() => {
         customers = customers.map((c) => ({ ...c, patience: c.patience - 5 })).filter((c) => c.patience > 0);
         displayCustomers();
     }, 1000);
 
+    // Initial Kunden anzeigen
     for (let i = 0; i < 3; i++) newCustomer();
 </script>
 
