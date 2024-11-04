@@ -147,7 +147,7 @@
             customerDiv.innerHTML = '';
             customers.forEach(customer => {
                 customerDiv.innerHTML += `
-                    <div class="customer" id="${customer.name}" ondrop="dropToCustomer(event, '${customer.dish}')" ondragover="allowDrop(event)">
+                    <div class="customer" id="${customer.name}">
                         <div class="customer-image"></div>
                         <div class="customer-info">
                             <div class="customer-name">${customer.name}</div>
@@ -187,9 +187,10 @@
             if (matchedDish === expectedDish) {
                 // Gericht im Tablett anzeigen
                 displayDish(matchedDish);
+                // Erstelle ein draggable Gericht für die Übergabe
+                createDishObject(matchedDish);
                 // Entferne den Kunden nach 2 Sekunden
                 setTimeout(() => {
-                    document.getElementById(customers[0].name).remove(); // Entferne den aktuellen Kunden aus der Anzeige
                     customers.shift(); // Entferne den Kunden aus dem Array
                     generateCustomers(); // Erzeuge neue Kunden
                 }, 2000);
@@ -253,6 +254,7 @@
             dishElement.style.width = '70%';
             dishElement.style.height = '70%';
             dishElement.setAttribute('draggable', true);
+            dishElement.setAttribute('id', dish.toLowerCase()); // Füge eine ID für das Gericht hinzu
             dishElement.ondragstart = (event) => {
                 event.dataTransfer.setData("text", dish.toLowerCase());
             };
