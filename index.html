@@ -20,19 +20,25 @@
             background-color: #fff;
         }
     
-        #trash-bin {
-            width: 100px;
+        #trash {
+            width: 45%;
             height: 60px;
-            margin: 20px auto;
-            background-color: #e74c3c;
-            color: #fff;
+            margin: 10px 5px;
+            background-color: #ffcccc;
+            color: #333;
+            border-radius: 10px;
+            border: 1px solid #aaa;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
         }
+        #trash:hover {
+            background-color: #ff9999;
+        }
+
         #customers {
             display: flex;
             justify-content: space-around;
@@ -81,6 +87,13 @@
             background-size: cover;
             border: 2px solid #eee;
             border-radius: 10px;
+        }
+        .ingredient-framed {
+            border: 2px solid #007bff; /* Rahmenfarbe */
+            padding: 5px; /* Abstand zum Rand */
+            border-radius: 10px; /* Abrundung */
+            display: inline-block; /* Damit die Rahmen korrekt angezeigt werden */
+            position: relative; /* Ermöglicht die absolute Positionierung innerhalb */
         }
         .ingredient-label {
             font-size: 12px;
@@ -136,6 +149,9 @@
         <div id="tablet2" class="tablet" ondrop="dropIngredientDesktop(event, 'tablet2')" ondragover="allowDrop(event)" ondragstart="startDragDish(event, 'tablet2')" draggable="true">Tablet 2</div>
         <button class="button" onclick="prepareDish('tablet2')">Zubereiten</button>
     </div>
+
+    <!-- Mülleimer -->
+    <div id="trash" class="tablet" ondrop="discardIngredient(event)" ondragover="allowDrop(event)">🗑️ Mülleimer</div>
 
     <!-- Zutatenbereich -->
     <div class="ingredients">
@@ -200,18 +216,64 @@
     }
 
     // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
-    function dropIngredient(tabletId) {
-        // Prüfen, ob bereits ein fertiges Gericht auf dem Tablett ist
-        if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
-            tabletContents[tabletId].push(draggedIngredient);
-            document.getElementById(tabletId).innerText = tabletContents[tabletId].join(", ");
-        }
-    }
+    // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
+function dropIngredient(tabletId) {
+    // Prüfen, ob bereits ein fertiges Gericht auf dem Tablett ist
+    if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
+        // Zutat zur Liste der Tablett-Inhalte hinzufügen
+        tabletContents[tabletId].push(draggedIngredient);
 
-    function isDishPrepared(tabletId) {
-        return ["Burger", "Salat", "Sandwich"].includes(tabletContents[tabletId][0]);
-    }
+        // Zutat visuell einrahmen
+        const framedIngredient = document.createElement("div");
+        framedIngredient.classList.add("ingredient-framed");
+        framedIngredient.innerText = draggedIngredient; // Anzeigen des Zutatennamens
+        framedIngredient.setAttribute("draggable", "true"); // Ermöglichen des Drag-and-Drop
 
+        // Event-Handler für das Ziehen der eingerahmten Zutat
+        framedIngredient.ondragstart = function (event) {
+            event.dataTransfer.setData("ingredient", draggedIngredient);
+        };
+
+        // Hinzufügen der eingerahmten Zutat zum Tablett
+        document.getElementById(tabletId).appendChild(framedIngredient);
+        
+        // Den Text des Tablets aktualisieren
+        document.getElementById(tabletId).innerText = "Inhalt auf " + tabletId;
+    }
+}
+
+// Funktion um Zutaten von einem Tablet zu entfernen
+function removeIngredientFromTablet(tabletId, ingredient) {
+    tabletContents[tabletId] = tabletContents[tabletId].filter(i => i !== ingredient);
+    displayTabletContents(tabletId);
+}
+
+// Funktion um den Inhalt eines Tablets anzuzeigen
+function displayTabletContents(tabletId) {
+    const tablet = document.getElementById(tabletId);
+    tablet.innerHTML = ""; // Clear existing content
+
+    tabletContents[tabletId].forEach(ingredient => {
+        const framedIngredient = document.createElement("div");
+        framedIngredient.classList.add("ingredient-framed");
+        framedIngredient.innerText = ingredient;
+        framedIngredient.setAttribute("draggable", "true");
+        framedIngredient.ondragstart = function (event) {
+            event.dataTransfer.setData("ingredient", ingredient);
+        };
+
+        // Event-Handler für das Ziehen der eingerahmten Zutat
+        framedIngredient.onclick = function () {
+            removeIngredientFromTablet(tabletId, ingredient); // Zutat bei Klick entfernen
+        };
+
+        tablet.appendChild(framedIngredient);
+    });
+
+    if (tabletContents[tabletId].length === 0) {
+        tablet.innerText = `Tablet ${tabletId.charAt(tabletId.length - 1)}`; // Wenn leer
+    }
+}
     // Gericht zubereiten
     function prepareDish(tabletId) {
     const recipes = {
@@ -305,6 +367,23 @@
 
     // Initial Kunden anzeigen
     for (let i = 0; i < 3; i++) newCustomer();
+
+    // Mülleimer-Funktion
+function discardIngredient(event) {
+    event.preventDefault();
+    const tabletId = event.dataTransfer.getData("tabletId");
+
+    if (tabletId && tabletContents[tabletId].length > 0) {
+        // Lösche das Gericht oder die Zutaten auf dem Tablett
+        tabletContents[tabletId] = [];
+        document.getElementById(tabletId).innerText = `Tablet ${tabletId.charAt(tabletId.length - 1)}`;
+        document.getElementById(tabletId).removeAttribute("draggable");
+        document.getElementById("message").innerText = "Inhalt erfolgreich entsorgt!";
+    } else {
+        document.getElementById("message").innerText = "Kein Inhalt zum Entsorgen!";
+    }
+}
+
 </script>
 
 </body>
