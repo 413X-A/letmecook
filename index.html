@@ -189,24 +189,13 @@
     function dropIngredient(tabletId) {
         if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
             tabletContents[tabletId].push(draggedIngredient);
-
-            const framedIngredient = document.createElement("div");
-            framedIngredient.classList.add("ingredient-framed");
-            framedIngredient.innerText = draggedIngredient; 
-            framedIngredient.setAttribute("draggable", "true");
-            framedIngredient.ondragstart = function (event) {
-                event.dataTransfer.setData("ingredient", draggedIngredient);
-            };
-
-            // Hinzufügen der eingerahmten Zutat zum Tablett
-            document.getElementById(tabletId).appendChild(framedIngredient);
-            updateTabletDisplay(tabletId);
+            updateTabletDisplay(tabletId); // Tablet-Anzeige aktualisieren
         }
     }
 
     function updateTabletDisplay(tabletId) {
-        document.getElementById(tabletId).innerText = tabletContents[tabletId].length > 0 ? 
-            "Inhalt: " + tabletContents[tabletId].join(", ") : "Tablet " + tabletId.charAt(6);
+        const tabletElement = document.getElementById(tabletId);
+        tabletElement.innerText = "Inhalt auf " + tabletId + ": " + tabletContents[tabletId].join(", ");
     }
 
     function isDishPrepared(tabletId) {
@@ -233,6 +222,7 @@
             document.getElementById(tabletId).innerText = preparedDish;
             tabletContents[tabletId] = [preparedDish];
             showMessage(`${preparedDish} zubereitet!`);
+            processCustomerRequest(preparedDish); // Kundenanfrage überprüfen
         } else {
             showMessage("Zutaten sind nicht korrekt!");
         }
@@ -242,79 +232,79 @@
         return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
     }
 
-    // Neuer Kunde erstellen
-    function newCustomer() {
-        const customerId = `Kunde ${customers.length + 1}`;
-        const patience = Math.floor(Math.random() * 26) + 75; // Geduld zwischen 75 und 100
-
-        customers.push({ id: customerId, patience: patience });
-        renderCustomers();
-    }
-
-    // Kunden initial erstellen
-    function createInitialCustomers() {
-        for (let i = 0; i < 3; i++) {
-            newCustomer();
+            // Neuer Kunde erstellen
+        function newCustomer() {
+            const customerId = `Kunde ${customers.length + 1}`;
+            const patience = Math.floor(Math.random() * 26) + 75; // Geduld zwischen 75 und 100
+            const requestedDish = getRandomDish(); // Zufälliges Gericht anfordern
+            customers.push({ id: customerId, patience, requestedDish });
+            updateCustomerDisplay();
+            startPatienceDecrease(customerId, patience);
+            showMessage(`${customerId} fordert ein ${requestedDish}!`);
         }
-    }
 
-    // Kunden rendern
-    function renderCustomers() {
-        const customerContainer = document.getElementById("customers");
-        customerContainer.innerHTML = "";
+        function getRandomDish() {
+            const dishes = ["Burger", "Salat", "Sandwich"];
+            return dishes[Math.floor(Math.random() * dishes.length)];
+        }
 
-        customers.forEach(customer => {
-            const customerDiv = document.createElement("div");
-            customerDiv.classList.add("customer");
-            customerDiv.innerHTML = `
-                <img src="kunde.png" alt="${customer.id}">
-                <div class="bubble">${customer.id}</div>
-                <div class="patience-bar" style="width: ${customer.patience}%;"></div>
-            `;
-            customerContainer.appendChild(customerDiv);
-        });
-    }
+        function updateCustomerDisplay() {
+            const customersContainer = document.getElementById("customers");
+            customersContainer.innerHTML = ""; // Kundenbereich zurücksetzen
+            customers.forEach(customer => {
+                const customerDiv = document.createElement("div");
+                customerDiv.className = "customer";
+                customerDiv.innerHTML = `
+                    <img src="kunde.png" alt="${customer.id}">
+                    <div class="bubble">${customer.requestedDish}</div>
+                    <div class="patience-bar" style="width: ${customer.patience}%;"></div>
+                `;
+                customersContainer.appendChild(customerDiv);
+            });
+        }
 
-    // Alle Tablets leeren
-    function clearTablets() {
-        tabletContents = { tablet1: [], tablet2: [] };
-        document.getElementById("tablet1").innerText = "Tablet 1";
-        document.getElementById("tablet2").innerText = "Tablet 2";
-        showMessage("Alle Tablets wurden geleert!");
-    }
+        function startPatienceDecrease(customerId, initialPatience) {
+            if (patienceDecreaseInterval) clearInterval(patienceDecreaseInterval);
 
-    // Geduld der Kunden verringern
-    function decreasePatience() {
-        customers = customers.filter(customer => {
-            customer.patience -= 5; // Verringert die Geduld um 5
-            if (customer.patience <= 0) {
-                showMessage(`${customer.id} hat gewartet zu lange und ist gegangen!`);
-                return false; // Entferne den Kunden
+            patienceDecreaseInterval = setInterval(() => {
+                const customerIndex = customers.findIndex(c => c.id === customerId);
+                if (customerIndex >= 0) {
+                    customers[customerIndex].patience--;
+                    updateCustomerDisplay();
+
+                    if (customers[customerIndex].patience <= 0) {
+                        showMessage(`${customers[customerIndex].id} hat gewartet und ist gegangen!`);
+                        customers.splice(customerIndex, 1); // Kunde entfernen
+                        updateCustomerDisplay();
+                        clearInterval(patienceDecreaseInterval);
+                    }
+                }
+            }, 1000); // Geduld jede Sekunde verringern
+        }
+
+        function processCustomerRequest(preparedDish) {
+            const customerIndex = customers.findIndex(c => c.requestedDish === preparedDish);
+            if (customerIndex >= 0) {
+                showMessage(`${customers[customerIndex].id} hat sein ${preparedDish} bekommen und geht!`);
+                customers.splice(customerIndex, 1); // Kunde entfernen
+                updateCustomerDisplay();
             }
-            return true; // Behalte den Kunden
-        });
-        renderCustomers();
-    }
+        }
 
-    // Nachricht anzeigen
-    function showMessage(msg) {
-        const messageDiv = document.getElementById("message");
-        messageDiv.innerText = msg;
-        setTimeout(() => {
-            messageDiv.innerText = '';
-        }, 3000);
-    }
+        function clearTablets() {
+            tabletContents.tablet1 = [];
+            tabletContents.tablet2 = [];
+            document.getElementById("tablet1").innerText = "Tablet 1";
+            document.getElementById("tablet2").innerText = "Tablet 2";
+            showMessage("Tablets wurden geleert!");
+        }
 
-    // Starte den Geduld-Intervall
-    function startPatienceDecrease() {
-        patienceDecreaseInterval = setInterval(decreasePatience, 1000); // Verringert die Geduld jede Sekunde
-    }
-
-    // Starte das Spiel
-    startPatienceDecrease();
-    createInitialCustomers(); // Erstelle 3 Kunden direkt beim Start
-
-</script>
-
+        function showMessage(message) {
+            document.getElementById("message").innerText = message;
+            setTimeout(() => {
+                document.getElementById("message").innerText = "";
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
