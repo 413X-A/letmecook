@@ -12,7 +12,7 @@
             align-items: flex-start;
             margin: 20px;
         }
-        #tablet, #preparedDishContainer {
+        #tablet {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,7 +20,7 @@
             border: 2px dashed #888;
             padding: 10px;
         }
-        #tabletItems, #preparedDish {
+        #tabletItems {
             display: flex;
             flex-wrap: wrap;
             width: 100%;
@@ -66,13 +66,6 @@
 <body>
     <div id="tablet">
         <div id="tabletItems" class="tablet" ondrop="allowDrop(event)" ondragover="allowDrop(event)"></div>
-        <button onclick="prepareDish()">Zubereiten</button>
-    </div>
-
-    <div id="preparedDishContainer">
-        <div id="preparedDish" class="tablet" ondrop="dropPreparedDish(event)" ondragover="allowDrop(event)">
-            <p>Zubereitetes Gericht</p>
-        </div>
     </div>
 
     <div id="customers"></div>
@@ -81,12 +74,11 @@
 
     <script>
         let draggedIngredient = null;
-        let draggedDish = null;
         let tabletContents = { tablet1: [] };
         let customers = [];
         let patienceDecreaseInterval;
 
-        // Drag-Event-Handler für Zutaten
+        // Touch-Event-Handler
         function startDrag(ingredient) {
             draggedIngredient = ingredient;
         }
@@ -116,9 +108,12 @@
             dropIngredient(tabletId);
         }
 
+        // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
         function dropIngredient(tabletId) {
             if (draggedIngredient && tabletContents[tabletId].length < 4) {
                 tabletContents[tabletId].push(draggedIngredient);
+
+                // Hinzufügen der Zutat zum Tablett mit Bild
                 renderTabletItems(tabletId);
                 showMessage(`${draggedIngredient} zum Tablett hinzugefügt!`);
             }
@@ -142,46 +137,26 @@
 
             if (preparedDish) {
                 showMessage(`${preparedDish} zubereitet!`);
-                displayPreparedDish(preparedDish);
-                tabletContents.tablet1 = [];
-                renderTabletItems("tablet1");
+                serveDish(preparedDish);
+                tabletContents.tablet1 = []; // Reset contents after serving
+                renderTabletItems("tablet1"); // Update the displayed items on the tablet
             } else {
                 showMessage("Zutaten sind nicht korrekt!");
             }
         }
 
-        // Gericht anzeigen und zum Drag-and-Drop verfügbar machen
-        function displayPreparedDish(dish) {
-            draggedDish = dish;
-            const preparedDishContainer = document.getElementById("preparedDish");
-            preparedDishContainer.innerHTML = `<div class="ingredient-framed" style="background-image: url(${getImageURL(dish)}); background-size: cover;" draggable="true" ondragstart="startDragDish('${dish}')"></div>`;
-        }
+        function serveDish(preparedDish) {
+            const customerDiv = document.querySelector("#customers .customer");
+            if (customerDiv) {
+                const servedDishDiv = document.createElement("div");
+                servedDishDiv.innerText = `Gericht ${preparedDish} wurde serviert!`;
+                servedDishDiv.className = "served-dish";
+                customerDiv.appendChild(servedDishDiv);
 
-        // Gericht für Drag-and-Drop starten
-        function startDragDish(dish) {
-            draggedDish = dish;
-        }
-
-        function dropPreparedDish(event) {
-            if (draggedDish) {
-                const customerDiv = event.target.closest(".customer");
-                if (customerDiv) {
-                    const customerId = customerDiv.dataset.id;
-                    serveDishToCustomer(draggedDish, customerId);
-                    draggedDish = null;
-                    document.getElementById("preparedDish").innerHTML = "<p>Zubereitetes Gericht</p>";
-                }
-            }
-        }
-
-        function serveDishToCustomer(dish, customerId) {
-            const customer = customers.find(c => c.id === customerId);
-            if (customer && customer.dish === dish) {
-                showMessage(`Kunde ${customerId} hat das ${dish} erhalten!`);
-                customers = customers.filter(c => c.id !== customerId);
+                // Kunde entfernen
+                customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
                 renderCustomers();
-            } else {
-                showMessage("Falsches Gericht! Der Kunde hat das nicht bestellt.");
+                showMessage(`Kunde bedient!`);
             }
         }
 
@@ -192,11 +167,12 @@
         function newCustomer() {
             const customerId = `Kunde ${customers.length + 1}`;
             const dishPreference = "Burger"; // Beispielgericht, das der Kunde möchte
-            const patience = 100;
+            const patience = 100; // Vollständige Geduld
 
             customers.push({ id: customerId, dish: dishPreference, patience: patience });
             renderCustomers();
 
+            // Setze Geduld für neue Kunden
             if (!patienceDecreaseInterval) {
                 decreasePatience();
             }
@@ -205,17 +181,19 @@
         function createCustomer(customer) {
             const customerDiv = document.createElement("div");
             customerDiv.className = "customer";
-            customerDiv.dataset.id = customer.id;
+            customerDiv.draggable = true; // Ermöglicht Drag-and-Drop
+            customerDiv.ondragstart = () => startDrag(customer.dish); // Start-Drag
             customerDiv.innerHTML = `<img src="kunde.png" alt="${customer.id}"><div class="bubble">${customer.id} möchte: ${customer.dish}</div><div class="patience-bar" style="width: ${customer.patience}%;"></div>`;
             document.getElementById("customers").appendChild(customerDiv);
         }
 
         function renderCustomers() {
             const customersDiv = document.getElementById("customers");
-            customersDiv.innerHTML = "";
+            customersDiv.innerHTML = ""; // Leeren der Kundenanzeige
             customers.forEach(customer => createCustomer(customer));
         }
 
+        // Geduld verringern
         function decreasePatience() {
             patienceDecreaseInterval = setInterval(() => {
                 customers.forEach(customer => {
@@ -224,38 +202,44 @@
                     }
                 });
                 renderCustomers();
+                // Entfernen von Kunden ohne Geduld
                 customers = customers.filter(customer => customer.patience > 0);
                 if (customers.length === 0) {
                     clearInterval(patienceDecreaseInterval);
                     showMessage("Alle Kunden sind gegangen!");
                 }
-            }, 2000);
+            }, 2000); // Geduld alle 2 Sekunden verringern
         }
 
         function renderTabletItems(tabletId) {
             const tabletItemsContainer = document.getElementById("tabletItems");
-            tabletItemsContainer.innerHTML = "";
+            tabletItemsContainer.innerHTML = ""; // Alle Elemente vom Tablett entfernen
 
             tabletContents[tabletId].forEach(item => {
                 const itemDiv = document.createElement("div");
                 itemDiv.className = "ingredient-framed";
                 itemDiv.style.backgroundImage = `url(${getImageURL(item)})`;
                 itemDiv.style.backgroundSize = "cover";
+                itemDiv.style.width = "50px"; // Setze die Breite
+                itemDiv.style.height = "50px"; // Setze die Höhe
                 tabletItemsContainer.appendChild(itemDiv);
             });
         }
 
-        function getImageURL(item) {
-            switch (item) {
-                case 'Brot': return 'brot.png';
-                case 'Fleisch': return 'fleisch.png';
-                case 'Salat': return 'salat.png';
-                case 'Tomate': return 'tomate.png';
-                case 'Käse': return 'kaese.png';
-                case 'Burger': return 'burger.png';
-                case 'Salat': return 'salat_dish.png';
-                case 'Sandwich': return 'sandwich.png';
-                default: return '';
+        function getImageURL(ingredient) {
+            switch (ingredient) {
+                case 'Brot':
+                    return 'brot.png';
+                case 'Fleisch':
+                    return 'fleisch.png';
+                case 'Salat':
+                    return 'salat.png';
+                case 'Tomate':
+                    return 'tomate.png';
+                case 'Käse':
+                    return 'kaese.png';
+                default:
+                    return '';
             }
         }
 
@@ -266,6 +250,7 @@
             }, 3000);
         }
 
+        // Starte das Spiel mit 1 Kunden
         newCustomer();
     </script>
 </body>
