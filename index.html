@@ -147,7 +147,7 @@
             customerDiv.innerHTML = '';
             customers.forEach(customer => {
                 customerDiv.innerHTML += `
-                    <div class="customer" ondrop="dropToCustomer(event, '${customer.dish}')" ondragover="allowDrop(event)">
+                    <div class="customer" id="${customer.name}" ondrop="dropToCustomer(event, '${customer.dish}')" ondragover="allowDrop(event)">
                         <div class="customer-image"></div>
                         <div class="customer-info">
                             <div class="customer-name">${customer.name}</div>
@@ -185,16 +185,8 @@
             });
 
             if (matchedDish) {
-                // Gericht im Tablett anzeigen, aber nicht direkt geben
-                displayDish(matchedDish);
-                // Alle Zutaten aus dem Tablett entfernen
-                while (tray.firstChild) {
-                    tray.removeChild(tray.firstChild);
-                }
-                setTimeout(() => {
-                    // Generiere neue Kunden nach 2 Sekunden
-                    generateCustomers();
-                }, 2000);
+                // Gericht im Tablett anzeigen
+                displayDish(matchedDish, expectedDish);
             } else {
                 document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
             }
@@ -229,11 +221,13 @@
 
             if (matchedDish) {
                 // Gericht im Tablett anzeigen
-                displayDish(matchedDish);
+                displayDish(matchedDish, matchedDish);
                 // Alle Zutaten aus dem Tablett entfernen
                 while (tray.firstChild) {
                     tray.removeChild(tray.firstChild);
                 }
+                // Erstelle ein draggable Gericht
+                createDishObject(matchedDish);
             } else {
                 // Ungültiges Gericht zurück auf das Tablett legen
                 tray.innerHTML = '';
@@ -245,9 +239,29 @@
             }
         }
 
-        function displayDish(dish) {
-            document.getElementById('message').innerText = `Zubereitung: ${dish}`;
-            // Hinzufügen einer visuellen Anzeige für das Gericht im Tablett
+        function createDishObject(dish) {
+            const tray = document.getElementById('tray1');
+            const dishElement = document.createElement('div');
+            dishElement.className = 'ingredient';
+            dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
+            dishElement.style.width = '70%';
+            dishElement.style.height = '70%';
+            dishElement.setAttribute('draggable', true);
+            dishElement.ondragstart = (event) => {
+                event.dataTransfer.setData("text", dish.toLowerCase());
+            };
+            tray.appendChild(dishElement);
+            // Setze Timer für neuen Kunden
+            setTimeout(() => {
+                const customer = customers.shift(); // Entferne den aktuellen Kunden
+                if (customer) {
+                    document.getElementById(customer.name).remove(); // Entferne den Kunden aus der Anzeige
+                }
+                generateCustomers(); // Erzeuge neue Kunden
+            }, 2000); // Warte 2 Sekunden
+        }
+
+        function displayDish(dish, expectedDish) {
             const tray = document.getElementById('tray1');
             tray.innerHTML = `<div class="ingredient" style="background-image: url('${dish.toLowerCase()}.png'); width: 70%; height: 70%;"></div>`;
         }
