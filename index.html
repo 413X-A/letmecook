@@ -147,121 +147,152 @@
 
 <script>
     let draggedIngredient = null;
-    let tabletContents = { tablet1: [], tablet2: [] };
-    let customers = [];
+let tabletContents = { tablet1: [], tablet2: [] };
+let customers = [];
+let patienceDecreaseInterval;
 
-    // Initialisiere 3 Kunden
-    function initializeCustomers() {
-        for (let i = 0; i < 3; i++) {
-            newCustomer();
-        }
-    }
+// Touch-Event-Handler
+function startDrag(ingredient) {
+    draggedIngredient = ingredient;
+}
 
-    // Touch-Event-Handler
-    function startDrag(ingredient) {
-        draggedIngredient = ingredient;
-    }
+function endDrag(event) {
+    const touch = event.changedTouches[0];
+    const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
 
-    // Desktop-Event-Handler
-    function startDragDesktop(event, ingredient) {
-        draggedIngredient = ingredient;
-    }
-
-    function allowDrop(event) {
-        event.preventDefault();
-    }
-
-    function dropIngredientDesktop(event, tabletId) {
-        event.preventDefault();
+    if (targetElement && targetElement.classList.contains("tablet")) {
+        const tabletId = targetElement.id;
         dropIngredient(tabletId);
     }
+    draggedIngredient = null;
+}
 
-    // Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
-    function dropIngredient(tabletId) {
-        if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
-            tabletContents[tabletId].push(draggedIngredient);
+// Desktop-Event-Handler
+function startDragDesktop(event, ingredient) {
+    draggedIngredient = ingredient;
+}
 
-            // Hinzufügen der Zutat zum Tablett
-            document.getElementById(tabletId).innerText = tabletContents[tabletId].join(", ");
-        }
-    }
+function allowDrop(event) {
+    event.preventDefault();
+}
 
-    function isDishPrepared(tabletId) {
-        return ["Burger", "Salat", "Sandwich"].includes(tabletContents[tabletId][0]);
-    }
+function dropIngredientDesktop(event, tabletId) {
+    event.preventDefault();
+    dropIngredient(tabletId);
+}
 
-    // Gericht zubereiten
-    function prepareDish(tabletId) {
-        const recipes = {
-            "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
-            "Salat": ["Salat", "Tomate", "Käse"],
-            "Sandwich": ["Brot", "Käse", "Salat"]
+// Gemeinsame Funktion zum Hinzufügen der Zutat zu einem Tablet
+function dropIngredient(tabletId) {
+    if (draggedIngredient && tabletContents[tabletId].length < 4 && !isDishPrepared(tabletId)) {
+        tabletContents[tabletId].push(draggedIngredient);
+
+        const framedIngredient = document.createElement("div");
+        framedIngredient.classList.add("ingredient-framed");
+        framedIngredient.innerText = draggedIngredient; 
+        framedIngredient.setAttribute("draggable", "true");
+        framedIngredient.ondragstart = function (event) {
+            event.dataTransfer.setData("ingredient", draggedIngredient);
         };
-        let preparedDish = null;
 
-        for (let dish in recipes) {
-            if (arraysEqual(tabletContents[tabletId], recipes[dish])) {
-                preparedDish = dish;
-                break;
-            }
+        // Hinzufügen der eingerahmten Zutat zum Tablett
+        document.getElementById(tabletId).appendChild(framedIngredient);
+        document.getElementById(tabletId).innerText = "Inhalt auf " + tabletId;
+    }
+}
+
+function isDishPrepared(tabletId) {
+    return ["Burger", "Salat", "Sandwich"].includes(tabletContents[tabletId][0]);
+}
+
+// Gericht zubereiten
+function prepareDish(tabletId) {
+    const recipes = {
+        "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
+        "Salat": ["Salat", "Tomate", "Käse"],
+        "Sandwich": ["Brot", "Käse", "Salat"]
+    };
+    let preparedDish = null;
+
+    for (let dish in recipes) {
+        if (arraysEqual(tabletContents[tabletId], recipes[dish])) {
+            preparedDish = dish;
+            break;
         }
-
-        if (preparedDish) {
-            document.getElementById(tabletId).innerText = preparedDish;
-            tabletContents[tabletId] = [preparedDish];
-            showMessage(`${preparedDish} zubereitet!`);
-        } else {
-            showMessage("Zutaten sind nicht korrekt!");
-        }
     }
 
-    function arraysEqual(a, b) {
-        return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
+    if (preparedDish) {
+        document.getElementById(tabletId).innerText = preparedDish;
+        tabletContents[tabletId] = [preparedDish];
+        showMessage(`${preparedDish} zubereitet!`);
+    } else {
+        showMessage("Zutaten sind nicht korrekt!");
     }
+}
 
-    // Neuer Kunde erstellen
-    function newCustomer() {
-        const customerId = `Kunde ${customers.length + 1}`;
-        const patience = Math.floor(Math.random() * 100) + 1;
+function arraysEqual(a, b) {
+    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
+}
 
-        customers.push({ id: customerId, patience: patience });
-        renderCustomers();
-    }
+// Neuer Kunde erstellen
+function newCustomer() {
+    const customerId = `Kunde ${customers.length + 1}`;
+    const patience = Math.floor(Math.random() * 26) + 75; // Geduld zwischen 75 und 100
 
-    function renderCustomers() {
-        const customerContainer = document.getElementById("customers");
-        customerContainer.innerHTML = "";
+    customers.push({ id: customerId, patience: patience });
+    renderCustomers();
+}
 
-        customers.forEach(customer => {
-            const customerDiv = document.createElement("div");
-            customerDiv.classList.add("customer");
-            customerDiv.innerHTML = `
-                <img src="kunde.png" alt="${customer.id}">
-                <div class="bubble">${customer.id}</div>
-                <div class="patience-bar" style="width: ${customer.patience}%;"></div>
-            `;
-            customerContainer.appendChild(customerDiv);
-        });
-    }
+// Kunden rendern
+function renderCustomers() {
+    const customerContainer = document.getElementById("customers");
+    customerContainer.innerHTML = "";
 
-    // Alle Tablets leeren
-    function clearTablets() {
-        tabletContents = { tablet1: [], tablet2: [] };
-        document.getElementById("tablet1").innerText = "Tablet 1";
-        document.getElementById("tablet2").innerText = "Tablet 2";
-        showMessage("Alle Tablets wurden geleert!");
-    }
+    customers.forEach(customer => {
+        const customerDiv = document.createElement("div");
+        customerDiv.classList.add("customer");
+        customerDiv.innerHTML = `
+            <img src="kunde.png" alt="${customer.id}">
+            <div class="bubble">${customer.id}</div>
+            <div class="patience-bar" style="width: ${customer.patience}%;"></div>
+        `;
+        customerContainer.appendChild(customerDiv);
+    });
+}
 
-    function showMessage(msg) {
-        const messageDiv = document.getElementById("message");
-        messageDiv.innerText = msg;
-        setTimeout(() => {
-            messageDiv.innerText = '';
-        }, 3000);
-    }
+// Alle Tablets leeren
+function clearTablets() {
+    tabletContents = { tablet1: [], tablet2: [] };
+    document.getElementById("tablet1").innerText = "Tablet 1";
+    document.getElementById("tablet2").innerText = "Tablet 2";
+    showMessage("Alle Tablets wurden geleert!");
+}
 
-    // Starte das Spiel mit 3 Kunden
-    initializeCustomers();
+// Geduld der Kunden verringern
+function decreasePatience() {
+    customers.forEach(customer => {
+        customer.patience -= 5; // Verringert die Geduld um 5
+        if (customer.patience < 75) customer.patience = 75; // Verhindert, dass die Geduld unter 75 sinkt
+    });
+    renderCustomers();
+}
+
+// Nachricht anzeigen
+function showMessage(msg) {
+    const messageDiv = document.getElementById("message");
+    messageDiv.innerText = msg;
+    setTimeout(() => {
+        messageDiv.innerText = '';
+    }, 3000);
+}
+
+// Starte den Geduld-Intervall
+function startPatienceDecrease() {
+    patienceDecreaseInterval = setInterval(decreasePatience, 1000); // Verringert die Geduld jede Sekunde
+}
+
+// Starte das Spiel
+startPatienceDecrease();
+
 </script>
 
 </body>
