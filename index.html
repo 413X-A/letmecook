@@ -3,323 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kochspiel</title>
+    <title>Kunden und Gerichte</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        #game {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
         }
         #customers {
             display: flex;
             justify-content: space-around;
-            margin: 10px 0;
+            margin-bottom: 20px;
         }
         .customer {
-            width: 70px;
+            position: relative;
+            width: 100px;
             text-align: center;
-            border-radius: 5px;
-            margin: 20px;
-        }
-        .customer img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
         }
         .bubble {
-            font-size: 12px;
-            border: 1px solid #ccc;
-            background: #f9f9f9;
-            border-radius: 5px;
+            display: inline-block;
+            background-color: #f2f2f2;
+            border-radius: 10px;
             padding: 5px;
             margin-top: 5px;
         }
-        .tablet-container {
-            display: flex;
-            justify-content: space-around;
-            margin: 10px 0;
-        }
-        .tablet {
-            width: 150px;
-            height: 100px;
-            background-color: #ddd;
-            border: 2px dashed #888;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        .tablet-items {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+        .patience-container {
+            width: 100px;
+            height: 10px;
+            background-color: #ccc;
+            border-radius: 5px;
+            overflow: hidden;
             margin-top: 5px;
         }
-        #controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin: 15px 0;
+        .patience-bar {
+            height: 100%;
+            background-color: green;
+            transition: width 1s linear;
         }
-        .button {
-            padding: 8px 12px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
+        .tablet {
+            border: 2px solid #ccc;
+            width: 200px;
+            height: 150px;
+            margin: 20px;
+            position: relative;
+        }
+        .tablet .ingredients {
+            height: 100px;
+            overflow-y: auto;
+        }
+        .ingredient, .dish {
+            padding: 5px;
+            background-color: #e0e0e0;
+            margin: 5px;
             border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #218838;
-        }
-        #trash-bin {
-            width: 30px;
-            height: 30px;
-            background-image: url('trash-bin.png');
-            background-size: cover;
-            cursor: pointer;
-        }
-        .ingredients {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .ingredient-container {
-            width: 70px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .ingredient {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background-size: cover;
-            margin-bottom: 5px;
+            cursor: move;
         }
         #message {
-            color: #333;
+            margin-top: 20px;
             font-weight: bold;
-            margin-top: 10px;
-            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="game">
-        <h1>Kochspiel</h1>
-        
-        <!-- Kundenbereich -->
-<div id="customers">
-    <div class="customer" id="customer1">
-        <img src="customer.png" alt="Kunde 1">
-        <div class="bubble" ondrop="dropDishOnCustomer(event, this.getAttribute('data-order'), 'customer1')" ondragover="allowDrop(event)">
-            Burger
+    <h1>Kunden und Gerichte</h1>
+    <!-- Kundenbereich -->
+    <div id="customers">
+        <div class="customer" id="customer1">
+            <img src="customer.png" alt="Kunde 1">
+            <div class="bubble" data-order="Burger">Burger</div>
+            <div class="patience-container">
+                <div class="patience-bar" id="patience1" style="width: 100%;"></div>
+            </div>
+        </div>
+        <div class="customer" id="customer2">
+            <img src="customer.png" alt="Kunde 2">
+            <div class="bubble" data-order="Salat">Salat</div>
+            <div class="patience-container">
+                <div class="patience-bar" id="patience2" style="width: 100%;"></div>
+            </div>
+        </div>
+        <div class="customer" id="customer3">
+            <img src="customer.png" alt="Kunde 3">
+            <div class="bubble" data-order="Sandwich">Sandwich</div>
+            <div class="patience-container">
+                <div class="patience-bar" id="patience3" style="width: 100%;"></div>
+            </div>
         </div>
     </div>
-    <div class="customer" id="customer2">
-        <img src="customer.png" alt="Kunde 2">
-        <div class="bubble" ondrop="dropDishOnCustomer(event, this.getAttribute('data-order'), 'customer2')" ondragover="allowDrop(event)">
-            Salat
+    
+    <!-- Tablets -->
+    <div id="tablets">
+        <div class="tablet" id="tablet1" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
+            <div class="ingredients" id="tabletItems1"></div>
+            <button onclick="prepareDish(1)">Zubereiten</button>
+        </div>
+        <div class="tablet" id="tablet2" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
+            <div class="ingredients" id="tabletItems2"></div>
+            <button onclick="prepareDish(2)">Zubereiten</button>
         </div>
     </div>
-    <div class="customer" id="customer3">
-        <img src="customer.png" alt="Kunde 3">
-        <div class="bubble" ondrop="dropDishOnCustomer(event, this.getAttribute('data-order'), 'customer3')" ondragover="allowDrop(event)">
-            Sandwich
-        </div>
-    </div>
-</div>
-
-
-        <!-- Tablet-Bereich -->
-        <div class="tablet-container">
-            <div id="tablet1" class="tablet" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
-                Tablett 1
-                <div class="tablet-items" id="tabletItems1"></div>
-            </div>
-            <div id="tablet2" class="tablet" ondrop="dropIngredient(event)" ondragover="allowDrop(event)">
-                Tablett 2
-                <div class="tablet-items" id="tabletItems2"></div>
-            </div>
-        </div>
-
-        <!-- Steuerung: Zubereiten-Button und Mülleimer -->
-        <div id="controls">
-            <button class="button" onclick="prepareDish()">Zubereiten</button>
-            <div id="trash-bin" onclick="clearTablet()"></div>
-        </div>
-
-        <!-- Zutatenbereich -->
-        <div class="ingredients">
-            <div class="ingredient-container" draggable="true" ondragstart="startDrag(event, 'Brot')">
-                <div class="ingredient" style="background-image: url('brot.png');"></div>
-                <div>Brot</div>
-            </div>
-            <div class="ingredient-container" draggable="true" ondragstart="startDrag(event, 'Fleisch')">
-                <div class="ingredient" style="background-image: url('fleisch.png');"></div>
-                <div>Fleisch</div>
-            </div>
-            <div class="ingredient-container" draggable="true" ondragstart="startDrag(event, 'Salat')">
-                <div class="ingredient" style="background-image: url('salat.png');"></div>
-                <div>Salat</div>
-            </div>
-            <div class="ingredient-container" draggable="true" ondragstart="startDrag(event, 'Tomate')">
-                <div class="ingredient" style="background-image: url('tomate.png');"></div>
-                <div>Tomate</div>
-            </div>
-            <div class="ingredient-container" draggable="true" ondragstart="startDrag(event, 'Käse')">
-                <div class="ingredient" style="background-image: url('kaese.png');"></div>
-                <div>Käse</div>
-            </div>
-        </div>
-
-        <!-- Nachricht an den Spieler -->
-        <div id="message"></div>
-    </div>
+    
+    <div id="message"></div>
 
     <script>
-    const recipes = {
-        'Burger': ['Brot', 'Fleisch', 'Salat'],
-        'Salat': ['Salat', 'Tomate', 'Käse'],
-        'Sandwich': ['Brot', 'Käse', 'Tomate']
-    };
-    
-    let tablet1Items = [];
-    let tablet2Items = [];
-    let preparedDish = null;  // Speichert das aktuelle Gericht nach der Zubereitung
-    let customerCount = 3; // Anzahl der Kunden, die gestartet sind
-
-    // Funktion zum Starten des Draggens
-    function startDrag(event, ingredient) {
-        event.dataTransfer.setData("ingredient", ingredient);
-    }
-    
-    // Funktion zum Erlauben des Drop auf einem Tablet oder Kundenbereich
-    function allowDrop(event) {
-        event.preventDefault();
-    }
-
-    // Funktion zum Droppen der Zutat auf ein Tablet
-    function dropIngredient(event) {
-        event.preventDefault();
-        const ingredient = event.dataTransfer.getData("ingredient");
-        const tabletItemsId = event.target.id === "tablet1" ? "tabletItems1" : "tabletItems2";
-        const tabletArray = event.target.id === "tablet1" ? tablet1Items : tablet2Items;
-
-        // Zutat zur Tablet-Liste hinzufügen, wenn sie nicht bereits vorhanden ist
-        if (!tabletArray.includes(ingredient)) {
-            tabletArray.push(ingredient);
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "ingredient";
-            itemDiv.textContent = ingredient;
-            document.getElementById(tabletItemsId).appendChild(itemDiv);
-        }
-    }
-
-    // Funktion zur Vorbereitung des Gerichts
-    function prepareDish() {
-        preparedDish = getPreparedDish(tablet1Items);
+        const recipes = {
+            'Burger': ['Brot', 'Fleisch', 'Salat'],
+            'Salat': ['Salat', 'Tomate', 'Käse'],
+            'Sandwich': ['Brot', 'Käse', 'Tomate']
+        };
         
-        if (preparedDish) {
-            document.getElementById("message").textContent = `Gericht ${preparedDish} zubereitet!`;
-            displayDishOnTablet(preparedDish);  // Gericht im Tablet anzeigen
-            clearTablet();  // Zutaten entfernen
-        } else {
-            document.getElementById("message").textContent = "Die Zutaten passen zu keinem Rezept.";
-        }
-    }
+        let tablet1Items = [];
+        let tablet2Items = [];
+        let preparedDish = null;  // Speichert das aktuelle Gericht nach der Zubereitung
+        let customers = [];
+        let patienceTimers = []; // Geduld der Kunden
+        let patienceDecreaseInterval; // Timer für Geduld
 
-    // Funktion, um zu prüfen, ob die Zutaten zu einem Rezept gehören
-    function getPreparedDish(tabletItems) {
-        for (const [dish, ingredients] of Object.entries(recipes)) {
-            if (ingredients.length === tabletItems.length && ingredients.every(item => tabletItems.includes(item))) {
-                return dish;
+        // Initialisierung der Kunden
+        function initCustomers() {
+            for (let i = 1; i <= 3; i++) {
+                const patience = Math.floor(Math.random() * 26) + 75; // Zufällige Geduld zwischen 75 und 100
+                customers.push({
+                    id: `customer${i}`,
+                    patience: patience,
+                    order: document.querySelector(`#customer${i} .bubble`).dataset.order
+                });
+                updatePatienceBar(`patience${i}`, patience);
+            }
+            patienceDecreaseInterval = setInterval(decreasePatience, 1000); // Geduld jede Sekunde verringern
+        }
+
+        // Geduld jedes Kunden verringern
+        function decreasePatience() {
+            for (let i = 0; i < customers.length; i++) {
+                if (customers[i].patience > 0) {
+                    customers[i].patience--;
+                    updatePatienceBar(`patience${i + 1}`, customers[i].patience);
+                    if (customers[i].patience === 0) {
+                        document.getElementById(customers[i].id).style.display = "none"; // Kunde ausblenden
+                        customers.splice(i, 1); // Kunde aus der Liste entfernen
+                        i--; // Index anpassen
+                    }
+                }
             }
         }
-        return null;
-    }
 
-    // Funktion, um das Gericht auf dem Tablet anzuzeigen und drag-fähig zu machen
-    function displayDishOnTablet(dish) {
-        const dishDiv = document.createElement("div");
-        dishDiv.className = "dish";
-        dishDiv.textContent = dish;
-        dishDiv.draggable = true;
-        dishDiv.ondragstart = (event) => event.dataTransfer.setData("dish", dish); // Gericht drag-fähig machen
-        document.getElementById("tabletItems1").appendChild(dishDiv);
-    }
+        // Aktualisieren des Geduldsbalkens
+        function updatePatienceBar(patienceId, patience) {
+            const patienceBar = document.getElementById(patienceId);
+            patienceBar.style.width = `${patience}%`;
+            patienceBar.style.backgroundColor = patience > 20 ? 'green' : 'red'; // Rot, wenn Geduld unter 20%
+        }
 
-    // Funktion, um die Tablets zu leeren
-    function clearTablet() {
-        tablet1Items = [];
-        tablet2Items = [];
-        document.getElementById("tabletItems1").innerHTML = '';
-        document.getElementById("tabletItems2").innerHTML = '';
-        document.getElementById("message").textContent = "";
-    }
-
-    // Funktion, um das Gericht auf einen Kundenbereich zu ziehen
-    function dropDishOnCustomer(event, customerOrder, customerId) {
-        event.preventDefault();
-        const dish = event.dataTransfer.getData("dish");
+        // Funktion zum Starten des Draggens
+        function startDrag(event, ingredient) {
+            event.dataTransfer.setData("ingredient", ingredient);
+        }
         
-        if (dish === customerOrder) {
-            document.getElementById("message").textContent = `Kunde ${customerId} hat sein Gericht erhalten!`;
-            document.getElementById(customerId).style.display = "none"; // Kunde ausblenden
-            clearTablet();  // Tablet leeren
-            setTimeout(() => {
-                addNewCustomer(); // Neuen Kunden nach 2 Sekunden hinzufügen
-            }, 2000);
-        } else {
-            document.getElementById("message").textContent = "Das Gericht entspricht nicht der Bestellung.";
+        // Funktion zum Erlauben des Drop auf einem Tablet oder Kundenbereich
+        function allowDrop(event) {
+            event.preventDefault();
         }
-    }
 
-    // Funktion zum Hinzufügen eines neuen Kunden
-    function addNewCustomer() {
-        customerCount++;
-        const newCustomer = document.createElement('div');
-        newCustomer.classList.add('customer');
-        newCustomer.id = `customer${customerCount}`;
-        newCustomer.innerHTML = `
-            <img src="customer.png" alt="Kunde ${customerCount}">
-            <div class="bubble" ondrop="dropDishOnCustomer(event, this.getAttribute('data-order'), 'customer${customerCount}')" ondragover="allowDrop(event)">
-                <span></span>
-            </div>
-        `;
-        document.getElementById('customers').appendChild(newCustomer);
-        generateRandomOrders(`customer${customerCount}`); // Zufällige Bestellung generieren
-    }
+        // Funktion zum Droppen der Zutat auf ein Tablet
+        function dropIngredient(event) {
+            event.preventDefault();
+            const ingredient = event.dataTransfer.getData("ingredient");
+            const tabletItemsId = event.target.id === "tablet1" ? "tabletItems1" : "tabletItems2";
+            const tabletArray = event.target.id === "tablet1" ? tablet1Items : tablet2Items;
 
-    // Funktion zum Generieren zufälliger Bestellungen
-    function generateRandomOrders(customerId) {
-        const randomIndex = Math.floor(Math.random() * Object.keys(recipes).length);
-        const randomDish = Object.keys(recipes)[randomIndex];
-        const customerBubble = document.querySelector(`#${customerId} .bubble`);
-        customerBubble.textContent = randomDish; // Setze den Text der Blase auf das zufällige Gericht
-        customerBubble.setAttribute('data-order', randomDish); // Speichere das Gericht in einem Datenattribut
-    }
-
-    // Bei Seitenladung zufällige Bestellungen generieren
-    window.onload = function() {
-        for (let i = 1; i <= customerCount; i++) {
-            generateRandomOrders(`customer${i}`);
+            // Zutat zur Tablet-Liste hinzufügen, wenn sie nicht bereits vorhanden ist
+            if (!tabletArray.includes(ingredient)) {
+                tabletArray.push(ingredient);
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "ingredient";
+                itemDiv.textContent = ingredient;
+                document.getElementById(tabletItemsId).appendChild(itemDiv);
+            }
         }
-    };
-</script>
 
+        // Funktion zur Vorbereitung des Gerichts
+        function prepareDish(tabletNumber) {
+            const tabletItems = tabletNumber === 1 ? tablet1Items : tablet2Items;
+            preparedDish = getPreparedDish(tabletItems);
+            
+            if (preparedDish) {
+                document.getElementById("message").textContent = `Gericht ${preparedDish} zubereitet!`;
+                displayDishOnTablet(preparedDish, tabletNumber);  // Gericht im Tablet anzeigen
+                clearTablet(tabletNumber);  // Zutaten entfernen
+            } else {
+                document.getElementById("message").textContent = "Die Zutaten passen zu keinem Rezept.";
+            }
+        }
+
+        // Funktion, um zu prüfen, ob die Zutaten zu einem Rezept gehören
+        function getPreparedDish(tabletItems) {
+            for (const [dish, ingredients] of Object.entries(recipes)) {
+                if (ingredients.length === tabletItems.length && ingredients.every(item => tabletItems.includes(item))) {
+                    return dish;
+                }
+            }
+            return null;
+        }
+
+        // Funktion, um das Gericht auf dem Tablet anzuzeigen und drag-fähig zu machen
+        function displayDishOnTablet(dish, tabletNumber) {
+            const dishDiv = document.createElement("div");
+            dishDiv.className = "dish";
+            dishDiv.textContent = dish;
+            dishDiv.draggable = true;
+            dishDiv.ondragstart = (event) => event.dataTransfer.setData("dish", dish); // Gericht drag-fähig machen
+            document.getElementById(`tabletItems${tabletNumber}`).appendChild(dishDiv);
+        }
+
+        // Funktion, um die Tablets zu leeren
+        function clearTablet(tabletNumber) {
+            if (tabletNumber === 1) {
+                tablet1Items = [];
+                document.getElementById("tabletItems1").innerHTML = '';
+            } else {
+                tablet2Items = [];
+                document.getElementById("tabletItems2").innerHTML = '';
+            }
+            document.getElementById("message").textContent = "";
+        }
+
+        // Funktion zum Hinzufügen eines neuen Kunden
+        function addNewCustomer() {
+            if (customers.length < 3) {
+                const customerId = `customer${customers.length + 1}`;
+                const patience = Math.floor(Math.random() * 26) + 75; // Zufällige Geduld zwischen 75 und 100
+                const order = document.querySelector(`#${customerId} .bubble`).dataset.order;
+                customers.push({ id: customerId, patience: patience, order: order });
+                updatePatienceBar(`patience${customers.length}`, patience);
+            }
+        }
+
+        // Starte die Kundeninitialisierung
+        initCustomers();
+    </script>
 </body>
 </html>
