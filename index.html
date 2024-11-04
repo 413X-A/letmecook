@@ -238,6 +238,30 @@
             tray.appendChild(dishElement);
         }
 
+        function displayDish(dish) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `Gericht zubereitet: <strong>${dish}</strong>. Ziehe es zu einem Kunden!`;
+        }
+
+        function handleDropOnCustomer(event) {
+            const customerDiv = event.target.closest('.customer');
+            const dishId = event.dataTransfer.getData("text");
+            if (customerDiv && dishId) {
+                const customerOrder = customerDiv.querySelector('.customer-order').textContent;
+                if (dishId === customerOrder.toLowerCase()) {
+                    customerDiv.remove(); // Kunde wird entfernt, wenn das Gericht stimmt
+                    document.getElementById('message').innerText = `Bestellung von ${customerDiv.querySelector('.customer-name').textContent} angenommen!`;
+                    setTimeout(generateCustomers, 2000); // 2 Sekunden warten, bevor neue Kunden erscheinen
+                } else {
+                    document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
+                }
+            }
+        }
+
+        // Event Listener für das Drop-Event
+        document.addEventListener('dragover', allowDrop);
+        document.addEventListener('drop', handleDropOnCustomer);
+
         // Initialisiere das Spiel
         createIngredients();
         generateCustomers();
