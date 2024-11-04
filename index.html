@@ -200,22 +200,31 @@
         if (draggedIngredient && tabletContents[tabletId].length < 4) {
             tabletContents[tabletId].push(draggedIngredient);
 
-            const framedIngredient = document.createElement("div");
-            framedIngredient.classList.add("ingredient-framed");
-            framedIngredient.innerText = draggedIngredient; 
-            framedIngredient.setAttribute("draggable", "true");
-            framedIngredient.ondragstart = function (event) {
-                event.dataTransfer.setData("ingredient", draggedIngredient);
-            };
-
-            // Hinzufügen der eingerahmten Zutat zum Tablett
-            const tabletItemsContainer = document.getElementById("tabletItems");
-            tabletItemsContainer.appendChild(framedIngredient);
+            // Hinzufügen der Zutat zum Tablett mit Bild
+            renderTabletItems(tabletId);
             showMessage(`${draggedIngredient} zum Tablett hinzugefügt!`);
         }
     }
 
-    // Gericht zubereiten
+    // Funktion zur Rückgabe der Bild-URL basierend auf der Zutat
+    function getImageURL(ingredient) {
+        switch (ingredient) {
+            case 'Brot':
+                return 'brot.png';
+            case 'Fleisch':
+                return 'fleisch.png';
+            case 'Salat':
+                return 'salat.png';
+            case 'Tomate':
+                return 'tomate.png';
+            case 'Käse':
+                return 'kaese.png';
+            default:
+                return '';
+        }
+    }
+
+    // Neues Gericht zubereiten
     function prepareDish() {
         const recipes = {
             "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
@@ -225,7 +234,7 @@
         let preparedDish = null;
 
         for (let dish in recipes) {
-            if (arraysEqual(tabletContents.tablet1, recipes[dish])) {
+            if (arraysEqual(tabletContents.tablet1.sort(), recipes[dish].sort())) {
                 preparedDish = dish;
                 break;
             }
@@ -244,13 +253,14 @@
     function serveDish(preparedDish) {
         const customerDiv = document.querySelector("#customers .customer");
         if (customerDiv) {
-            const customerId = customerDiv.querySelector(".bubble").innerText;
             const servedDishDiv = document.createElement("div");
             servedDishDiv.innerText = `Gericht ${preparedDish} wurde serviert!`;
             customerDiv.appendChild(servedDishDiv);
+
+            // Kunde entfernen
             customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
             renderCustomers();
-            showMessage(`Gericht ${preparedDish} wurde zu ${customerId} serviert!`);
+            showMessage(`Gericht ${preparedDish} wurde serviert!`);
         }
     }
 
@@ -260,9 +270,10 @@
 
     function newCustomer() {
         const customerId = `Kunde ${customers.length + 1}`;
+        const dishPreference = "Burger"; // Beispielgericht, das der Kunde möchte
         const patience = 100; // Vollständige Geduld
 
-        customers.push({ id: customerId, patience: patience });
+        customers.push({ id: customerId, dish: dishPreference, patience: patience });
         renderCustomers();
 
         // Setze Geduld für neue Kunden
@@ -271,17 +282,17 @@
         }
     }
 
-    function createCustomer(customerId) {
+    function createCustomer(customer) {
         const customerDiv = document.createElement("div");
         customerDiv.className = "customer";
-        customerDiv.innerHTML = `<img src="kunde.png" alt="${customerId}"><div class="bubble">${customerId}</div><div class="patience-bar" style="width: ${customers.find(c => c.id === customerId).patience}%;"></div>`;
+        customerDiv.innerHTML = `<img src="kunde.png" alt="${customer.id}"><div class="bubble">${customer.id} möchte: ${customer.dish}</div><div class="patience-bar" style="width: ${customer.patience}%;"></div>`;
         document.getElementById("customers").appendChild(customerDiv);
     }
 
     function renderCustomers() {
         const customersDiv = document.getElementById("customers");
         customersDiv.innerHTML = ""; // Leeren der Kundenanzeige
-        customers.forEach(customer => createCustomer(customer.id));
+        customers.forEach(customer => createCustomer(customer));
     }
 
     // Geduld verringern
@@ -302,12 +313,6 @@
         }, 2000); // Geduld alle 2 Sekunden verringern
     }
 
-    function clearTablets() {
-        tabletContents.tablet1 = []; // Leeren des Inhalts des Tablets
-        renderTabletItems("tablet1"); // Aktualisieren des Tablettinhalts
-        showMessage("Das Tablett wurde geleert!");
-    }
-
     function renderTabletItems(tabletId) {
         const tabletItemsContainer = document.getElementById("tabletItems");
         tabletItemsContainer.innerHTML = ""; // Alle Elemente vom Tablett entfernen
@@ -315,25 +320,12 @@
         tabletContents[tabletId].forEach(item => {
             const itemDiv = document.createElement("div");
             itemDiv.className = "ingredient-framed";
-            itemDiv.innerText = item;
+            itemDiv.style.backgroundImage = `url(${getImageURL(item)})`;
+            itemDiv.style.backgroundSize = "cover";
+            itemDiv.style.width = "50px"; // Setze die Breite
+            itemDiv.style.height = "50px"; // Setze die Höhe
             tabletItemsContainer.appendChild(itemDiv);
         });
-    }
-
-    function dropDishToCustomer(event) {
-        event.preventDefault();
-        if (event.dataTransfer.getData("ingredient")) {
-            const preparedDish = event.dataTransfer.getData("ingredient");
-            const customerDiv = document.createElement("div");
-            customerDiv.innerText = preparedDish;
-
-            event.target.appendChild(customerDiv);
-            showMessage(`Gericht ${preparedDish} wurde serviert!`);
-
-            // Kunde entfernen
-            customers.shift(); // Entfernt den ersten Kunden (wenn vorhanden)
-            renderCustomers();
-        }
     }
 
     function showMessage(message) {
@@ -346,6 +338,7 @@
     // Starte das Spiel mit 1 Kunden
     newCustomer();
 </script>
+
 
 </body>
 </html>
