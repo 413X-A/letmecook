@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kochspiel mit Kunden</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+        }
+        #game {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            width: 400px;
+            background-color: #fff;
+            position: relative;
+        }
+        #customers {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+        .customer {
+            width: 70px;
+            height: 70px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+        }
+        #orderDisplay {
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+        }
+        .ingredients {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .ingredient {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            cursor: pointer;
+            background-size: cover;
+            border: 2px solid #eee;
+            border-radius: 10px;
+        }
+        .ingredient:hover {
+            border-color: #aaa;
+        }
+        .button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+        #message {
+            margin-top: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game">
+    <h1>Kochspiel mit Kunden</h1>
+    
+    <!-- Kundenbereich -->
+    <div id="customers">
+        <div class="customer" id="customer1">Kunde 1</div>
+        <div class="customer" id="customer2">Kunde 2</div>
+    </div>
+    
+    <!-- Aktuelle Bestellung -->
+    <div id="orderDisplay">Bestellung: Keine</div>
+
+    <!-- Zutatenbereich -->
+    <div class="ingredients">
+        <div class="ingredient" style="background-image: url('brot.png');" onclick="addIngredient('Brot')"></div>
+        <div class="ingredient" style="background-image: url('fleisch.png');" onclick="addIngredient('Fleisch')"></div>
+        <div class="ingredient" style="background-image: url('salat.png');" onclick="addIngredient('Salat')"></div>
+        <div class="ingredient" style="background-image: url('tomate.png');" onclick="addIngredient('Tomate')"></div>
+        <div class="ingredient" style="background-image: url('käse.png');" onclick="addIngredient('Käse')"></div>
+        <div class="ingredient" style="background-image: url('hähnchen.png');" onclick="addIngredient('Hähnchen')"></div>
+    </div>
+    
+    <button class="button" onclick="submitOrder()">Bestellung abschicken</button>
+    
+    <div id="message"></div>
+</div>
+
+<script>
+    let dish = [];
+    let currentOrder = "";
+    const orders = ["Burger", "Salat", "Sandwich"];
+    const recipes = {
+        "Burger": ["Brot", "Fleisch", "Salat", "Tomate"],
+        "Salat": ["Salat", "Tomate", "Käse"],
+        "Sandwich": ["Brot", "Käse", "Hähnchen"]
+    };
+
+    function addIngredient(ingredient) {
+        dish.push(ingredient);
+        document.getElementById("message").innerText = `Zutat hinzugefügt: ${ingredient}`;
+    }
+
+    function submitOrder() {
+        if (currentOrder && arraysEqual(dish, recipes[currentOrder])) {
+            document.getElementById("message").innerText = "Richtig! Bestellung erfüllt!";
+            resetOrder();
+        } else {
+            document.getElementById("message").innerText = "Falsch! Versuch es noch einmal!";
+        }
+        dish = [];
+    }
+
+    function arraysEqual(arr1, arr2) {
+        return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
+    }
+
+    function newCustomerOrder() {
+        // Wählt zufällige Bestellung
+        currentOrder = orders[Math.floor(Math.random() * orders.length)];
+        document.getElementById("orderDisplay").innerText = `Bestellung: ${currentOrder}`;
+    }
+
+    function resetOrder() {
+        // Setzt Bestellung zurück und ruft nach kurzer Zeit eine neue Bestellung auf
+        currentOrder = "";
+        document.getElementById("orderDisplay").innerText = "Bestellung: Keine";
+        setTimeout(newCustomerOrder, 2000);
+    }
+
+    // Kunden erscheinen in regelmäßigen Abständen mit neuer Bestellung
+    setInterval(() => {
+        newCustomerOrder();
+    }, 5000); // alle 5 Sekunden neue Bestellung
+</script>
+
+</body>
+</html>
