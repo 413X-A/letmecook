@@ -177,15 +177,18 @@
             }
         }
 
-        function createIngredients() {
-            const ingredientsDiv = document.getElementById('ingredients');
-            ingredientNames.forEach(name => {
-                ingredientsDiv.innerHTML += `
-                    <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name}.png');">
-                    </div>
-                `;
-            });
-        }
+        const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
+
+function createIngredients() {
+    const ingredientsDiv = document.getElementById('ingredients');
+    ingredientNames.forEach(name => {
+        ingredientsDiv.innerHTML += `
+            <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name.toLowerCase()}.png');">
+            </div>
+        `;
+    });
+}
+
 
         function drag(event) {
             event.dataTransfer.setData("text", event.target.id);
