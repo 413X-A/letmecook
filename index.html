@@ -124,136 +124,145 @@
     </div>
 
     <script>
-        const recipes = {
-            'Cheeseburger': ['burger_brot', 'fleisch', 'kaese', 'tomate', 'salat'],
-            'Sandwich': ['sandwich_brot', 'kaese', 'salat', 'tomate'],
-            'Mischsalat': ['tomate', 'salat', 'gurke']
-        };
+    const recipes = {
+        'Cheeseburger': ['burger_brot', 'fleisch', 'kaese', 'tomate', 'salat'],
+        'Sandwich': ['sandwich_brot', 'kaese', 'salat', 'tomate'],
+        'Mischsalat': ['tomate', 'salat', 'gurke']
+    };
 
-        let customers = [];
-        const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
+    let customers = [];
+    const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
 
-        function generateCustomers() {
-            customers = [];
-            for (let i = 0; i < 3; i++) {
-                const randomName = 'Kunde ' + (customers.length + 1);
-                const randomDish = Object.keys(recipes)[Math.floor(Math.random() * Object.keys(recipes).length)];
-                customers.push({ name: randomName, dish: randomDish });
-            }
-            displayCustomers();
+    function generateCustomers() {
+        customers = [];
+        for (let i = 0; i < 3; i++) {
+            const randomName = 'Kunde ' + (customers.length + 1);
+            const randomDish = Object.keys(recipes)[Math.floor(Math.random() * Object.keys(recipes).length)];
+            customers.push({ name: randomName, dish: randomDish });
         }
+        displayCustomers();
+    }
 
-        function displayCustomers() {
-            const customerDiv = document.getElementById('customers');
-            customerDiv.innerHTML = '';
-            customers.forEach(customer => {
-                customerDiv.innerHTML += 
-                    `<div class="customer" id="${customer.name}" ondrop="handleCustomerDrop(event, '${customer.dish.toLowerCase()}', '${customer.name}')" ondragover="allowDrop(event)">
-                        <div class="customer-image"></div>
-                        <br>
-                        <div class="customer-info">
-                            <div class="customer-name">${customer.name}</div>
-                            <div class="customer-order">${customer.dish}</div>
-                        </div>
-                    </div>`;
-            });
+    function displayCustomers() {
+        const customerDiv = document.getElementById('customers');
+        customerDiv.innerHTML = '';
+        customers.forEach(customer => {
+            customerDiv.innerHTML += `
+                <div class="customer" id="${customer.name}" ondrop="handleCustomerDrop(event, '${customer.dish.toLowerCase()}', '${customer.name}')" ondragover="allowDrop(event)">
+                    <div class="customer-image"></div>
+                    <br>
+                    <div class="customer-info">
+                        <div class="customer-name">${customer.name}</div>
+                        <div class="customer-order">${customer.dish}</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const ingredientId = event.dataTransfer.getData("text");
+        const ingredientElement = document.getElementById(ingredientId);
+        const tray = event.target;
+
+        if (tray.children.length < 9 && !tray.contains(ingredientElement)) {
+            const clonedIngredient = ingredientElement.cloneNode(true);
+            clonedIngredient.setAttribute("draggable", false);
+            tray.appendChild(clonedIngredient);
         }
+    }
 
-        function allowDrop(event) {
-            event.preventDefault();
-        }
+    function createIngredients() {
+        const ingredientsDiv = document.getElementById('ingredients');
+        ingredientNames.forEach(name => {
+            ingredientsDiv.innerHTML += `
+                <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name}.png');">
+                </div>
+            `;
+        });
+    }
 
-        function drop(event) {
-            event.preventDefault();
-            const ingredientId = event.dataTransfer.getData("text");
-            const ingredientElement = document.getElementById(ingredientId);
-            const tray = event.target;
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
 
-            if (tray.children.length < 9 && !tray.contains(ingredientElement)) {
-                const clonedIngredient = ingredientElement.cloneNode(true);
-                clonedIngredient.setAttribute("draggable", false);
-                tray.appendChild(clonedIngredient);
-            }
-        }
+    function clearTrays() {
+        const tray = document.getElementById('tray1');
+        tray.innerHTML = '';
+        document.getElementById('message').innerText = '';
+    }
 
-        function createIngredients() {
-            const ingredientsDiv = document.getElementById('ingredients');
-            ingredientNames.forEach(name => {
-                ingredientsDiv.innerHTML += 
-                    `<div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name}.png');">
-                    </div>`;
-            });
-        }
+    function prepareDish(trayId) {
+        const tray = document.getElementById(trayId);
+        const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
+        const matchedDish = Object.keys(recipes).find(dish => {
+            return recipes[dish].every(item => ingredientsOnTray.includes(item));
+        });
 
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.id);
-        }
-
-        function clearTrays() {
-            const tray = document.getElementById('tray1');
+        if (matchedDish) {
+            displayDish(matchedDish);
+            tray.innerHTML = ''; // Clear the tray
+            createDishObject(matchedDish); // Create the dish object on the tray
+        } else {
             tray.innerHTML = '';
-            document.getElementById('message').innerText = '';
-        }
-
-        function prepareDish(trayId) {
-            const tray = document.getElementById(trayId);
-            const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
-            const matchedDish = Object.keys(recipes).find(dish => {
-                return recipes[dish].every(item => ingredientsOnTray.includes(item));
+            ingredientsOnTray.forEach(id => {
+                const ingredientElement = document.getElementById(id);
+                tray.appendChild(ingredientElement.cloneNode(true));
             });
-
-            if (matchedDish) {
-                // Gericht auf dem Tablett platzieren
-                createDishObject(matchedDish);
-                tray.innerHTML = ''; // Leert das Tablett nach der Zubereitung
-                document.getElementById('message').innerText = `Das Gericht ${matchedDish} wurde zubereitet!`;
-            } else {
-                // Zeigt die aktuellen Zutaten zurück auf das Tablett an, wenn das Gericht nicht passt
-                tray.innerHTML = '';
-                ingredientsOnTray.forEach(id => {
-                    const ingredientElement = document.getElementById(id);
-                    tray.appendChild(ingredientElement.cloneNode(true));
-                });
-                document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
-            }
+            document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
         }
+    }
 
-        function createDishObject(dish) {
-            const tray = document.getElementById('tray1');
-            // Neues Element für das Gericht erstellen
-            const dishElement = document.createElement('div');
-            dishElement.className = "ingredient";
-            // Hier wird das Bild des Gerichts basierend auf dem Namen verwendet
-            dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Verwenden Sie das Bild des Gerichts
-            dishElement.style.width = '40px';
-            dishElement.style.height = '40px';
-            dishElement.setAttribute('draggable', true);
-            dishElement.setAttribute('id', dish.toLowerCase());
-            dishElement.addEventListener('dragstart', drag);
-            
-            // Das Gericht auf das Tablett hinzufügen
-            tray.appendChild(dishElement);
+    function createDishObject(dish) {
+        const tray = document.getElementById('tray1');
+        const dishElement = document.createElement('div');
+        dishElement.className = "ingredient";
+        dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
+        dishElement.style.width = '40px';
+        dishElement.style.height = '40px';
+        dishElement.setAttribute('draggable', true);
+        dishElement.setAttribute('id', dish.toLowerCase());
+        dishElement.addEventListener('dragstart', drag);
+
+        tray.appendChild(dishElement);
+    }
+
+    function handleCustomerDrop(event, customerDish, customerName) {
+        event.preventDefault();
+        const droppedDishId = event.dataTransfer.getData("text");
+
+        if (droppedDishId === customerDish) {
+            const customerDiv = document.getElementById(customerName);
+            customerDiv.remove();
+            document.getElementById(droppedDishId).remove();
+            document.getElementById('message').innerText = `${customerName} hat das Gericht angenommen und ist gegangen!`;
+
+            // Remove the customer from the list and add a new one
+            customers = customers.filter(customer => customer.name !== customerName);
+            setTimeout(() => addNewCustomer(), 2000);
+        } else {
+            document.getElementById('message').innerText = 'Der Kunde wollte ein anderes Gericht!';
         }
+    }
 
-        function handleCustomerDrop(event, customerDish, customerName) {
-            event.preventDefault();
-            const droppedDishId = event.dataTransfer.getData("text");
+    function addNewCustomer() {
+        const randomName = 'Kunde ' + (customers.length + 1);
+        const randomDish = Object.keys(recipes)[Math.floor(Math.random() * Object.keys(recipes).length)];
+        const newCustomer = { name: randomName, dish: randomDish };
+        customers.push(newCustomer);
+        displayCustomers();
+    }
 
-            if (droppedDishId === customerDish) {
-                const customerDiv = document.getElementById(customerName);
-                customerDiv.remove();
-                document.getElementById(droppedDishId).remove();
-                                document.getElementById('message').innerText = `${customerName} ist zufrieden mit dem Gericht!`;
-            } else {
-                document.getElementById('message').innerText = `${customerName} hat das falsche Gericht erhalten.`;
-            }
-        }
+    window.onload = function() {
+        createIngredients();
+        generateCustomers();
+    }
+</script>
 
-        // Initialisierung der Zutaten und Kunden beim Laden der Seite
-        window.onload = function() {
-            createIngredients();
-            generateCustomers();
-        };
-    </script>
 </body>
 </html>
