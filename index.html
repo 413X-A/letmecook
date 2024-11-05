@@ -1,4 +1,197 @@
-      <div class="item" id="finishedItem1" draggable="false" ondrop="dropDish(event)" ondragover="allowDrop(event)" style="display: none;"></div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Let Me Cook</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 500px;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+    }
+    h1 { text-align: center; }
+
+    .customers {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .customer {
+      width: 100px;
+      height: 100px;
+      margin: 25px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 50px;
+      user-select: none;
+      background: url('customer.png') center/cover;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .tray-container {
+      flex-direction: row;
+      align-items: flex-start;
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    .tray {
+      flex: 0 0 80%;
+      height: 100px;
+      background-color: lightgray;
+      border: 2px solid darkgray;
+      align-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .btn {
+      flex: 0 0 10%;
+      margin: 5px;
+      padding: 10px 0;
+      cursor: pointer;
+      box-sizing: border-box;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    /* Speisewärmer und Geräte in einer Zeile */
+    .workstations {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    .station {
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      margin: 5px;
+      background-color: #ccc;
+      text-align: center;
+      line-height: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 2px solid #999;
+      position: relative; /* Position relativ, um die Zutaten darüber zu positionieren */
+    }
+    .warmer { background-color: #f7c6c7; }
+    .stove { background-color: #ffd700; }
+    .fryer { background-color: #d2b48c; }
+
+    /* Zutaten */
+    .items-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    .item {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      user-select: none;
+      border-radius: 5px;
+      background-color: #eaeaea;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: grab;
+      background-size: cover;
+    }
+
+    /* Hintergrundbilder für Zutaten */
+    #pommes { background-image: url('pommes.png'); }
+    #mayonnaise { background-image: url('mayonnaise.png'); }
+    #ketchup { background-image: url('ketchup.png'); }
+    #zwiebeln { background-image: url('zwiebeln.png'); }
+    #wurst { background-image: url('wurst.png'); }
+    #currysauce { background-image: url('currysauce.png'); }
+    #burger_broetchen { background-image: url('burger_broetchen.png'); }
+    #rindfleisch_patty { background-image: url('rindfleisch_patty.png'); }
+    #salat { background-image: url('salat.png'); }
+    #tomate { background-image: url('tomate.png'); }
+    #gemuese_patty { background-image: url('gemuese_patty.png'); }
+    #kaese { background-image: url('kaese.png'); }
+    #gurke { background-image: url('gurke.png'); }
+    #hotdog_broetchen { background-image: url('hotdog_broetchen.png'); }
+    #mais { background-image: url('mais.png'); }
+
+    /* Stile für fertige Zutaten */
+    .finished {
+      background-color: #90ee90; /* Hellgrün für fertige Zutaten */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Let Me Cook</h1>
+
+    <!-- Kundenanzeige -->
+    <div class="customers">
+      <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
+      <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
+      <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
+    </div>
+
+    <!-- Speisewärmer und Geräte in einer Zeile -->
+    <div class="workstations">
+      <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
+      <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
+      <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 3</div>
+      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
+      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
+      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
+    </div>
+
+    <!-- Tablett für Zubereitung -->
+    <div class="tray-container">
+      <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <p>Tablett</p>
+      </div>
+      <button class="btn" onclick="prepareDish()">Zubereiten</button>
+    </div>
+
+    <!-- Zutaten -->
+    <div class="items-container">
+      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="salat" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
+    </div>
+
+    <!-- Fertige Zutaten -->
+    <div class="finished-items" style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <div class="item" id="finishedItem1" draggable="false" ondrop="dropDish(event)" ondragover="allowDrop(event)" style="display: none;"></div>
       <div class="item" id="finishedItem2" draggable="false" ondrop="dropDish(event)" ondragover="allowDrop(event)" style="display: none;"></div>
       <div class="item" id="finishedItem3" draggable="false" ondrop="dropDish(event)" ondragover="allowDrop(event)" style="display: none;"></div>
     </div>
