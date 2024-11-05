@@ -77,7 +77,12 @@
       border-radius: 5px;
     }
 
-    /* Speisewärmer und Geräte */
+    /* Speisewärmer und Geräte in einer Zeile */
+    .workstations {
+      display: flex; /* Geräte in einer Zeile */
+      justify-content: center;
+      margin: 10px 0; /* Abstand für die Geräte */
+    }
     .station {
       width: 30px; /* Größe für Geräte */
       height: 30px; /* Größe für Geräte */
@@ -102,12 +107,12 @@
       margin: 10px 0; /* Abstand für die Zutaten */
     }
     .item {
-      width: 20%; /* Größe für Zutaten */
-      height: 40px; /* Größe für Zutaten */
+      width: 40px; /* Breite für Zutaten */
+      height: 40px; /* Höhe für Zutaten, gleich wie Breite */
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 0; /* Ecken sind nicht abgerundet */
+      border-radius: 5px; /* Ecken sind nicht abgerundet */
       background-color: #eaeaea; /* Hintergrundfarbe */
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
       cursor: grab; /* Handcursor für interaktive Elemente */
@@ -144,7 +149,7 @@
     </div>
 
     <!-- Speisewärmer und Geräte in einer Zeile -->
-    <div class="workstations" style="justify-content: center;">
+    <div class="workstations">
       <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
       <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
       <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 3</div>
@@ -179,10 +184,11 @@
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
+
   </div>
 
   <script>
-    // Drag-and-drop Funktionen
+    // Funktionen für Drag-and-Drop
     function allowDrop(ev) {
       ev.preventDefault();
     }
