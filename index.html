@@ -206,10 +206,10 @@
 
         if (matchedDish) {
             displayDish(matchedDish);
-            tray.innerHTML = ''; // Clear the tray
+            clearTray(tray); // Clear the tray
             createDishObject(matchedDish); // Create the dish object on the tray
         } else {
-            tray.innerHTML = '';
+            clearTray(tray);
             ingredientsOnTray.forEach(id => {
                 const ingredientElement = document.getElementById(id);
                 tray.appendChild(ingredientElement.cloneNode(true));
@@ -222,7 +222,7 @@
         const tray = document.getElementById('tray1');
         const dishElement = document.createElement('div');
         dishElement.className = "ingredient";
-        dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
+        dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Corrected syntax
         dishElement.style.width = '40px';
         dishElement.style.height = '40px';
         dishElement.setAttribute('draggable', true);
@@ -230,6 +230,10 @@
         dishElement.addEventListener('dragstart', drag);
 
         tray.appendChild(dishElement);
+    }
+
+    function clearTray(tray) {
+        tray.innerHTML = ''; // Clear the tray before adding the new dish
     }
 
     function handleCustomerDrop(event, customerDish, customerName) {
@@ -263,6 +267,7 @@
         generateCustomers();
     }
 </script>
+
 
 </body>
 </html>
