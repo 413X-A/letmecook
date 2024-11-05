@@ -216,19 +216,21 @@
             }
         }
 
-        function createDishObject(dish) {
-            const tray = document.getElementById('tray1');
-            const dishElement = document.createElement('div');
-            dishElement.className = "ingredient";
-            dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
-            dishElement.style.width = '40px';
-            dishElement.style.height = '40px';
-            dishElement.setAttribute('draggable', true);
-            dishElement.setAttribute('id', dish.toLowerCase());
-            dishElement.addEventListener('dragstart', drag);
+function createDishObject(dish) {
+    const tray = document.getElementById('tray1');
+    const dishElement = document.createElement('div');
+    dishElement.className = "ingredient";
+    // Hier wird das Bild des Gerichts basierend auf dem Namen verwendet
+    dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`;
+    dishElement.style.width = '40px';
+    dishElement.style.height = '40px';
+    dishElement.setAttribute('draggable', true);
+    dishElement.setAttribute('id', dish.toLowerCase());
+    dishElement.addEventListener('dragstart', drag);
 
-            tray.appendChild(dishElement);
-        }
+    tray.appendChild(dishElement);
+}
+
 
         function handleCustomerDrop(event, customerDish, customerName) {
             event.preventDefault();
