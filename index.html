@@ -1,263 +1,210 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Let Me Cook</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-    }
-
-    #game-container {
-      width: 500px;
-      margin: 0 auto;
-      padding-top: 30px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    #tray {
-      width: 70%;
-      height: 120px;
-      background-color: #ccc;
-      border: 2px solid #666;
-      margin: 20px auto;
-      position: relative;
-    }
-
-    #tray .item {
-      width: 60px;
-      height: 60px;
-      background-size: cover;
-      position: absolute;
-      cursor: pointer;
-    }
-
-    .stove, .fryer, .warmer {
-      display: inline-block;
-      width: 80px;
-      height: 80px;
-      margin: 10px;
-      background-color: #bbb;
-      border-radius: 10px;
-      border: 2px solid #666;
-      position: relative;
-    }
-
-    .stove .item, .fryer .item, .warmer .item {
-      width: 60px;
-      height: 60px;
-      background-size: cover;
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-
-    .customer-container {
-      margin-top: 20px;
-    }
-
-    .customer {
-      width: 100%;
-      padding: 10px;
-      background-color: #eee;
-      margin-bottom: 10px;
-      text-align: center;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .customer.active {
-      background-color: #c8f7c5;
-    }
-
-    .customer .order {
-      font-weight: bold;
-      color: #333;
-    }
-
-    .button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-top: 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    .button:hover {
-      background-color: #45a049;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let Me Cook</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f8f8;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        #container {
+            width: 500px;
+            border: 2px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+            text-align: center;
+        }
+        h1 {
+            margin: 10px 0;
+        }
+        .customer {
+            width: 150px;
+            height: 100px;
+            background-image: url('customer.png');
+            background-size: cover;
+            margin: 10px auto;
+            position: relative;
+        }
+        .customer-name, .customer-order {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            color: white;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px;
+        }
+        .speisewarmers, .herdplatten, .friteuse {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+        .container-item {
+            width: 60px;
+            height: 60px;
+            background-color: #ccc;
+            border: 1px solid #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            cursor: grab;
+        }
+        .tablett {
+            width: 100%;
+            height: 80px;
+            border: 2px solid #000;
+            margin: 10px 0;
+            position: relative;
+        }
+        .mulleimer {
+            background-color: red;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            margin: 10px 0;
+        }
+        .zutaten {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .zutat {
+            width: 60px;
+            height: 60px;
+            background-color: #ccc;
+            border: 1px solid #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+        }
+    </style>
 </head>
 <body>
-  <div id="game-container">
-    <h1>Let Me Cook</h1>
-
-    <!-- Tablett -->
-    <div id="tray" ondrop="dropOnTray(event)" ondragover="allowDrop(event)">
+    <div id="container">
+        <h1>Let Me Cook</h1>
+        <div id="customers"></div>
+        <div class="speisewarmers">
+            <div class="container-item" draggable="false">Speisewärmer 1</div>
+            <div class="container-item" draggable="false">Speisewärmer 2</div>
+            <div class="container-item" draggable="false">Speisewärmer 3</div>
+        </div>
+        <div class="herdplatten">
+            <div class="container-item" draggable="false">Herdplatte 1</div>
+            <div class="container-item" draggable="false">Herdplatte 2</div>
+        </div>
+        <div class="friteuse">
+            <div class="container-item" draggable="false">Friteuse</div>
+        </div>
+        <div class="tablett" id="tablett"></div>
+        <div class="mulleimer" id="mulleimer">Mülleimer</div>
+        <div class="zutaten" id="zutaten"></div>
+        <button id="zubereiten">Zubereiten</button>
     </div>
+    
+    <script>
+        const rezepte = {
+            "Pommes Spezial": ["pommes", "mayonnaise", "ketchup", "zwiebeln"],
+            "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+            "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
+            "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
+            "Pommes mit Käse": ["pommes", "kaese", "gurke"],
+            "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+            "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+        };
 
-    <!-- Geräte -->
-    <div>
-      <div class="stove" id="stove1" ondrop="dropOnStove(event)" ondragover="allowDrop(event)">
-        <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)" style="background-image: url('rindfleisch_patty.png');"></div>
-        <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)" style="background-image: url('gemuese_patty.png');"></div>
-        <div class="item" id="wurst" draggable="true" ondragstart="drag(event)" style="background-image: url('wurst.png');"></div>
-      </div>
+        const zutatenNamen = [
+            "pommes", "mayonnaise", "ketchup", "zwiebeln", "wurst",
+            "currysauce", "burger_broetchen", "rindfleisch_patty", "salat",
+            "tomate", "gemuese_patty", "kaese", "gurke", "hotdog_broetchen", "mais"
+        ];
 
-      <div class="fryer" id="fryer" ondrop="dropOnFryer(event)" ondragover="allowDrop(event)">
-        <div class="item" id="pommes" draggable="true" ondragstart="drag(event)" style="background-image: url('pommes.png');"></div>
-      </div>
+        const customers = [
+            { name: "Kunde 1", order: getRandomOrder() },
+            { name: "Kunde 2", order: getRandomOrder() },
+            { name: "Kunde 3", order: getRandomOrder() }
+        ];
 
-      <div class="warmer" id="warmer1" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)">
-      </div>
-      <div class="warmer" id="warmer2" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)">
-      </div>
-      <div class="warmer" id="warmer3" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)">
-      </div>
-    </div>
-
-    <!-- Kunden -->
-    <div class="customer-container">
-      <div class="customer active" data-order="Pommes Spezial">
-        <div class="name">Kunde 1</div>
-        <div class="order">Bestellt: Pommes Spezial</div>
-      </div>
-      <div class="customer" data-order="Hamburger">
-        <div class="name">Kunde 2</div>
-        <div class="order">Bestellt: Hamburger</div>
-      </div>
-      <div class="customer" data-order="Mischsalat">
-        <div class="name">Kunde 3</div>
-        <div class="order">Bestellt: Mischsalat</div>
-      </div>
-    </div>
-
-    <!-- Button zum Zubereiten -->
-    <button class="button" onclick="prepareDish()">Zubereiten</button>
-  </div>
-
-  <script>
-    let warmers = document.querySelectorAll('.warmer');
-    let stoves = document.querySelectorAll('.stove');
-    let fryer = document.getElementById('fryer');
-    let tray = document.getElementById('tray');
-
-    function allowDrop(ev) {
-      ev.preventDefault();
-    }
-
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function dropOnWarmer(ev) {
-      ev.preventDefault();
-      let data = ev.dataTransfer.getData("text");
-      let ingredient = document.getElementById(data);
-      if (ingredient.id.includes('_fertig')) {
-        if (!isFull(warmers)) {
-          ev.target.appendChild(ingredient);
-          ingredient.setAttribute("draggable", "false");
-        } else {
-          alert("Speisewärmer ist voll! Zutat wird gelöscht.");
-          ingredient.remove();
+        function getRandomOrder() {
+            const keys = Object.keys(rezepte);
+            return keys[Math.floor(Math.random() * keys.length)];
         }
-      }
-    }
 
-    function dropOnStove(ev) {
-      ev.preventDefault();
-      let data = ev.dataTransfer.getData("text");
-      let ingredient = document.getElementById(data);
-      if (ingredient.id === 'rindfleisch_patty' || ingredient.id === 'gemuese_patty' || ingredient.id === 'wurst') {
-        ev.target.appendChild(ingredient);
-        startCooking(ingredient, 'stove');
-      } else {
-        alert("Nur Rindfleisch-Patties, Gemüse-Patties oder Wurst können auf den Herd!");
-      }
-    }
-
-    function dropOnFryer(ev) {
-      ev.preventDefault();
-      let data = ev.dataTransfer.getData("text");
-      let ingredient = document.getElementById(data);
-      if (ingredient.id === 'pommes') {
-        ev.target.appendChild(ingredient);
-        startCooking(ingredient, 'fryer');
-      } else {
-        alert("Nur Pommes können in der Friteuse abgelegt werden!");
-      }
-    }
-
-    function startCooking(ingredient, device) {
-      setTimeout(function() {
-        let finishedIngredient = document.createElement('div');
-        finishedIngredient.id = ingredient.id + '_fertig';
-        finishedIngredient.classList.add('item');
-        finishedIngredient.style.backgroundImage = `url('${ingredient.id}_fertig.png')`;
-        finishedIngredient.setAttribute("draggable", "true");
-        finishedIngredient.addEventListener('dragstart', drag);
-
-        ingredient.remove();
-        if (device === 'stove') {
-          moveToWarmer(finishedIngredient);
-        } else if (device === 'fryer') {
-          moveToWarmer(finishedIngredient);
+        function showCustomers() {
+            const customersDiv = document.getElementById("customers");
+            customersDiv.innerHTML = "";
+            customers.forEach(customer => {
+                const customerDiv = document.createElement("div");
+                customerDiv.className = "customer";
+                customerDiv.innerHTML = `
+                    <div class="customer-name">${customer.name}</div>
+                    <div class="customer-order">${customer.order}</div>
+                `;
+                customersDiv.appendChild(customerDiv);
+            });
         }
-      }, 5000);
-    }
 
-    function moveToWarmer(finishedIngredient) {
-      if (!isFull(warmers)) {
-        warmers[0].appendChild(finishedIngredient);
-      } else {
-        alert("Speisewärmer ist voll, Zutat wird gelöscht.");
-        finishedIngredient.remove();
-      }
-    }
+        function showZutaten() {
+            const zutatenDiv = document.getElementById("zutaten");
+            zutatenDiv.innerHTML = "";
+            zutatenNamen.forEach(zutat => {
+                const zutatDiv = document.createElement("div");
+                zutatDiv.className = "zutat";
+                zutatDiv.draggable = true;
+                zutatDiv.innerText = zutat;
+                zutatDiv.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text/plain", zutat);
+                });
+                zutatenDiv.appendChild(zutatDiv);
+            });
+        }
 
-    function isFull(warmers) {
-      return Array.from(warmers).every(warmer => warmer.childNodes.length > 0);
-    }
+        document.getElementById("tablett").addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
 
-    function prepareDish() {
-      let customer = document.querySelector('.customer.active');
-      let order = customer ? customer.dataset.order : null;
-      let orderCorrect = checkOrder(order);
+        document.getElementById("tablett").addEventListener("drop", (e) => {
+            const zutat = e.dataTransfer.getData("text/plain");
+            const tablettDiv = document.getElementById("tablett");
+            const zutatDiv = document.createElement("div");
+            zutatDiv.innerText = zutat;
+            zutatDiv.className = "zutat";
+            tablettDiv.appendChild(zutatDiv);
+        });
 
-      if (orderCorrect) {
-        alert("Gericht wurde korrekt zubereitet und an den Kunden übergeben!");
-        customer.classList.remove('active');
-      } else {
-        alert("Das Gericht entspricht nicht der Bestellung! Versuche es erneut.");
-      }
-    }
+        document.getElementById("mulleimer").addEventListener("click", () => {
+            const tablettDiv = document.getElementById("tablett");
+            tablettDiv.innerHTML = "";
+        });
 
-    function checkOrder(order) {
-      return true;
-    }
+        document.getElementById("zubereiten").addEventListener("click", () => {
+            const tablettDiv = document.getElementById("tablett");
+            const zutatenAufTablett = Array.from(tablettDiv.children).map(child => child.innerText);
+            const passendesRezept = Object.keys(rezepte).find(rezept => {
+                const rezeptZutaten = rezepte[rezept];
+                return rezeptZutaten.every(zutat => zutatenAufTablett.includes(zutat));
+            });
+            if (passendesRezept) {
+                tablettDiv.innerHTML = "";
+                const gerichtDiv = document.createElement("div");
+                gerichtDiv.innerText = passendesRezept;
+                gerichtDiv.className = "zutat";
+                tablettDiv.appendChild(gerichtDiv);
+            } else {
+                alert("Keine passende Bestellung gefunden!");
+            }
+        });
 
-    setInterval(() => {
-      warmers.forEach(warmer => {
-        if (warmer.childNodes.length === 0) return;
-        let ingredient = warmer.firstChild;
-        setTimeout(() => moveToWarmer(ingredient), 5000);
-      });
-    }, 5000);
-  </script>
+        showCustomers();
+        showZutaten();
+    </script>
 </body>
 </html>
