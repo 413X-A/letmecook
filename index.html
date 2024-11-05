@@ -182,26 +182,30 @@
     <script>
   let originalParent = null;
 
+  // Allow drop only in certain areas (not on the ingredient list or invalid zones)
   function allowDrop(event) {
     if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
       event.preventDefault();
     }
   }
 
+  // Drag handler: Prepare the element for dragging
   function drag(event) {
-    const item = event.target.cloneNode(true);
-    item.id += "_copy_" + new Date().getTime(); // Einzigartige ID für die Kopie
+    const item = event.target.cloneNode(true);  // Make a copy of the element
+    item.id += "_copy_" + new Date().getTime(); // Ensure a unique ID for the clone
+    item.classList.add("dragged");  // Add a class for identification
     event.dataTransfer.setData("text", item.id);
 
-    // Merke die Ausgangsposition des Originalelements
+    // Remember the original parent of the dragged item
     originalParent = event.target.parentElement;
 
-    // Die Kopie unsichtbar machen und zum DOM hinzufügen, bis sie losgelassen wird
+    // Make the clone temporarily invisible and append to the body for dragging
     item.style.position = "absolute";
-    item.style.opacity = "0";  // Anfangs unsichtbar, aber in DOM
+    item.style.opacity = "0";  // Initially invisible
     document.body.appendChild(item);
   }
 
+  // Drop handler for the stove (only certain items allowed)
   function dropOnStove(event) {
     event.preventDefault();
     const itemId = event.dataTransfer.getData("text");
@@ -210,14 +214,15 @@
 
     if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
       event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Sichtbar machen
-      setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden auf Speisewärmer verschieben
+      itemElement.style.opacity = "1"; // Make it visible when placed
+      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
     } else {
       handleInvalidDrop(itemElement);
       alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
     }
   }
 
+  // Drop handler for the fryer (only certain items allowed)
   function dropOnFryer(event) {
     event.preventDefault();
     const itemId = event.dataTransfer.getData("text");
@@ -226,64 +231,74 @@
 
     if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
       event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Sichtbar machen
-      setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden auf Speisewärmer verschieben
+      itemElement.style.opacity = "1"; // Make it visible when placed
+      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
     } else {
       handleInvalidDrop(itemElement);
       alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
     }
   }
 
+  // Function to move the item to the warmer after 5 seconds
   function moveToWarmer(itemId) {
     const itemElement = document.getElementById(itemId);
     const newItemId = itemId + "_fertig";
-    itemElement.id = newItemId;
+    itemElement.id = newItemId;  // Update the ID to mark the item as "done"
 
+    // Find an available warmer to place the item in
     const warmers = document.querySelectorAll('.warmer');
     const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
 
     if (freeWarmer) {
-      freeWarmer.appendChild(itemElement); // Auf freien Speisewärmer legen
+      freeWarmer.appendChild(itemElement); // Place it on the warmer
     } else {
-      itemElement.remove(); // Löschen, falls kein Platz frei
+      itemElement.remove(); // If no free warmer, remove the item
     }
   }
 
+  // Drop handler for the warmer (only "finished" items allowed)
   function dropOnWarmer(event) {
     event.preventDefault();
     const itemId = event.dataTransfer.getData("text");
     const itemElement = document.getElementById(itemId);
 
     if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement);
+      event.target.appendChild(itemElement); // Place finished item on the warmer
     } else {
       handleInvalidDrop(itemElement);
       alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
     }
   }
 
+  // Drop handler for the tray (only "finished" items allowed)
   function dropOnTray(event) {
     event.preventDefault();
     const itemId = event.dataTransfer.getData("text");
     const itemElement = document.getElementById(itemId);
 
     if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement);
+      event.target.appendChild(itemElement); // Place finished item on the tray
     } else {
       handleInvalidDrop(itemElement);
       alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
     }
   }
 
+  // Handle invalid drops (items that cannot be placed in the current area)
   function handleInvalidDrop(itemElement) {
-    // Prüfen, ob die Zutat aus `items-container` kommt
     if (originalParent && originalParent.classList.contains("items-container")) {
-      itemElement.remove(); // Löschen, wenn das Original aus `items-container` kam
+      itemElement.remove(); // Remove if from the items container (not allowed to drop here)
     } else {
-      originalParent.appendChild(itemElement); // Zurück an die Ursprungsposition
+      originalParent.appendChild(itemElement); // Return it to the original parent
     }
   }
 
+  // Prevent dropping in invalid zones (like the ingredients list)
+  function preventDefault(event) {
+    event.preventDefault();
+  }
+
+  // Function to prepare the dish and check if it matches a recipe
   function prepareDish() {
     const tray = document.getElementById("tray");
     const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
@@ -291,12 +306,13 @@
 
     if (orderMatch) {
       alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
-      tray.innerHTML = ""; // Tablett leeren
+      tray.innerHTML = ""; // Clear the tray
     } else {
       alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
     }
   }
 
+  // Check if the ingredients on the tray match any known recipe
   function checkOrder(ingredients) {
     const recipes = {
       "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
@@ -314,6 +330,7 @@
     return null;
   }
 
+  // Utility function to check if two arrays are equal
   function arraysEqual(arr1, arr2) {
     if (arr1.length !== arr2.length) return false;
     const sorted1 = arr1.slice().sort();
@@ -321,16 +338,33 @@
     return sorted1.every((value, index) => value === sorted2[index]);
   }
 
-  document.querySelector('.items-container').addEventListener('drop', function(event) {
-    event.preventDefault();
+  // Allow items to be swapped between warmers (finished items)
+  function swapBetweenWarmers(event) {
     const itemId = event.dataTransfer.getData("text");
     const itemElement = document.getElementById(itemId);
 
-    if (itemElement) {
-      itemElement.remove(); // Kopie löschen, wenn im `items-container` losgelassen
+    if (itemElement && itemId.endsWith("_fertig")) {
+      // Move between warmers if it is finished
+      event.target.appendChild(itemElement);
+    } else {
+      handleInvalidDrop(itemElement);
     }
-  });
+  }
+
+  // Allow "finished" items to be moved around on the tray
+  function allowTrayMoves(event) {
+    const itemId = event.dataTransfer.getData("text");
+    const itemElement = document.getElementById(itemId);
+
+    if (itemElement && itemId.endsWith("_fertig")) {
+      event.target.appendChild(itemElement); // Allow finished items to move on the tray
+    } else {
+      handleInvalidDrop(itemElement);
+    }
+  }
+
 </script>
+
 
 
 </body>
