@@ -8,18 +8,26 @@
     body {
       font-family: Arial, sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
       margin: 0;
       padding: 0;
     }
-    h1 { margin: 20px 0; }
-    .customers, .items-container, .workstations, .tray {
+    .container {
+      width: 500px;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+    }
+    h1 { text-align: center; }
+
+    .customers, .workstations, .tray, .items-container {
       display: flex;
       justify-content: center;
-      margin: 10px;
+      margin: 10px 0;
     }
-    .customer, .item, .station, .tray-item {
+    .customer, .station, .item, .tray-item {
       width: 80px;
       height: 80px;
       margin: 5px;
@@ -47,58 +55,125 @@
       align-content: flex-start;
     }
     .tray-item { background-color: #f0e68c; }
-    .btn { margin: 5px; padding: 10px 20px; cursor: pointer; }
+
+    .btn {
+      margin: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Speisewärmer und Geräte */
+    .station {
+      width: 80px;
+      height: 80px;
+      margin: 5px;
+      background-color: #ccc;
+      text-align: center;
+      line-height: 80px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 2px solid #999;
+    }
+    .warmer { background-color: #f7c6c7; }
+    .stove { background-color: #ffd700; }
+    .fryer { background-color: #d2b48c; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Let Me Cook</h1>
 
-  <h1>Let Me Cook</h1>
+    <!-- Kundenanzeige -->
+    <div class="customers">
+      <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
+      <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
+      <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
+    </div>
 
-  <!-- Kundenanzeige -->
-  <div class="customers">
-    <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
-    <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
-    <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
-  </div>
+    <!-- Speisewärmer und Geräte -->
+    <div class="workstations">
+      <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
+      <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
+      <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 3</div>
+    </div>
+    <div class="workstations">
+      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
+      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
+      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
+    </div>
 
-  <!-- Tablett für Zubereitung -->
-  <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
-    <p>Tablett</p>
-  </div>
+    <!-- Tablett für Zubereitung -->
+    <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <p>Tablett</p>
+    </div>
 
-  <!-- Buttons -->
-  <button class="btn" onclick="prepareDish()">Zubereiten</button>
-  <button class="btn" onclick="clearTray()">Mülleimer</button>
+    <!-- Buttons -->
+    <button class="btn" onclick="prepareDish()">Zubereiten</button>
+    <button class="btn" onclick="clearTray()">Mülleimer</button>
 
-  <!-- Zutaten -->
-  <div class="items-container">
-    <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
-    <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
-    <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
-    <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
-    <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
-    <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
-    <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)">Burger Brötchen</div>
-    <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
-    <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
-    <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
-    <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
-    <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
-    <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
-    <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
-    <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
+    <!-- Zutaten -->
+    <div class="items-container">
+      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
+      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
+      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
+      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
+      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
+      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
+      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)">Burger Brötchen</div>
+      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
+      <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
+      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
+      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
+      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
+      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
+      <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
+    </div>
   </div>
 
   <script>
     // Drag-and-drop Funktionen
     function allowDrop(ev) { ev.preventDefault(); }
     function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    
     function drop(ev) {
       ev.preventDefault();
       let itemID = ev.dataTransfer.getData("text");
       let item = document.getElementById(itemID);
       if (ev.target.id === "tray" && ev.target.children.length < 9) {
         ev.target.appendChild(item.cloneNode(true));
+      }
+    }
+
+    function dropDish(ev) {
+      ev.preventDefault();
+      let dishID = ev.dataTransfer.getData("text");
+      let dish = document.getElementById(dishID);
+      if (dish.classList.contains("prepared-dish")) {
+        ev.target.innerHTML = "";
+        ev.target.appendChild(dish);
+      }
+    }
+
+    function dropStove(ev) {
+      ev.preventDefault();
+      let itemID = ev.dataTransfer.getData("text");
+      if (itemID === "rindfleisch_patty" || itemID === "gemuese_patty" || itemID === "wurst") {
+        ev.target.appendChild(document.getElementById(itemID).cloneNode(true));
+      } else {
+        alert("Nur bestimmte Zutaten können auf den Herd gelegt werden!");
+      }
+    }
+
+    function dropFryer(ev) {
+      ev.preventDefault();
+      let itemID = ev.dataTransfer.getData("text");
+      if (itemID === "pommes") {
+        ev.target.appendChild(document.getElementById(itemID).cloneNode(true));
+      } else {
+        alert("Nur Pommes können in die Friteuse gelegt werden!");
       }
     }
 
@@ -109,31 +184,54 @@
       "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
       "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
       "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+      "Hotdog": ["hotdog_broetchen", "wurst", "zwiebeln", "ketchup", "senf"]
     };
 
-    // Gericht zubereiten
     function prepareDish() {
       const tray = document.getElementById("tray");
-      let ingredients = Array.from(tray.children).map(item => item.id);
+      const ingredients = Array.from(tray.children).map(child => child.id);
+      let dishName = null;
 
-      for (const dish in recipes) {
-        if (JSON.stringify(recipes[dish].sort()) === JSON.stringify(ingredients.sort())) {
-          alert(`Gericht zubereitet: ${dish}`);
-          clearTray();
-          return;
+      for (const [name, recipe] of Object.entries(recipes)) {
+        if (recipe.length === ingredients.length && recipe.every(item => ingredients.includes(item))) {
+          dishName = name;
+          break;
         }
       }
-      alert("Keine passenden Zutaten für ein Gericht.");
+
+      if (dishName) {
+        const preparedDish = document.createElement("div");
+        preparedDish.classList.add("tray-item", "prepared-dish");
+        preparedDish.id = dishName.replace(/\s+/g, "_");
+        preparedDish.innerText = dishName;
+        preparedDish.draggable = true;
+        preparedDish.ondragstart = drag;
+        
+        tray.innerHTML = "";  // Zutaten vom Tablett entfernen
+        tray.appendChild(preparedDish);
+      } else {
+        alert("Dieses Rezept ist nicht verfügbar.");
+      }
     }
 
-    // Tablett leeren
     function clearTray() {
       const tray = document.getElementById("tray");
-      tray.innerHTML = "<p>Tablett</p>";
+      tray.innerHTML = "";
+    }
+
+    // Funktion, um das Gericht an den Kunden zu geben
+    function serveCustomer(customerId, dishId) {
+      const customer = document.getElementById(customerId);
+      const requiredDish = customer.getAttribute("data-order").replace(/\s+/g, "_");
+      
+      if (dishId === requiredDish) {
+        alert(`Der Kunde ${customerId} hat sein Gericht erhalten und ist zufrieden!`);
+        customer.remove();  // Kunde verlässt das Spiel
+        clearTray();
+      } else {
+        alert("Der Kunde ist nicht zufrieden. Das Gericht entspricht nicht seiner Bestellung.");
+      }
     }
   </script>
-
 </body>
 </html>
