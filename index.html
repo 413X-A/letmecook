@@ -125,12 +125,11 @@
 
     <script>
         const recipes = {
-            'Hamburger': ['brot', 'fleisch', 'kaese', 'tomate', 'salat'],
-            'Sandwich': ['brot', 'kaese', 'salat', 'tomate'],
-            'Mischsalat': ['tomate', 'salat']
-        };
+            'Hamburger': ['burger_brot', 'fleisch', 'kaese', 'tomate', 'salat'],
+            'Sandwich': ['sandwich_brot', 'kaese', 'salat', 'tomate'],
+            'Mischsalat': ['tomate', 'salat', 'gurke']
         let customers = [];
-        const ingredientNames = ['brot', 'fleisch', 'kaese', 'salat', 'tomate'];
+        const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
 
         function generateCustomers() {
             customers = [];
