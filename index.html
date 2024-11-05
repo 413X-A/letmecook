@@ -181,120 +181,133 @@
   </div>
 
   <script>
-    function allowDrop(event) {
-  const targetContainer = event.target.closest(".items-container");
-  
-  // Ablegen in der Zutatenleiste verhindern
-  if (!targetContainer) {
-    event.preventDefault(); // Nur erlauben, wenn Ziel nicht die Zutatenleiste ist
+    <script>
+  function allowDrop(event) {
+    // Ablegen verhindern, wenn das Ziel die Zutatenleiste (items-container) ist
+    if (!event.target.classList.contains("items-container")) {
+      event.preventDefault(); // Nur außerhalb der Zutatenleiste erlauben
+    }
   }
-}
 
-    function dropOnStove(event) {
-      const itemId = event.dataTransfer.getData("text");
-            const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
-      const itemElement = document.getElementById(itemId);
-
-      if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-        event.target.appendChild(itemElement);
-        setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden
-      } else {
-        alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
-      }
-    }
-
-    function dropOnFryer(event) {
-      const itemId = event.dataTransfer.getData("text");
-      const allowedItems = ["pommes"];
-      const itemElement = document.getElementById(itemId);
-
-      if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-        event.target.appendChild(itemElement);
-        setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden
-      } else {
-        alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
-      }
-    }
-
-    function moveToWarmer(itemId) {
-      // Das Suffix "_fertig" hinzufügen, um anzuzeigen, dass die Zutat zubereitet ist
-      const itemElement = document.getElementById(itemId);
-      const newItemId = itemId + "_fertig";
-      itemElement.id = newItemId;
-
-      const warmers = document.querySelectorAll('.warmer');
-      const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
-
-      if (freeWarmer) {
-        freeWarmer.appendChild(itemElement); // Auf freien Speisewärmer legen
-      } else {
-        itemElement.remove(); // Löschen, falls kein Platz frei
-      }
-    }
-
-    function dropOnWarmer(event) {
-      const itemId = event.dataTransfer.getData("text");
-      const itemElement = document.getElementById(itemId);
-
-      if (itemId.endsWith("_fertig")) {
-        event.target.appendChild(itemElement);
-      } else {
-        alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
-      }
-    }
-
-    function dropOnTray(event) {
-  const itemId = event.dataTransfer.getData("text");
-  const itemElement = document.getElementById(itemId);
-
-  // Liste der Zutaten, die zuerst auf Herd oder Fritteuse müssen
-  const requiresPreparation = ["rindfleisch_patty", "gemuese_patty", "wurst", "pommes"];
-
-  // Prüfen, ob die Zutat eine Vorbereitung benötigt und ob sie noch nicht fertig ist
-  if (requiresPreparation.some(item => itemId.startsWith(item)) && !itemId.endsWith("_fertig")) {
-    alert("Diese Zutat muss zuerst auf den Herd oder in die Fritteuse.");
-  } else {
-    event.target.appendChild(itemElement); // Erlaubt alle anderen Zutaten auf das Tablett
+  function drag(event) {
+    const item = event.target;
+    event.dataTransfer.setData("text", item.id);
   }
-}
 
+  function dropOnStove(event) {
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData("text");
+    const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
+    const itemElement = document.getElementById(itemId);
 
-    function prepareDish() {
-      const tray = document.getElementById("tray");
-      const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
-      const orderMatch = checkOrder(ingredients);
+    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
+      event.target.appendChild(itemElement);
+      setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden
+    } else {
+      alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
+    }
+  }
 
-      if (orderMatch) {
-        alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
-        tray.innerHTML = ""; // Tablett leeren
-      } else {
-        alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
+  function dropOnFryer(event) {
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData("text");
+    const allowedItems = ["pommes"];
+    const itemElement = document.getElementById(itemId);
+
+    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
+      event.target.appendChild(itemElement);
+      setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden
+    } else {
+      alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
+    }
+  }
+
+  function moveToWarmer(itemId) {
+    const itemElement = document.getElementById(itemId);
+    const newItemId = itemId + "_fertig";
+    itemElement.id = newItemId;
+
+    const warmers = document.querySelectorAll('.warmer');
+    const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
+
+    if (freeWarmer) {
+      freeWarmer.appendChild(itemElement); // Auf freien Speisewärmer legen
+    } else {
+      itemElement.remove(); // Löschen, falls kein Platz frei
+    }
+  }
+
+  function dropOnWarmer(event) {
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData("text");
+    const itemElement = document.getElementById(itemId);
+
+    if (itemId.endsWith("_fertig")) {
+      event.target.appendChild(itemElement);
+    } else {
+      alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
+    }
+  }
+
+  function dropOnTray(event) {
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData("text");
+    const itemElement = document.getElementById(itemId);
+
+    if (itemId.endsWith("_fertig")) {
+      event.target.appendChild(itemElement); // Nur fertige Zutaten dürfen aufs Tablett
+    } else {
+      alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
+    }
+  }
+
+  function prepareDish() {
+    const tray = document.getElementById("tray");
+    const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
+    const orderMatch = checkOrder(ingredients);
+
+    if (orderMatch) {
+      alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
+      tray.innerHTML = ""; // Tablett leeren
+    } else {
+      alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
+    }
+  }
+
+  function checkOrder(ingredients) {
+    const recipes = {
+      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
+      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
+      "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
+      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
+      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+    };
+
+    for (const [dish, recipe] of Object.entries(recipes)) {
+      if (arraysEqual(recipe, ingredients)) return dish;
+    }
+    return null;
+  }
+
+  function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    const sorted1 = arr1.slice().sort();
+    const sorted2 = arr2.slice().sort();
+    return sorted1.every((value, index) => value === sorted2[index]);
+  }
+
+  // Löschen der Zutat beim Loslassen in der Zutatenleiste
+  document.querySelectorAll('.items-container .item').forEach(item => {
+    item.addEventListener('dragend', function(event) {
+      // Überprüfen, ob das Element in die items-container zurückfällt und entfernen
+      if (event.target.parentNode.classList.contains("items-container")) {
+        event.target.remove();
       }
-    }
+    });
+  });
+</script>
 
-    function checkOrder(ingredients) {
-      const recipes = {
-        "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
-        "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
-        "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-        "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
-        "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-        "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-        "Mischsalat": ["salat", "tomate", "gurke", "mais"]
-      };
-
-      for (const [dish, recipe] of Object.entries(recipes)) {
-        if (arraysEqual(recipe, ingredients)) return dish;
-      }
-      return null;
-    }
-
-    function arraysEqual(arr1, arr2) {
-      if (arr1.length !== arr2.length) return false;
-      const sorted1 = arr1.slice().sort();
-      const sorted2 = arr2.slice().sort();
-      return sorted1.every((value, index) => value === sorted2[index]);
-    }
-  </script>
 </body>
 </html>
