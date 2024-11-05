@@ -28,8 +28,8 @@
       margin: 10px 0;
     }
     .customer {
-      width: 100px; /* Größe für Kunden */
-      height: 100px; /* Größe für Kunden */
+      width: 100px;
+      height: 100px;
       margin: 25px;
       border: 1px solid #ccc;
       text-align: center;
@@ -53,7 +53,7 @@
       margin: 10px 0;
     }
     .tray {
-      flex: 0 0 80%; /* Tablett nimmt 80% der Breite ein */
+      flex: 0 0 80%;
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
@@ -63,7 +63,7 @@
       justify-content: flex-start;
     }
     .btn {
-      flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
+      flex: 0 0 10%;
       margin: 5px;
       padding: 10px 0;
       cursor: pointer;
@@ -75,21 +75,17 @@
       border-radius: 5px;
     }
 
-    /* Speisewärmer und Geräte in einer Zeile */
     .workstations {
-      display: flex; /* Geräte in einer Zeile */
+      display: flex;
       justify-content: center;
-      margin: 15px 0; /* Abstand für die Geräte */
+      margin: 15px 0;
     }
     .station {
-      width: 50px; /* Größe für Geräte */
-      height: 50px; /* Größe für Geräte */
+      width: 50px;
+      height: 50px;
       border-radius: 15px;
       margin: 5px;
       background-color: #ccc;
-      text-align: center;
-      line-height: 30px;
-      font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
     }
@@ -97,27 +93,25 @@
     .stove { background-color: #ffd700; }
     .fryer { background-color: #d2b48c; }
 
-    /* Zutaten */
     .items-container {
-      display: flex; /* Zutaten in einer Zeile */
-      flex-wrap: wrap; /* Zeilenumbruch erlauben */
+      display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
-      margin: 10px 0; /* Abstand für die Zutaten */
+      margin: 10px 0;
     }
     .item {
-      width: 40px; /* Breite für Zutaten */
-      height: 40px; /* Höhe für Zutaten, gleich wie Breite */
+      width: 40px;
+      height: 40px;
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 5px; /* Ecken sind nicht abgerundet */
-      background-color: #eaeaea; /* Hintergrundfarbe */
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
-      cursor: grab; /* Handcursor für interaktive Elemente */
-      background-size: cover; /* Hintergrundbilder skalieren */
+      border-radius: 5px;
+      background-color: #eaeaea;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: grab;
+      background-size: cover;
     }
 
-    /* Hintergrundbilder für Zutaten */
     #pommes { background-image: url('pommes.png'); }
     #mayonnaise { background-image: url('mayonnaise.png'); }
     #ketchup { background-image: url('ketchup.png'); }
@@ -139,24 +133,21 @@
   <div class="container">
     <h1>Let Me Cook</h1>
 
-    <!-- Kundenanzeige -->
     <div class="customers">
       <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
       <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
-    <!-- Speisewärmer und Geräte in einer Zeile -->
     <div class="workstations">
-      <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
-      <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
-      <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 3</div>
-      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
-      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
-      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
+      <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)"></div>
     </div>
 
-    <!-- Tablett für Zubereitung -->
     <div class="tray-container">
       <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
         <p>Tablett</p>
@@ -164,7 +155,6 @@
       <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
 
-    <!-- Zutaten -->
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
@@ -185,7 +175,7 @@
   </div>
 
   <script>
-    let cookingItems = {}; // Sammlung der Zutaten, die auf dem Herd oder in der Friteuse sind
+    let cookingItems = {};
 
     function allowDrop(ev) {
       ev.preventDefault();
@@ -208,7 +198,7 @@
       ev.preventDefault();
       const data = ev.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      if (item) {
+      if (item && ["rindfleisch_patty", "gemuese_patty", "wurst"].includes(item.id)) {
         ev.target.appendChild(item);
         startCooking(item.id, 'stove', ev.target);
       }
@@ -218,7 +208,7 @@
       ev.preventDefault();
       const data = ev.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      if (item) {
+      if (item && item.id === "pommes") {
         ev.target.appendChild(item);
         startCooking(item.id, 'fryer', ev.target);
       }
@@ -230,30 +220,25 @@
         element: element,
         timer: setTimeout(() => {
           finishCooking(itemId);
-        }, 5000) // 5 Sekunden Kochzeit
+        }, 5000)
       };
     }
 
     function finishCooking(itemId) {
       const item = document.getElementById(itemId);
-      const type = cookingItems[itemId].type;
       const element = cookingItems[itemId].element;
 
-      // Zutat vom Herd oder Friteuse entfernen
       element.removeChild(item);
       delete cookingItems[itemId];
 
-      // Versuche, auf einen freien Wärmer zu legen
       const warmers = document.querySelectorAll('.warmer');
       for (const warmer of warmers) {
-        if (warmer.childElementCount === 0) { // Wenn der Wärmer leer ist
-          item.id += "_fertig"; // Ändere die ID, um zu kennzeichnen, dass die Zutat fertig ist
+        if (warmer.childElementCount === 0) {
+          item.id += "_fertig";
           warmer.appendChild(item);
-          return; // Beenden, nachdem die Zutat platziert wurde
+          return;
         }
       }
-
-      // Wenn alle Wärmer belegt sind, die Zutat löschen
       item.remove();
     }
 
@@ -271,13 +256,12 @@
       const itemsInTray = Array.from(tray.children);
       const order = itemsInTray.map(item => item.id);
 
-      // Bestellüberprüfung
       let matched = false;
       const customer = document.querySelector('.customer[data-order="'+order.join(', ')+'"]');
       if (customer) {
         matched = true;
         customer.innerText += " - Bestellt!";
-        itemsInTray.forEach(item => tray.removeChild(item)); // Alle Zutaten entfernen
+        itemsInTray.forEach(item => tray.removeChild(item));
       } else {
         alert("Zutaten stimmen nicht mit der Bestellung überein!");
       }
