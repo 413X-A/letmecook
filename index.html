@@ -331,38 +331,13 @@
   }
 
   // Utility function to check if two arrays are equal
-  function arraysEqual(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    const sorted1 = arr1.slice().sort();
-    const sorted2 = arr2.slice().sort();
-    return sorted1.every((value, index) => value === sorted2[index]);
-  }
-
-  // Allow items to be swapped between warmers (finished items)
-  function swapBetweenWarmers(event) {
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
-
-    if (itemElement && itemId.endsWith("_fertig")) {
-      // Move between warmers if it is finished
-      event.target.appendChild(itemElement);
-    } else {
-      handleInvalidDrop(itemElement);
+  function arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
     }
+    return true;
   }
-
-  // Allow "finished" items to be moved around on the tray
-  function allowTrayMoves(event) {
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
-
-    if (itemElement && itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement); // Allow finished items to move on the tray
-    } else {
-      handleInvalidDrop(itemElement);
-    }
-  }
-
 </script>
 
 </body>
