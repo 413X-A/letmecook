@@ -28,9 +28,9 @@
       margin: 10px 0;
     }
     .customer {
-      width: 100px; /* Größe für Kunden */
-      height: 100px; /* Größe für Kunden */
-      margin: 25px;
+      width: 50px; /* Größe für Kunden */
+      height: 50px; /* Größe für Kunden */
+      margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
       line-height: 50px;
@@ -55,7 +55,7 @@
       margin: 10px 0;
     }
     .tray {
-      flex: 0 0 80%; /* Tablett nimmt 70% der Breite ein */
+      flex: 0 0 70%; /* Tablett nimmt 70% der Breite ein */
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
@@ -81,11 +81,11 @@
     .workstations {
       display: flex; /* Geräte in einer Zeile */
       justify-content: center;
-      margin: 15px 0; /* Abstand für die Geräte */
+      margin: 10px 0; /* Abstand für die Geräte */
     }
     .station {
-      width: 50px; /* Größe für Geräte */
-      height: 50px; /* Größe für Geräte */
+      width: 30px; /* Größe für Geräte */
+      height: 30px; /* Größe für Geräte */
       border-radius: 15px;
       margin: 5px;
       background-color: #ccc;
@@ -112,7 +112,7 @@
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 5px; /* Ecken sind nicht abgerundet */
+      border-radius: 0; /* Ecken sind nicht abgerundet */
       background-color: #eaeaea; /* Hintergrundfarbe */
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
       cursor: grab; /* Handcursor für interaktive Elemente */
@@ -135,6 +135,11 @@
     #gurke { background-image: url('gurke.png'); }
     #hotdog_broetchen { background-image: url('hotdog_broetchen.png'); }
     #mais { background-image: url('mais.png'); }
+
+    /* Fertig-Grafik */
+    .finished-item {
+      background-color: #90ee90; /* Hellgrün für fertig */
+    }
   </style>
 </head>
 <body>
@@ -184,7 +189,6 @@
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
-
   </div>
 
   <script>
@@ -201,22 +205,37 @@
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
-      ev.target.appendChild(item.cloneNode(true)); // Zutat zum Tablett hinzufügen
+      if (itemID !== "rindfleisch_patty" && itemID !== "gemuese_patty" && itemID !== "wurst" && itemID !== "pommes") {
+        ev.target.appendChild(item.cloneNode(true)); // Zutat zum Tablett hinzufügen
+      } else {
+        alert("Diese Zutat kann nicht auf das Tablett gelegt werden!");
+      }
     }
 
     function dropDish(ev) {
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
-      ev.target.appendChild(item.cloneNode(true)); // Gericht zum Wärmer hinzufügen
+      if (ev.target.children.length === 0) { // Nur eine Zutat pro Wärmer
+        ev.target.appendChild(item.cloneNode(true)); // Gericht zum Wärmer hinzufügen
+      } else {
+        alert("Es kann nur eine Zutat pro Wärmer platziert werden!");
+      }
     }
 
     function dropStove(ev) {
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       if (["rindfleisch_patty", "gemuese_patty", "wurst"].includes(itemID)) {
-        const item = document.getElementById(itemID);
-        ev.target.appendChild(item.cloneNode(true)); // Zutat auf Herdplatte hinzufügen
+        if (ev.target.children.length === 0) { // Nur eine Zutat pro Herdplatte
+          const item = document.getElementById(itemID);
+          ev.target.appendChild(item.cloneNode(true)); // Zutat auf Herdplatte hinzufügen
+          setTimeout(() => {
+            ev.target.innerHTML = "<div class='item finished-item'>Fertig</div>"; // Zutat ersetzen durch "Fertig"
+          }, 5000); // Timer für 5 Sekunden
+        } else {
+          alert("Es kann nur eine Zutat pro Herdplatte platziert werden!");
+        }
       } else {
         alert("Nur Rindfleisch-Patties, Gemüse-Patties oder Würste können auf die Herdplatten gelegt werden!");
       }
@@ -226,15 +245,22 @@
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       if (itemID === "pommes") {
-        const item = document.getElementById(itemID);
-        ev.target.appendChild(item.cloneNode(true)); // Zutat in die Friteuse hinzufügen
+        if (ev.target.children.length === 0) { // Nur eine Zutat pro Friteuse
+          const item = document.getElementById(itemID);
+          ev.target.appendChild(item.cloneNode(true)); // Zutat in die Friteuse hinzufügen
+          setTimeout(() => {
+            ev.target.innerHTML = "<div class='item finished-item'>Fertig</div>"; // Zutat ersetzen durch "Fertig"
+          }, 5000); // Timer für 5 Sekunden
+        } else {
+          alert("Es kann nur eine Zutat pro Friteuse platziert werden!");
+        }
       } else {
         alert("Nur Pommes können in die Friteuse gelegt werden!");
       }
     }
 
     const recipes = {
-      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
+      "Pommes Spezial": ["pommes", "mayonnaise", "ketchup", "zwiebeln"],
       "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
       "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
       "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
