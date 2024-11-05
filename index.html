@@ -196,24 +196,20 @@
     }
 
     function prepareDish(trayId) {
-        const tray = document.getElementById(trayId);
-        const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
-        const matchedDish = Object.keys(recipes).find(dish => {
-            return recipes[dish].every(item => ingredientsOnTray.includes(item));
-        });
+    const tray = document.getElementById(trayId);
+    const ingredientsOnTray = Array.from(tray.children).map(ingredient => ingredient.id);
+    const matchedDish = Object.keys(recipes).find(dish => {
+        return recipes[dish].every(item => ingredientsOnTray.includes(item));
+    });
 
-        if (matchedDish) {
-            createDishObject(matchedDish); // Gericht hinzufügen
-            tray.innerHTML = ''; // Leere die Zutaten auf dem Tablett
-            document.getElementById('message').innerText = `Das Gericht ${matchedDish} wurde zubereitet!`;
-        } else {
-            ingredientsOnTray.forEach(id => {
-                const ingredientElement = document.getElementById(id);
-                tray.appendChild(ingredientElement.cloneNode(true));
-            });
-            document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
-        }
+    if (matchedDish) {
+        createDishObject(matchedDish); // Gericht auf das Tablett legen
+        document.getElementById('message').innerText = `Das Gericht ${matchedDish} wurde zubereitet!`;
+    } else {
+        document.getElementById('message').innerText = 'Das Gericht passt nicht zu diesem Kunden!';
     }
+}
+
 
     function createDishObject(dish) {
         const tray = document.getElementById('tray1');
