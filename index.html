@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+´<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -57,10 +57,10 @@
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
+      align-content: flex-start;
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
-      position: relative;
     }
     .btn {
       flex: 0 0 10%;
@@ -115,7 +115,6 @@
       background-size: cover;
     }
 
-    /* Hintergrundbilder für Zutaten */
     #pommes { background-image: url('pommes.png'); }
     #mayonnaise { background-image: url('mayonnaise.png'); }
     #ketchup { background-image: url('ketchup.png'); }
@@ -137,14 +136,12 @@
   <div class="container">
     <h1>Let Me Cook</h1>
 
-    <!-- Kundenanzeige -->
     <div class="customers">
       <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
       <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
-    <!-- Speisewärmer und Geräte in einer Zeile -->
     <div class="workstations">
       <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
       <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
@@ -154,7 +151,6 @@
       <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
     </div>
 
-    <!-- Tablett für Zubereitung -->
     <div class="tray-container">
       <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
         <p>Tablett</p>
@@ -162,7 +158,6 @@
       <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
 
-    <!-- Zutaten -->
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
@@ -180,125 +175,104 @@
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
-
   </div>
 
   <script>
-    function allowDrop(event) {
-      event.preventDefault();
+    let cookingItems = {};
+
+    function allowDrop(ev) {
+      ev.preventDefault();
     }
 
-    function drag(event) {
-      event.dataTransfer.setData("text/plain", event.target.id);
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
     }
 
-    function drop(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text/plain");
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      const tray = document.getElementById("tray");
-
-      if (tray.children.length < 9) {
-        tray.appendChild(item);
+      if (item) {
+        ev.target.appendChild(item);
       }
     }
 
-    function dropStove(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text/plain");
+    function dropStove(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      const stove = event.target;
-
-      // Nur bestimmte Zutaten auf den Herd legen
-      if (["rindfleisch_patty", "gemuese_patty", "wurst"].includes(data) && stove.children.length === 0) {
-        stove.appendChild(item);
-        setTimeout(() => {
-          if (stove.children.length > 0) {
-            const finishedDish = document.createElement("div");
-            finishedDish.className = "item";
-            finishedDish.id = data + "_fertig";
-            finishedDish.draggable = true;
-            finishedDish.ondragstart = (e) => drag(e);
-            finishedDish.style.backgroundImage = `url('${data}_fertig.png')`; // Hier könnte das fertige Bild sein
-            stove.appendChild(finishedDish);
-            stove.removeChild(item); // Original entfernen
-          }
-        }, 5000); // 5 Sekunden
+      if (item) {
+        ev.target.appendChild(item);
+        startCooking(item.id, 'stove', ev.target);
       }
     }
 
-    function dropFryer(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text/plain");
+    function dropFryer(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      const fryer = event.target;
+      if (item) {
+        ev.target.appendChild(item);
+        startCooking(item.id, 'fryer', ev.target);
+      }
+    }
 
-      if (data === "pommes" && fryer.children.length === 0) {
-        fryer.appendChild(item);
-        setTimeout(() => {
-          if (fryer.children.length > 0) {
-            const finishedDish = document.createElement("div");
-            finishedDish.className = "item";
-            finishedDish.id = data + "_fertig";
-            finishedDish.draggable = true;
-            finishedDish.ondragstart = (e) => drag(e);
-            finishedDish.style.backgroundImage = `url('${data}_fertig.png')`; // Hier könnte das fertige Bild sein
-            fryer.appendChild(finishedDish);
-            fryer.removeChild(item); // Original entfernen
-          }
-        }, 5000); // 5 Sekunden
+    function startCooking(itemId, type, element) {
+      cookingItems[itemId] = {
+        type: type,
+        element: element,
+        timer: setTimeout(() => {
+          finishCooking(itemId);
+        }, 5000) // 5 Sekunden Kochzeit
+      };
+    }
+
+    function finishCooking(itemId) {
+      const item = document.getElementById(itemId);
+      const type = cookingItems[itemId].type;
+      const element = cookingItems[itemId].element;
+
+      // Zutat vom Herd oder Friteuse entfernen
+      element.removeChild(item);
+      delete cookingItems[itemId];
+
+      // Versuche, auf einen freien Wärmer zu legen
+      const warmers = document.querySelectorAll('.warmer');
+      for (const warmer of warmers) {
+        if (warmer.childElementCount === 0) { // Wenn der Wärmer leer ist
+          warmer.appendChild(item);
+          return; // Beenden, nachdem die Zutat platziert wurde
+        }
+      }
+
+      // Wenn alle Wärmer belegt sind, die Zutat löschen
+      item.remove();
+    }
+
+    function dropDish(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      if (item) {
+        ev.target.appendChild(item);
       }
     }
 
     function prepareDish() {
       const tray = document.getElementById("tray");
-      const order = getCurrentCustomerOrder();
+      const itemsInTray = Array.from(tray.children);
+      const order = itemsInTray.map(item => item.id);
 
-      // Überprüfen, ob die Zutaten auf dem Tablett der Bestellung entsprechen
-      const requiredIngredients = getIngredientsForOrder(order);
-      let hasAllIngredients = requiredIngredients.every(ing => Array.from(tray.children).some(item => item.id === ing));
-
-      if (hasAllIngredients) {
-        // Wenn das Gericht korrekt ist
-        alert(`Gericht ${order} zubereitet!`);
-        clearTray();
-        serveToCustomer(order);
+      // Bestellüberprüfung
+      let matched = false;
+      const customer = document.querySelector('.customer[data-order="'+order.join(', ')+'"]');
+      if (customer) {
+        matched = true;
+        customer.innerText += " - Bestellt!";
+        itemsInTray.forEach(item => tray.removeChild(item)); // Alle Zutaten entfernen
       } else {
-        alert(`Zutaten stimmen nicht mit ${order} überein.`);
+        alert("Zutaten stimmen nicht mit der Bestellung überein!");
       }
-    }
-
-    function clearTray() {
-      const tray = document.getElementById("tray");
-      while (tray.firstChild) {
-        tray.removeChild(tray.firstChild);
-      }
-    }
-
-    function serveToCustomer(order) {
-      // Zufälligen Kunden auswählen und das Gericht abgeben
-      const customers = document.querySelectorAll('.customer');
-      for (let customer of customers) {
-        if (customer.dataset.order === order) {
-          alert(`${customer.innerText} ist zufrieden!`);
-          customer.remove(); // Kunde geht
-          break;
-        }
-      }
-    }
-
-    function getCurrentCustomerOrder() {
-      // Hier könnte eine Logik sein, um den aktuellen Kunden und dessen Bestellung zu verfolgen
-      return document.getElementById('customer1').dataset.order; // Beispiel, nur der erste Kunde
-    }
-
-    function getIngredientsForOrder(order) {
-      const recipes = {
-        "Pommes Spezial": ["pommes", "mayonnaise", "ketchup", "zwiebeln"],
-        "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-        "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      };
-      return recipes[order] || [];
     }
   </script>
 </body>
