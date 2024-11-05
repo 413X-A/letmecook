@@ -246,15 +246,20 @@
     }
 
     function dropOnTray(event) {
-      const itemId = event.dataTransfer.getData("text");
-      const itemElement = document.getElementById(itemId);
+  const itemId = event.dataTransfer.getData("text");
+  const itemElement = document.getElementById(itemId);
 
-      if (itemId.endsWith("_fertig")) {
-        event.target.appendChild(itemElement); // Nur fertige Zutaten dürfen aufs Tablett
-      } else {
-        alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
-      }
-    }
+  // Liste der Zutaten, die zuerst auf Herd oder Fritteuse müssen
+  const requiresPreparation = ["rindfleisch_patty", "gemuese_patty", "wurst", "pommes"];
+
+  // Prüfen, ob die Zutat eine Vorbereitung benötigt und ob sie noch nicht fertig ist
+  if (requiresPreparation.some(item => itemId.startsWith(item)) && !itemId.endsWith("_fertig")) {
+    alert("Diese Zutat muss zuerst auf den Herd oder in die Fritteuse.");
+  } else {
+    event.target.appendChild(itemElement); // Erlaubt alle anderen Zutaten auf das Tablett
+  }
+}
+
 
     function prepareDish() {
       const tray = document.getElementById("tray");
