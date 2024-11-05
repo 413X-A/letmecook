@@ -1,140 +1,272 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drag-and-Drop Kochspiel</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let Me Cook - Kochspiel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        
+        h1 {
+            margin-top: 20px;
+        }
+        
+        .customer-container, .kitchen-container, .ingredients-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .customer {
+            width: 150px;
+            height: 200px;
+            background-image: url('customer.png');
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .customer-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .customer-order {
+            font-size: 14px;
+        }
 
-    .items-container {
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
+        .kitchen-box {
+            width: 100px;
+            height: 100px;
+            background-color: lightgray;
+            border: 2px dashed #888;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
 
-    .item {
-      width: 100px;
-      height: 50px;
-      margin: 10px;
-      background-color: lightblue;
-      text-align: center;
-      line-height: 50px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
+        .tray {
+            width: 300px;
+            height: 200px;
+            background-color: lightgray;
+            border: 2px dashed #888;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
 
-    .drop-area {
-      width: 300px;
-      height: 200px;
-      margin-top: 20px;
-      background-color: lightgray;
-      position: relative;
-      border: 2px dashed #888;
-      border-radius: 10px;
-    }
+        .ingredient {
+            width: 80px;
+            height: 80px;
+            background-color: lightblue;
+            margin: 5px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 80px;
+            cursor: pointer;
+            position: relative;
+        }
 
-  </style>
+        #mullcontainer {
+            width: 100px;
+            height: 100px;
+            background-color: red;
+            border-radius: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        #mullcontainer p {
+            margin-top: 30px;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        #zubereiten {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Drag-and-Drop Kochspiel</h1>
+    <h1>Let Me Cook</h1>
 
-  <div class="items-container">
-    <!-- Beispiel-Zutaten -->
-    <div id="burger_broetchen" class="item" draggable="true" ondragstart="drag(event)">Burger Brötchen</div>
-    <div id="rindfleisch_patty" class="item" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
-    <div id="salat" class="item" draggable="true" ondragstart="drag(event)">Salat</div>
-    <div id="tomate" class="item" draggable="true" ondragstart="drag(event)">Tomate</div>
-    <div id="zwiebeln" class="item" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
-    <div id="ketchup" class="item" draggable="true" ondragstart="drag(event)">Ketchup</div>
-    <!-- Weitere Zutaten hier -->
-  </div>
+    <!-- Kundenbereich -->
+    <div id="customer-section" class="customer-container">
+        <!-- 3 zufällige Kunden werden hier angezeigt -->
+    </div>
 
-  <div id="tray" class="drop-area" ondrop="dropOnTray(event)" ondragover="allowDrop(event)">
-    <!-- Das Tablett -->
-    <p>Ziehe Zutaten hierher!</p>
-  </div>
+    <!-- Küchenbereich -->
+    <div class="kitchen-container">
+        <div class="kitchen-box" id="speisewaermer1">Speisewärmer</div>
+        <div class="kitchen-box" id="speisewaermer2">Speisewärmer</div>
+        <div class="kitchen-box" id="speisewaermer3">Speisewärmer</div>
+        <div class="kitchen-box" id="herdplatte1">Herdplatte</div>
+        <div class="kitchen-box" id="herdplatte2">Herdplatte</div>
+        <div class="kitchen-box" id="friteuse">Friteuse</div>
+    </div>
 
-  <script>
-    let draggedItem = null;  // Das aktuell gezogene Item
-    let originalParent = null;  // Ursprünglicher Elternteil des gezogenen Items
-    let originalPosition = { x: 0, y: 0 };  // Ursprüngliche Position des Items
+    <!-- Tablett -->
+    <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <p>Leeres Tablett - Zutaten hier ablegen</p>
+    </div>
 
-    // Funktion zum Starten des Dragvorgangs
-    function drag(event) {
-      draggedItem = event.target;  // Das gezogene Element
-      originalParent = draggedItem.parentElement;  // Der ursprüngliche Elternteil
-      originalPosition = {
-        x: event.clientX,
-        y: event.clientY
-      };
+    <!-- Zutatenbereich -->
+    <div class="ingredients-container" id="ingredients-container">
+        <!-- Zutaten werden hier angezeigt -->
+    </div>
 
-      // Beginne mit dem Ziehen des Items
-      draggedItem.style.position = "absolute";  // Positioniere das Item absolut
-      draggedItem.style.zIndex = 1000;  // Mache das Item sichtbar über anderen Elementen
-      document.body.appendChild(draggedItem);  // Hänge das Item direkt an den Body
+    <!-- Müllcontainer -->
+    <div id="mullcontainer" ondrop="dropMuell(event)" ondragover="allowDrop(event)">
+        <p>💥 Mülleimer</p>
+    </div>
 
-      // Initiale Position des Items
-      updatePosition(event);
-    }
+    <!-- Zubereiten-Button -->
+    <div class="button-container">
+        <button id="zubereiten" onclick="prepareDish()">Zubereiten</button>
+    </div>
 
-    // Funktion zum Aktualisieren der Position des gezogenen Items
-    function updatePosition(event) {
-      if (!draggedItem) return;
+    <script>
+        const ingredients = [
+            { name: 'Pommes', img: 'pommes.png' },
+            { name: 'Mayonnaise', img: 'mayonnaise.png' },
+            { name: 'Ketchup', img: 'ketchup.png' },
+            { name: 'Zwiebeln', img: 'zwiebeln.png' },
+            { name: 'Wurst', img: 'wurst.png' },
+            { name: 'Currysauce', img: 'currysauce.png' },
+            { name: 'Burger Brötchen', img: 'burger_broetchen.png' },
+            { name: 'Rindfleisch Patty', img: 'rindfleisch_patty.png' },
+            { name: 'Salat', img: 'salat.png' },
+            { name: 'Tomate', img: 'tomate.png' },
+            { name: 'Gemüse Patty', img: 'gemuese_patty.png' },
+            { name: 'Käse', img: 'kaese.png' },
+            { name: 'Gurke', img: 'gurke.png' },
+            { name: 'Hotdog Brötchen', img: 'hotdog_broetchen.png' },
+            { name: 'Mais', img: 'mais.png' }
+        ];
 
-      const deltaX = event.clientX - originalPosition.x;
-      const deltaY = event.clientY - originalPosition.y;
+        const recipes = {
+            'Pommes Spezial': ['Pommes', 'Pommes', 'Pommes', 'Mayonnaise', 'Ketchup', 'Zwiebeln'],
+            'Currywurst mit Pommes': ['Wurst', 'Currysauce', 'Pommes'],
+            'Hamburger': ['Burger Brötchen', 'Rindfleisch Patty', 'Salat', 'Tomate', 'Zwiebeln', 'Ketchup'],
+            'Veggie Burger': ['Burger Brötchen', 'Gemüse Patty', 'Salat', 'Tomate', 'Zwiebeln', 'Mayonnaise'],
+            'Pommes mit Käse': ['Pommes', 'Pommes', 'Käse', 'Gurke'],
+            'Hotdog': ['Wurst', 'Hotdog Brötchen', 'Gurke', 'Ketchup'],
+            'Mischsalat': ['Salat', 'Tomate', 'Gurke', 'Mais']
+        };
 
-      draggedItem.style.left = `${originalPosition.x + deltaX}px`;
-      draggedItem.style.top = `${originalPosition.y + deltaY}px`;
-    }
+        // Kunden zufällig generieren
+        function generateCustomer() {
+            const customerNames = ['Max', 'Anna', 'Ben', 'Clara', 'Peter', 'Lena'];
+            const orders = Object.keys(recipes);
+            const randomName = customerNames[Math.floor(Math.random() * customerNames.length)];
+            const randomOrder = orders[Math.floor(Math.random() * orders.length)];
 
-    // Während des Ziehens die Position aktualisieren
-    document.addEventListener("mousemove", (event) => {
-      if (draggedItem) {
-        updatePosition(event);
-      }
-    });
-
-    // Wenn das Element fallen gelassen wird
-    function drop(event) {
-      event.preventDefault();
-
-      // Prüfen, ob es eine gültige Drop-Zone ist
-      if (event.target.classList.contains("drop-area")) {
-        event.target.appendChild(draggedItem);  // Element auf die Drop-Zone setzen
-      } else {
-        // Zurück zum ursprünglichen Platz, wenn nicht gültig
-        originalParent.appendChild(draggedItem);
-      }
-
-      // Zurücksetzen der Dragging-Variable
-      draggedItem.style.position = "";  // Entferne die absolute Position
-      draggedItem.style.zIndex = "";  // Entferne die Z-Index-Eigenschaft
-      draggedItem = null;
-    }
-
-    // Verhindern, dass das Element standardmäßig abgelegt wird
-    function allowDrop(event) {
-      event.preventDefault();
-    }
-
-    // Eventlistener für das Fallenlassen auf dem Tablett
-    document.querySelector(".drop-area").addEventListener("drop", drop);
-
-    // Füge auch das Dragend-Event hinzu, um das Element zurückzusetzen, falls es nicht fallen gelassen wird
-    document.querySelectorAll(".item").forEach(item => {
-      item.addEventListener("dragend", (event) => {
-        // Wenn das Element nach dem Ziehen nicht abgelegt wird, zurücksetzen
-        if (!draggedItem) {
-          originalParent.appendChild(event.target);
+            const customerDiv = document.createElement('div');
+            customerDiv.className = 'customer';
+            customerDiv.innerHTML = `
+                <div class="customer-name">${randomName}</div>
+                <div class="customer-order">${randomOrder}</div>
+            `;
+            document.getElementById('customer-section').appendChild(customerDiv);
         }
-        draggedItem = null;
-      });
-    });
-  </script>
+
+        // Zutaten in den Zutatenbereich hinzufügen
+        function displayIngredients() {
+            const container = document.getElementById('ingredients-container');
+            ingredients.forEach(ingredient => {
+                const ingredientDiv = document.createElement('div');
+                ingredientDiv.className = 'ingredient';
+                ingredientDiv.id = ingredient.name;
+                ingredientDiv.draggable = true;
+                ingredientDiv.ondragstart = function (event) {
+                    event.dataTransfer.setData("text", event.target.id);
+                };
+                ingredientDiv.style.backgroundImage = `url(${ingredient.img})`;
+                ingredientDiv.style.backgroundSize = 'cover';
+                container.appendChild(ingredientDiv);
+            });
+        }
+
+        // Drop-Zonen erlauben
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        // Zutaten auf das Tablett ablegen
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            if (event.target.id === 'tray' && draggedElement) {
+                event.target.appendChild(draggedElement);
+            }
+        }
+
+        // Gericht zubereiten
+        function prepareDish() {
+            const tray = document.getElementById('tray');
+            const ingredientsInTray = Array.from(tray.children).map(item => item.id);
+            let matchedRecipe = null;
+
+            for (const [dish, recipe] of Object.entries(recipes)) {
+                if (JSON.stringify(ingredientsInTray.sort()) === JSON.stringify(recipe.sort())) {
+                    matchedRecipe = dish;
+                    break;
+                }
+            }
+
+            if (matchedRecipe) {
+                alert('Gericht: ' + matchedRecipe);
+                tray.innerHTML = `<p>${matchedRecipe}</p>`; // Zeigt das Gericht an
+            } else {
+                alert('Rezept passt nicht!');
+            }
+        }
+
+        // Mülleimer-Logik
+        function dropMuell(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            if (draggedElement) {
+                draggedElement.remove();
+            }
+        }
+
+        // Initialisierung
+        window.onload = function () {
+            generateCustomer();
+            generateCustomer();
+            generateCustomer();
+            displayIngredients();
+        }
+    </script>
 </body>
 </html>
