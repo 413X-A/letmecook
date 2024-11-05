@@ -27,7 +27,7 @@
       justify-content: center;
       margin: 10px 0;
     }
-    .customer, .station, .item, .tray-item {
+    .customer, .station {
       width: 50px; /* Größe für Kunden und Arbeitsstationen */
       height: 50px; /* Größe für Kunden und Arbeitsstationen */
       margin: 5px;
@@ -60,8 +60,6 @@
       flex-wrap: wrap;
       justify-content: flex-start;
     }
-    .tray-item { background-color: #f0e68c; }
-
     .btn {
       flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
       margin: 5px;
@@ -103,18 +101,30 @@
       height: 40px; /* Größe für Zutaten */
       margin: 5px;
       border: 1px solid #ccc;
-      text-align: center;
-      line-height: 40px;
       user-select: none;
-      font-size: 12px; /* Kleinere Schriftgröße */
-      border-radius: 8px; /* Abgerundete Ecken */
+      border-radius: 0; /* Ecken sind nicht abgerundet */
       background-color: #eaeaea; /* Hintergrundfarbe */
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
       cursor: grab; /* Handcursor für interaktive Elemente */
+      background-size: cover; /* Hintergrundbilder skalieren */
     }
-    .item:hover {
-      background-color: #d4d4d4; /* Hover-Effekt */
-    }
+
+    /* Hintergrundbilder für Zutaten */
+    #pommes { background-image: url('pommes.png'); }
+    #mayonnaise { background-image: url('mayonnaise.png'); }
+    #ketchup { background-image: url('ketchup.png'); }
+    #zwiebeln { background-image: url('zwiebeln.png'); }
+    #wurst { background-image: url('wurst.png'); }
+    #currysauce { background-image: url('currysauce.png'); }
+    #burger_broetchen { background-image: url('burger_broetchen.png'); }
+    #rindfleisch_patty { background-image: url('rindfleisch_patty.png'); }
+    #salat { background-image: url('salat.png'); }
+    #tomate { background-image: url('tomate.png'); }
+    #gemuese_patty { background-image: url('gemuese_patty.png'); }
+    #kaese { background-image: url('kaese.png'); }
+    #gurke { background-image: url('gurke.png'); }
+    #hotdog_broetchen { background-image: url('hotdog_broetchen.png'); }
+    #mais { background-image: url('mais.png'); }
   </style>
 </head>
 <body>
@@ -150,20 +160,21 @@
 
     <!-- Zutaten -->
     <div class="items-container">
-      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
-      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
-      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
-      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
-      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
-      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
-      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
-      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
-      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
-      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
-      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
-      <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
-      <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
-      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
+      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="salat" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
   </div>
 
@@ -171,32 +182,27 @@
     // Drag-and-drop Funktionen
     function allowDrop(ev) { ev.preventDefault(); }
     function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
-    
+
     function drop(ev) {
       ev.preventDefault();
-      let itemID = ev.dataTransfer.getData("text");
-      let item = document.getElementById(itemID);
-      if (ev.target.id === "tray") {
-        ev.target.appendChild(item.cloneNode(true));
-      }
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      ev.target.appendChild(item.cloneNode(true)); // Zutat zum Tablett hinzufügen
     }
 
     function dropDish(ev) {
       ev.preventDefault();
-      let dishID = ev.dataTransfer.getData("text");
-      let dish = document.getElementById(dishID);
-      if (dish.classList.contains("prepared-dish")) {
-        ev.target.innerHTML = "";
-        ev.target.appendChild(dish);
-      }
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      ev.target.appendChild(item.cloneNode(true)); // Gericht zum Wärmer hinzufügen
     }
 
     function dropStove(ev) {
       ev.preventDefault();
-      let itemID = ev.dataTransfer.getData("text");
-      if (itemID === "rindfleisch_patty" || itemID === "gemuese_patty" || itemID === "wurst") {
-        let item = document.getElementById(itemID);
-        ev.target.appendChild(item.cloneNode(true));
+      const itemID = ev.dataTransfer.getData("text");
+      if (["rindfleisch_patty", "gemuese_patty", "wurst"].includes(itemID)) {
+        const item = document.getElementById(itemID);
+        ev.target.appendChild(item.cloneNode(true)); // Zutat auf Herdplatte hinzufügen
       } else {
         alert("Nur Rindfleisch-Patties, Gemüse-Patties oder Würste können auf die Herdplatten gelegt werden!");
       }
@@ -204,10 +210,10 @@
 
     function dropFryer(ev) {
       ev.preventDefault();
-      let itemID = ev.dataTransfer.getData("text");
+      const itemID = ev.dataTransfer.getData("text");
       if (itemID === "pommes") {
-        let item = document.getElementById(itemID);
-        ev.target.appendChild(item.cloneNode(true));
+        const item = document.getElementById(itemID);
+        ev.target.appendChild(item.cloneNode(true)); // Zutat in die Friteuse hinzufügen
       } else {
         alert("Nur Pommes können in die Friteuse gelegt werden!");
       }
