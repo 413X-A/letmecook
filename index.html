@@ -35,8 +35,6 @@
       text-align: center;
       line-height: 50px;
       user-select: none;
-    }
-    .customer {
       background: url('customer.png') center/cover;
       position: relative;
       display: flex;
@@ -55,7 +53,7 @@
       margin: 10px 0;
     }
     .tray {
-      flex: 0 0 80%; /* Tablett nimmt 70% der Breite ein */
+      flex: 0 0 80%; /* Tablett nimmt 80% der Breite ein */
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
@@ -63,6 +61,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
+      position: relative;
     }
     .btn {
       flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
@@ -94,6 +93,7 @@
       font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
+      position: relative; /* Für absolute Positionierung der Elemente */
     }
     .warmer { background-color: #f7c6c7; }
     .stove { background-color: #ffd700; }
@@ -117,6 +117,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
       cursor: grab; /* Handcursor für interaktive Elemente */
       background-size: cover; /* Hintergrundbilder skalieren */
+      position: relative; /* Für die korrekte Positionierung */
     }
 
     /* Hintergrundbilder für Zutaten */
@@ -184,27 +185,23 @@
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
-
   </div>
 
   <script>
-    // Funktionen für Drag-and-Drop
     function allowDrop(ev) {
-      ev.preventDefault();
+      ev.preventDefault(); // Standardverhalten verhindern
     }
 
     function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
+      ev.dataTransfer.setData("text", ev.target.id); // ID der gezogenen Zutat speichern
     }
 
     function drop(ev) {
-      ev.preventDefault();
-      const itemID = ev.dataTransfer.getData("text");
+      ev.preventDefault(); // Standardverhalten verhindern
+      const itemID = ev.dataTransfer.getData("text"); // ID der gezogenen Zutat erhalten
       const item = document.getElementById(itemID);
-      if (itemID !== "rindfleisch_patty" && itemID !== "gemuese_patty" && itemID !== "wurst" && itemID !== "pommes") {
-        ev.target.appendChild(item.cloneNode(true)); // Zutat zum Tablett hinzufügen
-      } else {
-        alert("Diese Zutat kann nicht auf das Tablett gelegt werden!");
+      if (ev.target.id === "tray") {
+        ev.target.appendChild(item); // Zutat auf das Tablett ziehen
       }
     }
 
@@ -213,7 +210,11 @@
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
       if (ev.target.children.length === 0) { // Nur eine Zutat pro Wärmer
-        ev.target.appendChild(item.cloneNode(true)); // Gericht zum Wärmer hinzufügen
+        const finishedItem = document.createElement("div");
+        finishedItem.classList.add("item", "finished-item");
+        finishedItem.id = itemID + "_finished"; // Eine eindeutige ID für das fertige Element
+        finishedItem.innerText = "Fertig"; // Setze den Text
+        ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
       } else {
         alert("Es kann nur eine Zutat pro Wärmer platziert werden!");
       }
@@ -224,10 +225,13 @@
       const itemID = ev.dataTransfer.getData("text");
       if (["rindfleisch_patty", "gemuese_patty", "wurst"].includes(itemID)) {
         if (ev.target.children.length === 0) { // Nur eine Zutat pro Herdplatte
-          const item = document.getElementById(itemID);
-          ev.target.appendChild(item.cloneNode(true)); // Zutat auf Herdplatte hinzufügen
+          const finishedItem = document.createElement("div");
+          finishedItem.classList.add("item", "finished-item");
+          finishedItem.innerText = "Fertig"; // Setze den Text
+          ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
           setTimeout(() => {
-            ev.target.innerHTML = "<div class='item finished-item'>Fertig</div>"; // Zutat ersetzen durch "Fertig"
+            ev.target.innerHTML = ""; // Leere den Herd
+            ev.target.appendChild(finishedItem); // Füge das fertige Element hinzu
           }, 5000); // Timer für 5 Sekunden
         } else {
           alert("Es kann nur eine Zutat pro Herdplatte platziert werden!");
@@ -242,10 +246,13 @@
       const itemID = ev.dataTransfer.getData("text");
       if (itemID === "pommes") {
         if (ev.target.children.length === 0) { // Nur eine Zutat pro Friteuse
-          const item = document.getElementById(itemID);
-          ev.target.appendChild(item.cloneNode(true)); // Zutat in die Friteuse hinzufügen
+          const finishedItem = document.createElement("div");
+          finishedItem.classList.add("item", "finished-item");
+          finishedItem.innerText = "Fertig"; // Setze den Text
+          ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
           setTimeout(() => {
-            ev.target.innerHTML = "<div class='item finished-item'>Fertig</div>"; // Zutat ersetzen durch "Fertig"
+            ev.target.innerHTML = ""; // Leere die Friteuse
+            ev.target.appendChild(finishedItem); // Füge das fertige Element hinzu
           }, 5000); // Timer für 5 Sekunden
         } else {
           alert("Es kann nur eine Zutat pro Friteuse platziert werden!");
@@ -255,83 +262,24 @@
       }
     }
 
-    const recipes = {
-      "Pommes Spezial": ["pommes", "mayonnaise", "ketchup", "zwiebeln"],
-      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
-      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-      "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
-      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
-    };
-
     function prepareDish() {
       const tray = document.getElementById("tray");
-      const ingredients = Array.from(tray.children).map(child => child.id);
-      let dishName = null;
-
-      for (const [name, recipe] of Object.entries(recipes)) {
-        if (recipe.length === ingredients.length && recipe.every(item => ingredients.includes(item))) {
-          dishName = name;
-          break;
+      const finishedItems = Array.from(tray.children);
+      let allMatched = true;
+      finishedItems.forEach(item => {
+        const itemName = item.id.replace('_finished', '');
+        const customerOrder = document.querySelector(`.customer[data-order='${itemName}']`);
+        if (!customerOrder) {
+          allMatched = false;
         }
-      }
-
-      if (dishName) {
-        const preparedDish = document.createElement("div");
-        preparedDish.classList.add("tray-item", "prepared-dish");
-        preparedDish.id = dishName.replace(/\s+/g, "_");
-        preparedDish.innerText = dishName;
-        preparedDish.draggable = true;
-        preparedDish.ondragstart = drag;
-
-        tray.innerHTML = "";  // Zutaten vom Tablett entfernen
-        tray.appendChild(preparedDish);
-      } else {
-        alert("Dieses Rezept ist nicht verfügbar.");
-      }
-    }
-
-    function clearTray() {
-      const tray = document.getElementById("tray");
-      tray.innerHTML = "";
-    }
-
-    function serveCustomer(customerId, dishId) {
-      const customer = document.getElementById(customerId);
-      const requiredDish = customer.getAttribute("data-order").replace(/\s+/g, "_");
-
-      if (dishId === requiredDish) {
-        alert(`Der Kunde ${customerId} hat sein Gericht erhalten und ist zufrieden!`);
-        customer.remove();  // Kunde verlässt das Spiel
-        clearTray();
-      } else {
-        alert("Der Kunde ist nicht zufrieden. Das Gericht entspricht nicht seiner Bestellung.");
-      }
-    }
-
-    // Beispiel für die Bedienung der Kunden
-    const customers = ["customer1", "customer2", "customer3"];
-    function setupCustomerServing() {
-      const dishes = document.querySelectorAll(".prepared-dish");
-      dishes.forEach(dish => {
-        dish.ondragstart = function (event) {
-          event.dataTransfer.setData("text", dish.id);
-        };
       });
-
-      customers.forEach(customerId => {
-        const customer = document.getElementById(customerId);
-        customer.ondrop = function (event) {
-          const dishId = event.dataTransfer.getData("text");
-          serveCustomer(customerId, dishId);
-        };
-        customer.ondragover = allowDrop;
-      });
+      if (allMatched) {
+        finishedItems.forEach(item => item.remove()); // Alle fertigen Gerichte entfernen
+        alert("Das Gericht wurde erfolgreich zubereitet!");
+      } else {
+        alert("Das Gericht entspricht nicht den Kundenbestellungen!");
+      }
     }
-
-    // Rufe die Setup-Funktion auf, um die Drag-and-Drop-Events für die Kunden zu initialisieren
-    setupCustomerServing();
   </script>
 </body>
 </html>
