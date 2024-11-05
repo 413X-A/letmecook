@@ -235,6 +235,8 @@
 
 function displayDish(dish) {
     const tray = document.getElementById('tray1');
+    
+    // Gericht-Element erstellen
     const dishElement = document.createElement('div');
     dishElement.className = "ingredient";
     dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Hintergrundbild für das Gericht
@@ -242,12 +244,14 @@ function displayDish(dish) {
     dishElement.style.height = '40px';
     dishElement.setAttribute('id', dish.toLowerCase());
 
-    // Attribut für Drag-and-Drop einrichten
+    // Drag-and-Drop-Attribute und Event-Listener wie bei den Zutaten setzen
     dishElement.setAttribute('draggable', true);
     dishElement.addEventListener('dragstart', drag);
+    dishElement.addEventListener('dragend', (event) => event.preventDefault()); // Verhindert Kontextmenü
 
     tray.appendChild(dishElement);
 }
+
 
 
 
