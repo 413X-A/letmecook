@@ -60,18 +60,18 @@
       margin: 5px;
       padding: 10px 20px;
       cursor: pointer;
-      width: 100%;
       box-sizing: border-box;
     }
 
     /* Speisewärmer und Geräte */
     .station {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
       margin: 5px;
       background-color: #ccc;
       text-align: center;
-      line-height: 80px;
+      line-height: 60px;
       font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
@@ -79,6 +79,20 @@
     .warmer { background-color: #f7c6c7; }
     .stove { background-color: #ffd700; }
     .fryer { background-color: #d2b48c; }
+
+    .items-container {
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .item {
+      width: 23%; /* 4 Zutaten nebeneinander */
+      height: 80px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 80px;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -108,28 +122,30 @@
     <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
       <p>Tablett</p>
     </div>
-
-    <!-- Buttons -->
     <button class="btn" onclick="prepareDish()">Zubereiten</button>
-    <button class="btn" onclick="clearTray()">Mülleimer</button>
 
     <!-- Zutaten -->
+    <h2>Zutaten</h2>
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
       <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
       <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
+    </div>
+
+    <h2>Zutaten für Herdplatten</h2>
+    <div class="items-container">
       <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
-      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
-      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)">Burger Brötchen</div>
       <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
-      <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
-      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
       <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
+    </div>
+
+    <h2>Soßen</h2>
+    <div class="items-container">
+      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
       <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
       <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
-      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
-      <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
     </div>
   </div>
 
@@ -142,7 +158,7 @@
       ev.preventDefault();
       let itemID = ev.dataTransfer.getData("text");
       let item = document.getElementById(itemID);
-      if (ev.target.id === "tray" && ev.target.children.length < 9) {
+      if (ev.target.id === "tray") {
         ev.target.appendChild(item.cloneNode(true));
       }
     }
@@ -184,7 +200,7 @@
       "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
       "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
       "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["hotdog_broetchen", "wurst", "zwiebeln", "ketchup", "senf"]
+      "Hotdog": ["hotdog_broetchen", "wurst", "zwiebeln", "ketchup"]
     };
 
     function prepareDish() {
@@ -206,7 +222,7 @@
         preparedDish.innerText = dishName;
         preparedDish.draggable = true;
         preparedDish.ondragstart = drag;
-        
+
         tray.innerHTML = "";  // Zutaten vom Tablett entfernen
         tray.appendChild(preparedDish);
       } else {
@@ -223,7 +239,7 @@
     function serveCustomer(customerId, dishId) {
       const customer = document.getElementById(customerId);
       const requiredDish = customer.getAttribute("data-order").replace(/\s+/g, "_");
-      
+
       if (dishId === requiredDish) {
         alert(`Der Kunde ${customerId} hat sein Gericht erhalten und ist zufrieden!`);
         customer.remove();  // Kunde verlässt das Spiel
@@ -232,6 +248,29 @@
         alert("Der Kunde ist nicht zufrieden. Das Gericht entspricht nicht seiner Bestellung.");
       }
     }
+
+    // Beispiel für die Bedienung der Kunden, dies kann über Drag-and-Drop oder mit einem Button umgesetzt werden.
+    const customers = ["customer1", "customer2", "customer3"];
+    function setupCustomerServing() {
+      const dishes = document.querySelectorAll(".prepared-dish");
+      dishes.forEach(dish => {
+        dish.ondragstart = function (event) {
+          event.dataTransfer.setData("text", dish.id);
+        };
+      });
+
+      customers.forEach(customerId => {
+        const customer = document.getElementById(customerId);
+        customer.ondrop = function (event) {
+          const dishId = event.dataTransfer.getData("text");
+          serveCustomer(customerId, dishId);
+        };
+        customer.ondragover = allowDrop;
+      });
+    }
+
+    // Rufe die Setup-Funktion auf, um die Drag-and-Drop-Events für die Kunden zu initialisieren
+    setupCustomerServing();
   </script>
 </body>
 </html>
