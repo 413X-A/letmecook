@@ -28,15 +28,13 @@
       margin: 10px 0;
     }
     .customer {
-      width: 100px; /* Größe für Kunden */
-      height: 100px; /* Größe für Kunden */
+      width: 100px;
+      height: 100px;
       margin: 25px;
       border: 1px solid #ccc;
       text-align: center;
       line-height: 50px;
       user-select: none;
-    }
-    .customer {
       background: url('customer.png') center/cover;
       position: relative;
       display: flex;
@@ -55,7 +53,7 @@
       margin: 10px 0;
     }
     .tray {
-      flex: 0 0 80%; /* Tablett nimmt 80% der Breite ein */
+      flex: 0 0 80%;
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
@@ -65,7 +63,7 @@
       justify-content: flex-start;
     }
     .btn {
-      flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
+      flex: 0 0 10%;
       margin: 5px;
       padding: 10px 0;
       cursor: pointer;
@@ -79,13 +77,13 @@
 
     /* Speisewärmer und Geräte in einer Zeile */
     .workstations {
-      display: flex; /* Geräte in einer Zeile */
+      display: flex;
       justify-content: center;
-      margin: 15px 0; /* Abstand für die Geräte */
+      margin: 15px 0;
     }
     .station {
-      width: 50px; /* Größe für Geräte */
-      height: 50px; /* Größe für Geräte */
+      width: 50px;
+      height: 50px;
       border-radius: 15px;
       margin: 5px;
       background-color: #ccc;
@@ -101,22 +99,22 @@
 
     /* Zutaten */
     .items-container {
-      display: flex; /* Zutaten in einer Zeile */
-      flex-wrap: wrap; /* Zeilenumbruch erlauben */
+      display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
-      margin: 10px 0; /* Abstand für die Zutaten */
+      margin: 10px 0;
     }
     .item {
-      width: 40px; /* Breite für Zutaten */
-      height: 40px; /* Höhe für Zutaten, gleich wie Breite */
+      width: 40px;
+      height: 40px;
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 5px; /* Ecken sind nicht abgerundet */
-      background-color: #eaeaea; /* Hintergrundfarbe */
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
-      cursor: grab; /* Handcursor für interaktive Elemente */
-      background-size: cover; /* Hintergrundbilder skalieren */
+      border-radius: 5px;
+      background-color: #eaeaea;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: grab;
+      background-size: cover;
     }
 
     /* Hintergrundbilder für Zutaten */
@@ -181,104 +179,87 @@
       <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
-      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
 
   </div>
 
   <script>
-    let timers = {};
-
-    function allowDrop(event) {
-      event.preventDefault();
+    // Funktionen für Drag-and-Drop
+    function allowDrop(ev) {
+      ev.preventDefault();
     }
 
-    function drag(event) {
-      event.dataTransfer.setData("text", event.target.id);
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
     }
 
-    function drop(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      const tray = document.getElementById("tray");
-
-      if (tray.children.length < 9) { // Maximal 9 Zutaten auf dem Tablett
-        tray.appendChild(item.cloneNode(true));
-        item.style.display = 'none'; // Ursprüngliche Zutat ausblenden
+    function drop(ev) {
+      ev.preventDefault();
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      if (ev.target.id === "tray") {
+        // Erlauben Sie nur das Hinzufügen zum Tablett
+        if (ev.target.children.length < 9) {
+          ev.target.appendChild(item);
+        }
       }
     }
 
-    function dropDish(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const dish = document.getElementById(data);
-      const station = event.target;
+    function dropStove(ev) {
+      ev.preventDefault();
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      const stove = ev.target;
 
-      // Füge die Zutat zur Station hinzu und zeige den Timer an
-      if (dish) {
-        station.appendChild(dish);
-        startTimer(station, dish);
+      // Zutaten können nur auf Herdplatten und in die Friteuse gelegt werden
+      if (stove.classList.contains('stove') || stove.classList.contains('fryer')) {
+        stove.appendChild(item);
+        setTimeout(() => {
+          item.draggable = true; // Nach 5 Sekunden können die Zutaten wieder bewegt werden
+        }, 5000);
       }
     }
 
-    function startTimer(station, dish) {
-      const dishId = dish.id;
+    function dropFryer(ev) {
+      dropStove(ev); // Funktion um die gleichen Regeln anzuwenden
+    }
 
-      // Setze den Timer für 5 Sekunden
-      timers[dishId] = setTimeout(() => {
-        dish.style.display = 'block'; // Nach 5 Sekunden wieder anzeigen
-        station.removeChild(dish);
-        document.getElementById("tray").appendChild(dish);
+    function dropDish(ev) {
+      ev.preventDefault();
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      const warmer = ev.target;
+
+      // Zutaten können in den Speisewärmern abgelegt werden
+      warmer.appendChild(item);
+      setTimeout(() => {
+        item.draggable = true; // Nach 5 Sekunden wieder beweglich
       }, 5000);
     }
 
-    function dropStove(event) {
-      event.preventDefault();
-      dropDish(event);
-    }
-
-    function dropFryer(event) {
-      event.preventDefault();
-      dropDish(event);
-    }
-
     function prepareDish() {
-      const tray = document.getElementById("tray");
-      const selectedDish = [];
-      let orderMatched = false;
+      const trayItems = Array.from(document.getElementById('tray').children);
+      const dishOrder = trayItems.map(item => item.id).join(', ');
 
-      for (let i = 0; i < tray.children.length; i++) {
-        selectedDish.push(tray.children[i].id);
-      }
-
-      // Vergleiche mit den Bestellungen der Kunden
+      // Beispielhafte Überprüfung der Bestellung
       const customers = document.querySelectorAll('.customer');
       customers.forEach(customer => {
-        const order = customer.getAttribute('data-order');
-        if (checkOrder(selectedDish, order)) {
-          orderMatched = true;
-          customer.innerHTML = 'Aufgetragen!';
-          setTimeout(() => {
-            customer.style.display = 'none'; // Kunde verlässt
-          }, 1000);
+        if (customer.dataset.order === dishOrder) {
+          alert(`Bestellung für ${customer.innerText} ist korrekt!`);
+          customer.remove(); // Kunde verlässt das Spiel
+          // Leeren des Tabletts
+          const tray = document.getElementById('tray');
+          while (tray.firstChild) {
+            tray.removeChild(tray.firstChild);
+          }
+        } else {
+          alert(`Bestellung für ${customer.innerText} ist nicht korrekt!`);
+          // Zutat bleibt auf dem Tablett
         }
       });
-
-      // Wenn das Gericht zubereitet wurde, leere das Tablett
-      if (orderMatched) {
-        while (tray.firstChild) {
-          tray.removeChild(tray.firstChild);
-        }
-      }
-    }
-
-    function checkOrder(selectedDish, order) {
-      // Beispielhafte Überprüfung; könnte durch Logik für spezifische Bestellungen ersetzt werden
-      return selectedDish.includes(order.toLowerCase().replace(" ", "_")); // Ersetze Leerzeichen mit _
     }
   </script>
 </body>
 </html>
-
