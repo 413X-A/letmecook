@@ -28,8 +28,8 @@
       margin: 10px 0;
     }
     .customer, .station, .item, .tray-item {
-      width: 50px; /* Reduzierte Größe */
-      height: 50px; /* Reduzierte Größe */
+      width: 50px; /* Größe für Kunden und Arbeitsstationen */
+      height: 50px; /* Größe für Kunden und Arbeitsstationen */
       margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
@@ -77,8 +77,8 @@
 
     /* Speisewärmer und Geräte */
     .station {
-      width: 40px; /* Reduzierte Größe für Geräte */
-      height: 40px; /* Reduzierte Größe für Geräte */
+      width: 40px; /* Größe für Geräte */
+      height: 40px; /* Größe für Geräte */
       border-radius: 20px;
       margin: 5px;
       background-color: #ccc;
@@ -92,19 +92,28 @@
     .stove { background-color: #ffd700; }
     .fryer { background-color: #d2b48c; }
 
+    /* Zutaten */
     .items-container {
-      flex-wrap: wrap;
+      display: flex; /* Zutaten in einer Zeile */
+      flex-wrap: wrap; /* Zeilenumbruch erlauben */
       justify-content: space-between;
     }
     .item {
-      width: 20%; /* Zutaten etwas kleiner */
-      height: 40px; /* Zutaten etwas kleiner */
+      width: 20%; /* Größe für Zutaten */
+      height: 40px; /* Größe für Zutaten */
       margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
       line-height: 40px;
       user-select: none;
       font-size: 12px; /* Kleinere Schriftgröße */
+      border-radius: 8px; /* Abgerundete Ecken */
+      background-color: #eaeaea; /* Hintergrundfarbe */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
+      cursor: grab; /* Handcursor für interaktive Elemente */
+    }
+    .item:hover {
+      background-color: #d4d4d4; /* Hover-Effekt */
     }
   </style>
 </head>
@@ -186,9 +195,10 @@
       ev.preventDefault();
       let itemID = ev.dataTransfer.getData("text");
       if (itemID === "rindfleisch_patty" || itemID === "gemuese_patty" || itemID === "wurst") {
-        ev.target.appendChild(document.getElementById(itemID).cloneNode(true));
+        let item = document.getElementById(itemID);
+        ev.target.appendChild(item.cloneNode(true));
       } else {
-        alert("Nur bestimmte Zutaten können auf den Herd gelegt werden!");
+        alert("Nur Rindfleisch-Patties, Gemüse-Patties oder Würste können auf die Herdplatten gelegt werden!");
       }
     }
 
@@ -196,7 +206,8 @@
       ev.preventDefault();
       let itemID = ev.dataTransfer.getData("text");
       if (itemID === "pommes") {
-        ev.target.appendChild(document.getElementById(itemID).cloneNode(true));
+        let item = document.getElementById(itemID);
+        ev.target.appendChild(item.cloneNode(true));
       } else {
         alert("Nur Pommes können in die Friteuse gelegt werden!");
       }
