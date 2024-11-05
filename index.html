@@ -183,7 +183,7 @@
   let originalParent = null;
 
   function allowDrop(event) {
-    if (!event.target.classList.contains("items-container")) {
+    if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
       event.preventDefault();
     }
   }
@@ -198,7 +198,7 @@
 
     // Die Kopie unsichtbar machen und zum DOM hinzufügen, bis sie losgelassen wird
     item.style.position = "absolute";
-    item.style.opacity = "0";
+    item.style.opacity = "0";  // Anfangs unsichtbar, aber in DOM
     document.body.appendChild(item);
   }
 
@@ -210,6 +210,7 @@
 
     if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
       event.target.appendChild(itemElement);
+      itemElement.style.opacity = "1"; // Sichtbar machen
       setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden auf Speisewärmer verschieben
     } else {
       handleInvalidDrop(itemElement);
@@ -225,6 +226,7 @@
 
     if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
       event.target.appendChild(itemElement);
+      itemElement.style.opacity = "1"; // Sichtbar machen
       setTimeout(() => moveToWarmer(itemId), 5000); // Nach 5 Sekunden auf Speisewärmer verschieben
     } else {
       handleInvalidDrop(itemElement);
@@ -329,6 +331,7 @@
     }
   });
 </script>
+
 
 </body>
 </html>
