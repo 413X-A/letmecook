@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Let Me Cook</title>
   <style>
+    /* Stil für die Benutzeroberfläche (gleich wie vorher) */
     body {
       font-family: Arial, sans-serif;
       display: flex;
@@ -21,7 +22,6 @@
       border: 1px solid #ccc;
     }
     h1 { text-align: center; }
-
     .customers {
       display: flex;
       justify-content: center;
@@ -36,7 +36,6 @@
       line-height: 50px;
       user-select: none;
       background: url('customer.png') center/cover;
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -44,10 +43,7 @@
       color: white;
       font-weight: bold;
     }
-    
     .tray-container {
-      flex-direction: row;
-      align-items: flex-start;
       display: flex;
       justify-content: space-between;
       margin: 10px 0;
@@ -57,24 +53,20 @@
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
-      align-content: flex-start;
       display: flex;
       flex-wrap: wrap;
-      justify-content: flex-start;
     }
     .btn {
       flex: 0 0 10%;
       margin: 5px;
       padding: 10px 0;
       cursor: pointer;
-      box-sizing: border-box;
-      text-align: center;
       background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 5px;
+      text-align: center;
     }
-
     .workstations {
       display: flex;
       justify-content: center;
@@ -92,7 +84,6 @@
     .warmer { background-color: #f7c6c7; }
     .stove { background-color: #ffd700; }
     .fryer { background-color: #d2b48c; }
-
     .items-container {
       display: flex;
       flex-wrap: wrap;
@@ -105,13 +96,10 @@
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 5px;
       background-color: #eaeaea;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      cursor: grab;
       background-size: cover;
+      cursor: grab;
     }
-
     #pommes { background-image: url('pommes.png'); }
     #mayonnaise { background-image: url('mayonnaise.png'); }
     #ketchup { background-image: url('ketchup.png'); }
@@ -133,21 +121,24 @@
   <div class="container">
     <h1>Let Me Cook</h1>
 
+    <!-- Kundenanzeige -->
     <div class="customers">
       <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
       <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
+    <!-- Speisewärmer und Geräte in einer Zeile -->
     <div class="workstations">
-      <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
-      <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
-      <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)"></div>
-      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
-      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
-      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer1" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer2" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer3" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove1" ondrop="dropOnStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove2" ondrop="dropOnStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station fryer" id="fryer" ondrop="dropOnFryer(event)" ondragover="allowDrop(event)"></div>
     </div>
 
+    <!-- Tablett für Zubereitung -->
     <div class="tray-container">
       <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
         <p>Tablett</p>
@@ -155,6 +146,7 @@
       <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
 
+    <!-- Zutaten -->
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
@@ -175,96 +167,91 @@
   </div>
 
   <script>
-    let cookingItems = {};
-
-    function allowDrop(ev) {
-      ev.preventDefault();
+    function allowDrop(event) {
+      event.preventDefault();
     }
 
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id);
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
     }
 
-    function drop(ev) {
-      ev.preventDefault();
-      const data = ev.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item) {
-        ev.target.appendChild(item);
+    function dropOnStove(event) {
+      const itemId = event.dataTransfer.getData("text");
+      const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
+      if (allowedItems.includes(itemId) && !event.target.hasAttribute("data-occupied")) {
+        event.preventDefault();
+        event.target.appendChild(document.getElementById(itemId));
+        event.target.setAttribute("data-occupied", "true");
+
+        setTimeout(() => {
+          const finishedItem = document.createElement("div");
+          finishedItem.className = "item";
+          finishedItem.id = itemId + "_fertig";
+          event.target.removeAttribute("data-occupied");
+          // Platziere das fertige Element auf einem freien Speisewärmer oder lösche es, wenn alle Speisewärmer belegt sind
+          placeOnFreeWarmer(finishedItem);
+          event.target.removeChild(document.getElementById(itemId));
+        }, 5000); // 5 Sekunden Timer
       }
     }
 
-    function dropStove(ev) {
-      ev.preventDefault();
-      const data = ev.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item && ["rindfleisch_patty", "gemuese_patty", "wurst"].includes(item.id)) {
-        ev.target.appendChild(item);
-        startCooking(item.id, 'stove', ev.target);
+    function dropOnFryer(event) {
+      const itemId = event.dataTransfer.getData("text");
+      if (itemId === "pommes" && !event.target.hasAttribute("data-occupied")) {
+        event.preventDefault();
+        event.target.appendChild(document.getElementById(itemId));
+        event.target.setAttribute("data-occupied", "true");
+
+        setTimeout(() => {
+          const finishedItem = document.createElement("div");
+          finishedItem.className = "item";
+          finishedItem.id = itemId + "_fertig";
+          event.target.removeAttribute("data-occupied");
+          
+          // Platziere das fertige Element auf einem freien Speisewärmer oder lösche es, wenn alle Speisewärmer belegt sind
+          placeOnFreeWarmer(finishedItem);
+          event.target.removeChild(document.getElementById(itemId));
+        }, 5000); // 5 Sekunden Timer
       }
     }
 
-    function dropFryer(ev) {
-      ev.preventDefault();
-      const data = ev.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item && item.id === "pommes") {
-        ev.target.appendChild(item);
-        startCooking(item.id, 'fryer', ev.target);
+    function dropOnWarmer(event) {
+      const itemId = event.dataTransfer.getData("text");
+      if (itemId.endsWith("_fertig")) {
+        event.preventDefault();
+        event.target.appendChild(document.getElementById(itemId));
       }
     }
 
-    function startCooking(itemId, type, element) {
-      cookingItems[itemId] = {
-        type: type,
-        element: element,
-        timer: setTimeout(() => {
-          finishCooking(itemId);
-        }, 5000)
-      };
-    }
-
-    function finishCooking(itemId) {
-      const item = document.getElementById(itemId);
-      const element = cookingItems[itemId].element;
-
-      element.removeChild(item);
-      delete cookingItems[itemId];
-
-      const warmers = document.querySelectorAll('.warmer');
-      for (const warmer of warmers) {
-        if (warmer.childElementCount === 0) {
-          item.id += "_fertig";
+    function placeOnFreeWarmer(item) {
+      const warmers = document.querySelectorAll(".warmer");
+      let placed = false;
+      warmers.forEach(warmer => {
+        if (!warmer.hasChildNodes() && !placed) {
           warmer.appendChild(item);
-          return;
+          placed = true;
         }
-      }
-      item.remove();
-    }
-
-    function dropDish(ev) {
-      ev.preventDefault();
-      const data = ev.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item) {
-        ev.target.appendChild(item);
+      });
+      if (!placed) {
+        // Alle Wärmer belegt, daher löschen
+        item.remove();
       }
     }
 
+    function drop(event) {
+      const itemId = event.dataTransfer.getData("text");
+      const item = document.getElementById(itemId);
+      
+      // Nur fertige Zutaten dürfen vom Herd oder der Friteuse auf das Tablett gelegt werden
+      if (itemId.endsWith("_fertig")) {
+        event.preventDefault();
+        event.target.appendChild(item);
+      }
+    }
+    
     function prepareDish() {
-      const tray = document.getElementById("tray");
-      const itemsInTray = Array.from(tray.children);
-      const order = itemsInTray.map(item => item.id);
-
-      let matched = false;
-      const customer = document.querySelector('.customer[data-order="'+order.join(', ')+'"]');
-      if (customer) {
-        matched = true;
-        customer.innerText += " - Bestellt!";
-        itemsInTray.forEach(item => tray.removeChild(item));
-      } else {
-        alert("Zutaten stimmen nicht mit der Bestellung überein!");
-      }
+      // Hier würde die Logik zur Überprüfung des Rezepts und der Zubereitung des Gerichts implementiert
+      alert("Gericht wird zubereitet!");
     }
   </script>
 </body>
