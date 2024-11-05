@@ -1,4 +1,4 @@
-´<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -28,8 +28,8 @@
       margin: 10px 0;
     }
     .customer {
-      width: 100px;
-      height: 100px;
+      width: 100px; /* Größe für Kunden */
+      height: 100px; /* Größe für Kunden */
       margin: 25px;
       border: 1px solid #ccc;
       text-align: center;
@@ -53,7 +53,7 @@
       margin: 10px 0;
     }
     .tray {
-      flex: 0 0 80%;
+      flex: 0 0 80%; /* Tablett nimmt 80% der Breite ein */
       height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
@@ -63,7 +63,7 @@
       justify-content: flex-start;
     }
     .btn {
-      flex: 0 0 10%;
+      flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
       margin: 5px;
       padding: 10px 0;
       cursor: pointer;
@@ -75,14 +75,15 @@
       border-radius: 5px;
     }
 
+    /* Speisewärmer und Geräte in einer Zeile */
     .workstations {
-      display: flex;
+      display: flex; /* Geräte in einer Zeile */
       justify-content: center;
-      margin: 15px 0;
+      margin: 15px 0; /* Abstand für die Geräte */
     }
     .station {
-      width: 50px;
-      height: 50px;
+      width: 50px; /* Größe für Geräte */
+      height: 50px; /* Größe für Geräte */
       border-radius: 15px;
       margin: 5px;
       background-color: #ccc;
@@ -96,25 +97,27 @@
     .stove { background-color: #ffd700; }
     .fryer { background-color: #d2b48c; }
 
+    /* Zutaten */
     .items-container {
-      display: flex;
-      flex-wrap: wrap;
+      display: flex; /* Zutaten in einer Zeile */
+      flex-wrap: wrap; /* Zeilenumbruch erlauben */
       justify-content: space-between;
-      margin: 10px 0;
+      margin: 10px 0; /* Abstand für die Zutaten */
     }
     .item {
-      width: 40px;
-      height: 40px;
+      width: 40px; /* Breite für Zutaten */
+      height: 40px; /* Höhe für Zutaten, gleich wie Breite */
       margin: 5px;
       border: 1px solid #ccc;
       user-select: none;
-      border-radius: 5px;
-      background-color: #eaeaea;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      cursor: grab;
-      background-size: cover;
+      border-radius: 5px; /* Ecken sind nicht abgerundet */
+      background-color: #eaeaea; /* Hintergrundfarbe */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
+      cursor: grab; /* Handcursor für interaktive Elemente */
+      background-size: cover; /* Hintergrundbilder skalieren */
     }
 
+    /* Hintergrundbilder für Zutaten */
     #pommes { background-image: url('pommes.png'); }
     #mayonnaise { background-image: url('mayonnaise.png'); }
     #ketchup { background-image: url('ketchup.png'); }
@@ -136,12 +139,14 @@
   <div class="container">
     <h1>Let Me Cook</h1>
 
+    <!-- Kundenanzeige -->
     <div class="customers">
       <div class="customer" id="customer1" data-order="Pommes Spezial">Kunde 1</div>
       <div class="customer" id="customer2" data-order="Hamburger">Kunde 2</div>
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
+    <!-- Speisewärmer und Geräte in einer Zeile -->
     <div class="workstations">
       <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
       <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
@@ -151,6 +156,7 @@
       <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
     </div>
 
+    <!-- Tablett für Zubereitung -->
     <div class="tray-container">
       <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
         <p>Tablett</p>
@@ -158,6 +164,7 @@
       <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
 
+    <!-- Zutaten -->
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
@@ -178,7 +185,7 @@
   </div>
 
   <script>
-    let cookingItems = {};
+    let cookingItems = {}; // Sammlung der Zutaten, die auf dem Herd oder in der Friteuse sind
 
     function allowDrop(ev) {
       ev.preventDefault();
@@ -240,6 +247,7 @@
       const warmers = document.querySelectorAll('.warmer');
       for (const warmer of warmers) {
         if (warmer.childElementCount === 0) { // Wenn der Wärmer leer ist
+          item.id += "_fertig"; // Ändere die ID, um zu kennzeichnen, dass die Zutat fertig ist
           warmer.appendChild(item);
           return; // Beenden, nachdem die Zutat platziert wurde
         }
