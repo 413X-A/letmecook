@@ -35,6 +35,8 @@
       text-align: center;
       line-height: 50px;
       user-select: none;
+    }
+    .customer {
       background: url('customer.png') center/cover;
       position: relative;
       display: flex;
@@ -61,7 +63,6 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
-      position: relative;
     }
     .btn {
       flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
@@ -93,7 +94,6 @@
       font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
-      position: relative; /* Für absolute Positionierung der Elemente */
     }
     .warmer { background-color: #f7c6c7; }
     .stove { background-color: #ffd700; }
@@ -117,7 +117,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Schatten für Tiefe */
       cursor: grab; /* Handcursor für interaktive Elemente */
       background-size: cover; /* Hintergrundbilder skalieren */
-      position: relative; /* Für die korrekte Positionierung */
     }
 
     /* Hintergrundbilder für Zutaten */
@@ -182,104 +181,104 @@
       <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
-      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
+
   </div>
 
   <script>
-    function allowDrop(ev) {
-      ev.preventDefault(); // Standardverhalten verhindern
+    let timers = {};
+
+    function allowDrop(event) {
+      event.preventDefault();
     }
 
-    function drag(ev) {
-      ev.dataTransfer.setData("text", ev.target.id); // ID der gezogenen Zutat speichern
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
     }
 
-    function drop(ev) {
-      ev.preventDefault(); // Standardverhalten verhindern
-      const itemID = ev.dataTransfer.getData("text"); // ID der gezogenen Zutat erhalten
-      const item = document.getElementById(itemID);
-      if (ev.target.id === "tray") {
-        ev.target.appendChild(item); // Zutat auf das Tablett ziehen
+    function drop(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      const tray = document.getElementById("tray");
+
+      if (tray.children.length < 9) { // Maximal 9 Zutaten auf dem Tablett
+        tray.appendChild(item.cloneNode(true));
+        item.style.display = 'none'; // Ursprüngliche Zutat ausblenden
       }
     }
 
-    function dropDish(ev) {
-      ev.preventDefault();
-      const itemID = ev.dataTransfer.getData("text");
-      const item = document.getElementById(itemID);
-      if (ev.target.children.length === 0) { // Nur eine Zutat pro Wärmer
-        const finishedItem = document.createElement("div");
-        finishedItem.classList.add("item", "finished-item");
-        finishedItem.id = itemID + "_finished"; // Eine eindeutige ID für das fertige Element
-        finishedItem.innerText = "Fertig"; // Setze den Text
-        ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
-      } else {
-        alert("Es kann nur eine Zutat pro Wärmer platziert werden!");
+    function dropDish(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const dish = document.getElementById(data);
+      const station = event.target;
+
+      // Füge die Zutat zur Station hinzu und zeige den Timer an
+      if (dish) {
+        station.appendChild(dish);
+        startTimer(station, dish);
       }
     }
 
-    function dropStove(ev) {
-      ev.preventDefault();
-      const itemID = ev.dataTransfer.getData("text");
-      if (["rindfleisch_patty", "gemuese_patty", "wurst"].includes(itemID)) {
-        if (ev.target.children.length === 0) { // Nur eine Zutat pro Herdplatte
-          const finishedItem = document.createElement("div");
-          finishedItem.classList.add("item", "finished-item");
-          finishedItem.innerText = "Fertig"; // Setze den Text
-          ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
-          setTimeout(() => {
-            ev.target.innerHTML = ""; // Leere den Herd
-            ev.target.appendChild(finishedItem); // Füge das fertige Element hinzu
-          }, 5000); // Timer für 5 Sekunden
-        } else {
-          alert("Es kann nur eine Zutat pro Herdplatte platziert werden!");
-        }
-      } else {
-        alert("Nur Rindfleisch-Patties, Gemüse-Patties oder Würste können auf die Herdplatten gelegt werden!");
-      }
+    function startTimer(station, dish) {
+      const dishId = dish.id;
+
+      // Setze den Timer für 5 Sekunden
+      timers[dishId] = setTimeout(() => {
+        dish.style.display = 'block'; // Nach 5 Sekunden wieder anzeigen
+        station.removeChild(dish);
+        document.getElementById("tray").appendChild(dish);
+      }, 5000);
     }
 
-    function dropFryer(ev) {
-      ev.preventDefault();
-      const itemID = ev.dataTransfer.getData("text");
-      if (itemID === "pommes") {
-        if (ev.target.children.length === 0) { // Nur eine Zutat pro Friteuse
-          const finishedItem = document.createElement("div");
-          finishedItem.classList.add("item", "finished-item");
-          finishedItem.innerText = "Fertig"; // Setze den Text
-          ev.target.appendChild(finishedItem); // Gericht zum Wärmer hinzufügen
-          setTimeout(() => {
-            ev.target.innerHTML = ""; // Leere die Friteuse
-            ev.target.appendChild(finishedItem); // Füge das fertige Element hinzu
-          }, 5000); // Timer für 5 Sekunden
-        } else {
-          alert("Es kann nur eine Zutat pro Friteuse platziert werden!");
-        }
-      } else {
-        alert("Nur Pommes können in die Friteuse gelegt werden!");
-      }
+    function dropStove(event) {
+      event.preventDefault();
+      dropDish(event);
+    }
+
+    function dropFryer(event) {
+      event.preventDefault();
+      dropDish(event);
     }
 
     function prepareDish() {
       const tray = document.getElementById("tray");
-      const finishedItems = Array.from(tray.children);
-      let allMatched = true;
-      finishedItems.forEach(item => {
-        const itemName = item.id.replace('_finished', '');
-        const customerOrder = document.querySelector(`.customer[data-order='${itemName}']`);
-        if (!customerOrder) {
-          allMatched = false;
+      const selectedDish = [];
+      let orderMatched = false;
+
+      for (let i = 0; i < tray.children.length; i++) {
+        selectedDish.push(tray.children[i].id);
+      }
+
+      // Vergleiche mit den Bestellungen der Kunden
+      const customers = document.querySelectorAll('.customer');
+      customers.forEach(customer => {
+        const order = customer.getAttribute('data-order');
+        if (checkOrder(selectedDish, order)) {
+          orderMatched = true;
+          customer.innerHTML = 'Aufgetragen!';
+          setTimeout(() => {
+            customer.style.display = 'none'; // Kunde verlässt
+          }, 1000);
         }
       });
-      if (allMatched) {
-        finishedItems.forEach(item => item.remove()); // Alle fertigen Gerichte entfernen
-        alert("Das Gericht wurde erfolgreich zubereitet!");
-      } else {
-        alert("Das Gericht entspricht nicht den Kundenbestellungen!");
+
+      // Wenn das Gericht zubereitet wurde, leere das Tablett
+      if (orderMatched) {
+        while (tray.firstChild) {
+          tray.removeChild(tray.firstChild);
+        }
       }
+    }
+
+    function checkOrder(selectedDish, order) {
+      // Beispielhafte Überprüfung; könnte durch Logik für spezifische Bestellungen ersetzt werden
+      return selectedDish.includes(order.toLowerCase().replace(" ", "_")); // Ersetze Leerzeichen mit _
     }
   </script>
 </body>
 </html>
+
