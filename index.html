@@ -181,15 +181,17 @@
   </div>
     <script>
   function allowDrop(event) {
-    // Ablegen verhindern, wenn das Ziel die Zutatenleiste (items-container) ist
+    // Nur erlauben, dass Zutaten außerhalb der Zutatenleiste abgelegt werden
     if (!event.target.classList.contains("items-container")) {
-      event.preventDefault(); // Nur außerhalb der Zutatenleiste erlauben
+      event.preventDefault();
     }
   }
 
   function drag(event) {
     const item = event.target;
     event.dataTransfer.setData("text", item.id);
+    // Flag zum Überprüfen, ob die Zutat außerhalb des items-container losgelassen wird
+    item.dataset.dragging = "true";
   }
 
   function dropOnStove(event) {
@@ -296,16 +298,18 @@
     return sorted1.every((value, index) => value === sorted2[index]);
   }
 
-  // Löschen der Zutat beim Loslassen in der Zutatenleiste
+  // Löschen der Zutat, wenn sie in der Zutatenleiste losgelassen wird
   document.querySelectorAll('.items-container .item').forEach(item => {
     item.addEventListener('dragend', function(event) {
-      // Überprüfen, ob das Element in die items-container zurückfällt und entfernen
-      if (event.target.parentNode.classList.contains("items-container")) {
-        event.target.remove();
+      // Wenn das Element noch in der items-container-Leiste ist, löschen
+      const isInItemsContainer = item.parentNode.classList.contains("items-container");
+      if (isInItemsContainer) {
+        item.remove();
       }
     });
   });
 </script>
+
 
 </body>
 </html>
