@@ -177,17 +177,27 @@
             }
         }
 
-        const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
+const ingredientNames = ['burger_brot', 'sandwich_brot', 'fleisch', 'kaese', 'salat', 'tomate', 'gurke'];
+const ingredientImages = {
+    'burger_brot': 'burger_brot.PNG',
+    'sandwich_brot': 'sandwich_brot.png',
+    'fleisch': 'fleisch.png',
+    'kaese': 'kaese.png',
+    'salat': 'salat.png',
+    'tomate': 'tomate.png',
+    'gurke': 'gurke.png'
+};
 
 function createIngredients() {
     const ingredientsDiv = document.getElementById('ingredients');
     ingredientNames.forEach(name => {
         ingredientsDiv.innerHTML += `
-            <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${name.toLowerCase()}.png');">
+            <div id="${name}" class="ingredient" draggable="true" ondragstart="drag(event)" style="background-image: url('${ingredientImages[name]}');">
             </div>
         `;
     });
 }
+
 
 
         function drag(event) {
