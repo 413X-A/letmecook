@@ -186,7 +186,13 @@
   </div>
 
   <script>
-    // Funktionen für Drag-and-Drop
+    // Rezepte für die Gerichte
+    const recipes = {
+      "Pommes Spezial": ["pommes_fertig", "mayonnaise", "ketchup"],
+      "Hamburger": ["burger_broetchen", "rindfleisch_patty_fertig", "salat", "tomate", "zwiebeln"],
+      "Hotdog": ["hotdog_broetchen", "wurst_fertig", "currysauce"]
+    };
+
     function allowDrop(ev) {
       ev.preventDefault();
     }
@@ -199,11 +205,8 @@
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
-      if (ev.target.id === "tray") {
-        // Erlauben Sie nur das Hinzufügen zum Tablett
-        if (ev.target.children.length < 9) {
-          ev.target.appendChild(item);
-        }
+      if (ev.target.id === "tray" && tray.childElementCount < 9) {
+        tray.appendChild(item);
       }
     }
 
@@ -211,54 +214,67 @@
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
-      const stove = ev.target;
-
-      // Zutaten können nur auf Herdplatten und in die Friteuse gelegt werden
-      if (stove.classList.contains('stove') || stove.classList.contains('fryer')) {
-        stove.appendChild(item);
+      if (itemID === "rindfleisch_patty" || itemID === "gemuese_patty" || itemID === "wurst") {
+        ev.target.appendChild(item);
         setTimeout(() => {
-          item.draggable = true; // Nach 5 Sekunden können die Zutaten wieder bewegt werden
-        }, 5000);
+          const cookedItem = document.createElement("div");
+          cookedItem.id = itemID + "_fertig";
+          cookedItem.className = "item";
+          cookedItem.style.backgroundImage = item.style.backgroundImage;
+          ev.target.appendChild(cookedItem);
+          item.remove();
+        }, 5000); // 5 Sekunden warten
       }
     }
 
     function dropFryer(ev) {
-      dropStove(ev); // Funktion um die gleichen Regeln anzuwenden
+      ev.preventDefault();
+      const itemID = ev.dataTransfer.getData("text");
+      const item = document.getElementById(itemID);
+      if (itemID === "pommes") {
+        ev.target.appendChild(item);
+        setTimeout(() => {
+          const cookedItem = document.createElement("div");
+          cookedItem.id = "pommes_fertig";
+          cookedItem.className = "item";
+          cookedItem.style.backgroundImage = item.style.backgroundImage;
+          ev.target.appendChild(cookedItem);
+          item.remove();
+        }, 5000); // 5 Sekunden warten
+      }
     }
 
     function dropDish(ev) {
       ev.preventDefault();
       const itemID = ev.dataTransfer.getData("text");
       const item = document.getElementById(itemID);
-      const warmer = ev.target;
-
-      // Zutaten können in den Speisewärmern abgelegt werden
-      warmer.appendChild(item);
-      setTimeout(() => {
-        item.draggable = true; // Nach 5 Sekunden wieder beweglich
-      }, 5000);
+      ev.target.appendChild(item);
     }
 
     function prepareDish() {
-      const trayItems = Array.from(document.getElementById('tray').children);
-      const dishOrder = trayItems.map(item => item.id).join(', ');
+      const trayItems = [...tray.children].map(child => child.id);
+      const customer = getCustomer();
+      const order = customer.getAttribute("data-order");
 
-      // Beispielhafte Überprüfung der Bestellung
-      const customers = document.querySelectorAll('.customer');
-      customers.forEach(customer => {
-        if (customer.dataset.order === dishOrder) {
-          alert(`Bestellung für ${customer.innerText} ist korrekt!`);
-          customer.remove(); // Kunde verlässt das Spiel
-          // Leeren des Tabletts
-          const tray = document.getElementById('tray');
-          while (tray.firstChild) {
-            tray.removeChild(tray.firstChild);
-          }
-        } else {
-          alert(`Bestellung für ${customer.innerText} ist nicht korrekt!`);
-          // Zutat bleibt auf dem Tablett
-        }
-      });
+      // Überprüfen, ob die Bestellung korrekt ist
+      if (recipes[order].every(ingredient => trayItems.includes(ingredient))) {
+        alert(`${order} wurde dem Kunden serviert!`);
+        customer.remove();
+        resetTray();
+      } else {
+        alert("Das Gericht ist nicht korrekt!");
+      }
+    }
+
+    function getCustomer() {
+      const customers = document.querySelectorAll(".customer");
+      return [...customers].find(customer => customer.dataset.order !== "");
+    }
+
+    function resetTray() {
+      while (tray.firstChild) {
+        tray.firstChild.remove();
+      }
     }
   </script>
 </body>
