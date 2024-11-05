@@ -203,12 +203,13 @@
     });
 
     if (matchedDish) {
-        // Gericht auf dem Tablett platzieren
-        createDishObject(matchedDish); // Das Gericht wird auf das Tablett gelegt
-        tray.innerHTML = ''; // Leert das Tablett nach der Zubereitung
+        // Gericht auf das Tablett legen
+        createDishObject(matchedDish); // Gericht hinzufügen
+        // Zutaten nach der Zubereitung leeren
+        tray.innerHTML = ''; 
         document.getElementById('message').innerText = `Das Gericht ${matchedDish} wurde zubereitet!`;
     } else {
-        // Zeigt die aktuellen Zutaten zurück auf das Tablett an, wenn das Gericht nicht passt
+        // Zutaten zurück auf das Tablett zeigen, wenn das Gericht nicht passt
         ingredientsOnTray.forEach(id => {
             const ingredientElement = document.getElementById(id);
             tray.appendChild(ingredientElement.cloneNode(true));
@@ -218,13 +219,14 @@
 }
 
 
+
 function createDishObject(dish) {
     const tray = document.getElementById('tray1');
     // Neues Element für das Gericht erstellen
     const dishElement = document.createElement('div');
     dishElement.className = "ingredient";
     // Hier wird das Bild des Gerichts basierend auf dem Namen verwendet
-    dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Verwenden Sie das Bild des Gerichts
+    dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Verwende das Bild des Gerichts
     dishElement.style.width = '40px';
     dishElement.style.height = '40px';
     dishElement.setAttribute('draggable', true);
@@ -234,7 +236,6 @@ function createDishObject(dish) {
     // Das Gericht auf das Tablett hinzufügen
     tray.appendChild(dishElement);
 }
-
 
         function handleCustomerDrop(event, customerDish, customerName) {
             event.preventDefault();
