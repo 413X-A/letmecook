@@ -22,18 +22,18 @@
     }
     h1 { text-align: center; }
 
-    .customers, .workstations, .tray, .items-container {
+    .customers, .workstations, .tray-container {
       display: flex;
       justify-content: center;
       margin: 10px 0;
     }
     .customer, .station, .item, .tray-item {
-      width: 80px;
-      height: 80px;
+      width: 50px; /* Reduzierte Größe */
+      height: 50px; /* Reduzierte Größe */
       margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
-      line-height: 80px;
+      line-height: 50px;
       user-select: none;
     }
     .customer {
@@ -46,32 +46,44 @@
       color: white;
       font-weight: bold;
     }
+    .tray-container {
+      flex-direction: row;
+      align-items: flex-start;
+    }
     .tray {
-      flex-wrap: wrap;
-      width: 250px;
-      height: 150px;
+      flex: 0 0 70%; /* Tablett nimmt 70% der Breite ein */
+      height: 100px;
       background-color: lightgray;
       border: 2px solid darkgray;
       align-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
     }
     .tray-item { background-color: #f0e68c; }
 
     .btn {
+      flex: 0 0 10%; /* Button nimmt 10% der Breite ein */
       margin: 5px;
-      padding: 10px 20px;
+      padding: 10px 0;
       cursor: pointer;
       box-sizing: border-box;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
 
     /* Speisewärmer und Geräte */
     .station {
-      width: 60px;
-      height: 60px;
-      border-radius: 30px;
+      width: 40px; /* Reduzierte Größe für Geräte */
+      height: 40px; /* Reduzierte Größe für Geräte */
+      border-radius: 20px;
       margin: 5px;
       background-color: #ccc;
       text-align: center;
-      line-height: 60px;
+      line-height: 40px;
       font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
@@ -85,13 +97,14 @@
       justify-content: space-between;
     }
     .item {
-      width: 23%; /* 4 Zutaten nebeneinander */
-      height: 80px;
+      width: 20%; /* Zutaten etwas kleiner */
+      height: 40px; /* Zutaten etwas kleiner */
       margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
-      line-height: 80px;
+      line-height: 40px;
       user-select: none;
+      font-size: 12px; /* Kleinere Schriftgröße */
     }
   </style>
 </head>
@@ -119,33 +132,29 @@
     </div>
 
     <!-- Tablett für Zubereitung -->
-    <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
-      <p>Tablett</p>
+    <div class="tray-container">
+      <div class="tray" id="tray" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <p>Tablett</p>
+      </div>
+      <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
-    <button class="btn" onclick="prepareDish()">Zubereiten</button>
 
     <!-- Zutaten -->
-    <h2>Zutaten</h2>
     <div class="items-container">
       <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
       <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
       <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
       <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
-    </div>
-
-    <h2>Zutaten für Herdplatten</h2>
-    <div class="items-container">
       <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
       <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
       <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
-    </div>
-
-    <h2>Soßen</h2>
-    <div class="items-container">
       <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
       <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
       <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
+      <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
+      <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
+      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
     </div>
   </div>
 
@@ -193,14 +202,14 @@
       }
     }
 
-    // Rezepte
     const recipes = {
       "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
       "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
       "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
       "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
       "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["hotdog_broetchen", "wurst", "zwiebeln", "ketchup"]
+      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
     };
 
     function prepareDish() {
@@ -235,7 +244,6 @@
       tray.innerHTML = "";
     }
 
-    // Funktion, um das Gericht an den Kunden zu geben
     function serveCustomer(customerId, dishId) {
       const customer = document.getElementById(customerId);
       const requiredDish = customer.getAttribute("data-order").replace(/\s+/g, "_");
@@ -249,7 +257,7 @@
       }
     }
 
-    // Beispiel für die Bedienung der Kunden, dies kann über Drag-and-Drop oder mit einem Button umgesetzt werden.
+    // Beispiel für die Bedienung der Kunden
     const customers = ["customer1", "customer2", "customer3"];
     function setupCustomerServing() {
       const dishes = document.querySelectorAll(".prepared-dish");
