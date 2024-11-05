@@ -235,19 +235,19 @@
 function displayDish(dish) {
     const tray = document.getElementById('tray1');
     const dishElement = document.createElement('div');
-    dishElement.innerText = dish;
     dishElement.className = "ingredient";
-
-    // Hintergrundbild je nach Gericht setzen
-    dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Zum Beispiel 'burger.png'
+    dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Hintergrundbild für das Gericht
     dishElement.style.width = '40px';
     dishElement.style.height = '40px';
-    dishElement.setAttribute('draggable', true);
     dishElement.setAttribute('id', dish.toLowerCase());
+
+    // Attribut für Drag-and-Drop einrichten
+    dishElement.setAttribute('draggable', true);
     dishElement.addEventListener('dragstart', drag);
 
     tray.appendChild(dishElement);
 }
+
 
 
         document.addEventListener('dragend', function(event) {
