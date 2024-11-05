@@ -202,14 +202,13 @@
             return recipes[dish].every(item => ingredientsOnTray.includes(item));
         });
 
+        console.log('Zutaten auf dem Tablett:', ingredientsOnTray); // Debugging-Ausgabe
+
         if (matchedDish) {
-            // Gericht auf das Tablett legen
             createDishObject(matchedDish); // Gericht hinzufügen
-            // Zutaten nach der Zubereitung leeren
-            tray.innerHTML = ''; 
+            tray.innerHTML = ''; // Leere die Zutaten auf dem Tablett
             document.getElementById('message').innerText = `Das Gericht ${matchedDish} wurde zubereitet!`;
         } else {
-            // Zutaten zurück auf das Tablett zeigen, wenn das Gericht nicht passt
             ingredientsOnTray.forEach(id => {
                 const ingredientElement = document.getElementById(id);
                 tray.appendChild(ingredientElement.cloneNode(true));
@@ -220,19 +219,19 @@
 
     function createDishObject(dish) {
         const tray = document.getElementById('tray1');
-        // Neues Element für das Gericht erstellen
         const dishElement = document.createElement('div');
         dishElement.className = "ingredient";
-        // Hier wird das Bild des Gerichts basierend auf dem Namen verwendet
         dishElement.style.backgroundImage = `url('${dish.toLowerCase()}.png')`; // Verwende das Bild des Gerichts
         dishElement.style.width = '40px';
         dishElement.style.height = '40px';
         dishElement.setAttribute('draggable', true);
         dishElement.setAttribute('id', dish.toLowerCase());
         dishElement.addEventListener('dragstart', drag);
-        
-        // Das Gericht auf das Tablett hinzufügen
+
+        // Überprüfen, ob das Gericht erfolgreich auf das Tablett hinzugefügt wurde
         tray.appendChild(dishElement);
+        console.log('Gericht erstellt und auf das Tablett gelegt:', dish); // Debugging-Ausgabe
+        console.log('Aktueller Inhalt des Tabletts:', tray.innerHTML); // Inhalt des Tabletts anzeigen
     }
 
     function handleCustomerDrop(event, customerDish, customerName) {
@@ -249,11 +248,11 @@
         }
     }
 
-    // Initialisierung der Zutaten und Kunden beim Laden der Seite
     window.onload = function() {
         createIngredients();
         generateCustomers();
     };
 </script>
+
 </body>
 </html>
