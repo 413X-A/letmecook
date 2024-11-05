@@ -293,50 +293,28 @@
     }
   }
 
-  // Prevent dropping in invalid zones (like the ingredients list)
-  function preventDefault(event) {
-    event.preventDefault();
-  }
-
   // Function to prepare the dish and check if it matches a recipe
   function prepareDish() {
     const tray = document.getElementById("tray");
-    const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
-    const orderMatch = checkOrder(ingredients);
-
-    if (orderMatch) {
-      alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
-      tray.innerHTML = ""; // Clear the tray
-    } else {
-      alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
-    }
-  }
-
-  // Check if the ingredients on the tray match any known recipe
-  function checkOrder(ingredients) {
-    const recipes = {
-      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
-      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+    const ingredients = Array.from(tray.children).map(item => item.id.replace('_fertig', ''));  // Get the ingredients on the tray
+    const orders = {
+      "Pommes Spezial": ["pommes", "mayonnaise", "ketchup", "zwiebeln"],
       "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-      "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
-      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"]
+      // Add more recipes here...
     };
 
-    for (const [dish, recipe] of Object.entries(recipes)) {
-      if (arraysEqual(recipe, ingredients)) return dish;
-    }
-    return null;
-  }
+    const customer = document.querySelector('.customer[data-order]');  // Get the customer with an order
+    const customerOrder = customer ? customer.dataset.order : null;
 
-  // Utility function to check if two arrays are equal
-  function arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) return false;
+    if (customerOrder && orders[customerOrder].every(ingredient => ingredients.includes(ingredient))) {
+      alert("Gericht korrekt zubereitet!");
+      // Remove the items from the tray
+      tray.innerHTML = '';
+      customer.textContent = `Kunde - Bestellt: ${customerOrder} - Fertig!`;  // Update customer info
+    } else {
+      alert("Das Gericht stimmt nicht mit der Bestellung überein. Versuchen Sie es noch einmal.");
     }
-    return true;
   }
 </script>
 
