@@ -182,15 +182,13 @@
 
   <script>
     function allowDrop(event) {
-      event.preventDefault();
-    }
-
-    function drag(event) {
-      const item = event.target.cloneNode(true);
-      item.id += "_copy"; // Damit jedes Mal eine Kopie entsteht
-      event.dataTransfer.setData("text", item.id);
-      event.target.parentNode.appendChild(item); // Kopie hinzufügen
-    }
+  const targetContainer = event.target.closest(".items-container");
+  
+  // Ablegen in der Zutatenleiste verhindern
+  if (!targetContainer) {
+    event.preventDefault(); // Nur erlauben, wenn Ziel nicht die Zutatenleiste ist
+  }
+}
 
     function dropOnStove(event) {
       const itemId = event.dataTransfer.getData("text");
