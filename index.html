@@ -22,14 +22,14 @@
     }
     h1 { text-align: center; }
 
-    .customers, .workstations, .tray-container {
+    .customers {
       display: flex;
       justify-content: center;
       margin: 10px 0;
     }
-    .customer, .station {
-      width: 50px; /* Größe für Kunden und Arbeitsstationen */
-      height: 50px; /* Größe für Kunden und Arbeitsstationen */
+    .customer {
+      width: 50px; /* Größe für Kunden */
+      height: 50px; /* Größe für Kunden */
       margin: 5px;
       border: 1px solid #ccc;
       text-align: center;
@@ -46,9 +46,13 @@
       color: white;
       font-weight: bold;
     }
+    
     .tray-container {
       flex-direction: row;
       align-items: flex-start;
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
     }
     .tray {
       flex: 0 0 70%; /* Tablett nimmt 70% der Breite ein */
@@ -75,13 +79,13 @@
 
     /* Speisewärmer und Geräte */
     .station {
-      width: 40px; /* Größe für Geräte */
-      height: 40px; /* Größe für Geräte */
-      border-radius: 20px;
+      width: 30px; /* Größe für Geräte */
+      height: 30px; /* Größe für Geräte */
+      border-radius: 15px;
       margin: 5px;
       background-color: #ccc;
       text-align: center;
-      line-height: 40px;
+      line-height: 30px;
       font-weight: bold;
       cursor: pointer;
       border: 2px solid #999;
@@ -95,6 +99,7 @@
       display: flex; /* Zutaten in einer Zeile */
       flex-wrap: wrap; /* Zeilenumbruch erlauben */
       justify-content: space-between;
+      margin: 10px 0; /* Abstand für die Zutaten */
     }
     .item {
       width: 20%; /* Größe für Zutaten */
@@ -138,13 +143,11 @@
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
-    <!-- Speisewärmer und Geräte -->
-    <div class="workstations">
+    <!-- Speisewärmer und Geräte in einer Zeile -->
+    <div class="workstations" style="justify-content: center;">
       <div class="station warmer" id="warmer1" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 1</div>
       <div class="station warmer" id="warmer2" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 2</div>
       <div class="station warmer" id="warmer3" ondrop="dropDish(event)" ondragover="allowDrop(event)">Wärmer 3</div>
-    </div>
-    <div class="workstations">
       <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
       <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)">Herdplatte</div>
       <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)">Friteuse</div>
@@ -180,8 +183,13 @@
 
   <script>
     // Drag-and-drop Funktionen
-    function allowDrop(ev) { ev.preventDefault(); }
-    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
 
     function drop(ev) {
       ev.preventDefault();
