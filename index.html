@@ -5,17 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Let Me Cook</title>
   <style>
-    /* Einfache Stile zur Gestaltung */
-    .container { width: 500px; margin: 0 auto; text-align: center; }
-    h1 { font-size: 24px; }
-    .customers, .workstations, .tray-container, .items-container { margin: 15px 0; }
-    .customer, .station, .tray, .item { border: 1px solid #444; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block; }
-    .tray { width: 70%; height: 80px; background-color: #eee; }
-    .btn { display: block; margin: 10px auto; padding: 5px 10px; }
-    .station { width: 50px; height: 50px; border-radius: 50%; }
-    .warmer { background-color: #f5f5dc; }
-    .stove, .fryer { background-color: #d3d3d3; }
-    .item { cursor: grab; }
+    /* Grundlegendes Styling */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 500px;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+    }
+    h1 { text-align: center; }
+
+    .customers {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .customer {
+      width: 100px;
+      height: 100px;
+      margin: 25px;
+      border: 1px solid #ccc;
+      text-align: center;
+      line-height: 50px;
+      user-select: none;
+      background: url('customer.png') center/cover;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    
+    .tray-container {
+      flex-direction: row;
+      align-items: flex-start;
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    .tray {
+      flex: 0 0 80%;
+      height: 100px;
+      background-color: lightgray;
+      border: 2px solid darkgray;
+      align-content: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .btn {
+      flex: 0 0 10%;
+      margin: 5px;
+      padding: 10px 0;
+      cursor: pointer;
+      box-sizing: border-box;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    /* Speisewärmer und Geräte */
+    .workstations {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    .station {
+      width: 50px;
+      height: 50px;
+      border-radius: 15px;
+      margin: 5px;
+      background-color: #ccc;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid #999;
+    }
+    .warmer { background-color: #f7c6c7; }
+    .stove { background-color: #ffd700; }
+    .fryer { background-color: #d2b48c; }
+
+    /* Zutaten */
+    .items-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    .item {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      user-select: none;
+      border-radius: 5px;
+      background-color: #eaeaea;
+      background-size: cover;
+      cursor: grab;
+    }
+
+    /* Hintergrundbilder für Zutaten */
+    #pommes { background-image: url('pommes.png'); }
+    #mayonnaise { background-image: url('mayonnaise.png'); }
+    #ketchup { background-image: url('ketchup.png'); }
+    #zwiebeln { background-image: url('zwiebeln.png'); }
+    #wurst { background-image: url('wurst.png'); }
+    #currysauce { background-image: url('currysauce.png'); }
+    #burger_broetchen { background-image: url('burger_broetchen.png'); }
+    #rindfleisch_patty { background-image: url('rindfleisch_patty.png'); }
+    #salat { background-image: url('salat.png'); }
+    #tomate { background-image: url('tomate.png'); }
+    #gemuese_patty { background-image: url('gemuese_patty.png'); }
+    #kaese { background-image: url('kaese.png'); }
+    #gurke { background-image: url('gurke.png'); }
+    #hotdog_broetchen { background-image: url('hotdog_broetchen.png'); }
+    #mais { background-image: url('mais.png'); }
   </style>
 </head>
 <body>
@@ -29,109 +143,202 @@
       <div class="customer" id="customer3" data-order="Hotdog">Kunde 3</div>
     </div>
 
-    <!-- Speisewärmer und Geräte in einer Zeile -->
+    <!-- Speisewärmer und Geräte -->
     <div class="workstations">
-      <div class="station warmer" id="warmer1" ondrop="dropWarmer(event)" ondragover="allowDrop(event)"></div>
-      <div class="station warmer" id="warmer2" ondrop="dropWarmer(event)" ondragover="allowDrop(event)"></div>
-      <div class="station warmer" id="warmer3" ondrop="dropWarmer(event)" ondragover="allowDrop(event)"></div>
-      <div class="station stove" id="stove1" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
-      <div class="station stove" id="stove2" ondrop="dropStove(event)" ondragover="allowDrop(event)"></div>
-      <div class="station fryer" id="fryer" ondrop="dropFryer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer1" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer2" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station warmer" id="warmer3" ondrop="dropOnWarmer(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove1" ondrop="dropOnStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station stove" id="stove2" ondrop="dropOnStove(event)" ondragover="allowDrop(event)"></div>
+      <div class="station fryer" id="fryer" ondrop="dropOnFryer(event)" ondragover="allowDrop(event)"></div>
     </div>
 
     <!-- Tablett für Zubereitung -->
     <div class="tray-container">
-      <div class="tray" id="tray" ondrop="dropTray(event)" ondragover="allowDrop(event)">
-        <p>Tablett</p>
+      <div class="tray" id="tray" ondrop="dropOnTray(event)" ondragover="allowDrop(event)">
       </div>
       <button class="btn" onclick="prepareDish()">Zubereiten</button>
     </div>
 
-    <!-- Zutaten, nur einmal angezeigt -->
+    <!-- Zutaten -->
     <div class="items-container">
-      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)">Pommes</div>
-      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)">Mayonnaise</div>
-      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)">Ketchup</div>
-      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)">Zwiebeln</div>
-      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)">Wurst</div>
-      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)">Currysauce</div>
-      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)">Burgerbrötchen</div>
-      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)">Rindfleisch Patty</div>
-      <div class="item" id="salat" draggable="true" ondragstart="drag(event)">Salat</div>
-      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)">Tomate</div>
-      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)">Gemüse Patty</div>
-      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)">Käse</div>
-      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)">Gurke</div>
-      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)">Hotdog Brötchen</div>
-      <div class="item" id="mais" draggable="true" ondragstart="drag(event)">Mais</div>
+      <div class="item" id="pommes" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mayonnaise" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="ketchup" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="zwiebeln" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="wurst" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="currysauce" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="burger_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="salat" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="tomate" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
+      <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
-
   </div>
+    <script>
+  let originalParent = null;
 
-<script>
+  // Allow drop only in certain areas (not on the ingredient list or invalid zones)
   function allowDrop(event) {
-    event.preventDefault();
+    if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
+      event.preventDefault();
+    }
   }
 
+  // Drag handler: Prepare the element for dragging
   function drag(event) {
-    event.dataTransfer.setData("text", event.target.id);
+    const item = event.target.cloneNode(true);  // Make a copy of the element
+    item.id += "_copy_" + new Date().getTime(); // Ensure a unique ID for the clone
+    item.classList.add("dragged");  // Add a class for identification
+    event.dataTransfer.setData("text", item.id);
+
+    // Remember the original parent of the dragged item
+    originalParent = event.target.parentElement;
+
+    // Make the clone temporarily invisible and append to the body for dragging
+    item.style.position = "absolute";
+    item.style.opacity = "0";  // Initially invisible
+    document.body.appendChild(item);
   }
 
-  function dropStove(event) {
+  // Drop handler for the stove (only certain items allowed)
+  function dropOnStove(event) {
     event.preventDefault();
-    let itemId = event.dataTransfer.getData("text");
-    if ((itemId === "rindfleisch_patty" || itemId === "gemuese_patty" || itemId === "wurst") && !itemId.endsWith("_fertig")) {
-      prepareOnStoveOrFryer(event, itemId);
+    const itemId = event.dataTransfer.getData("text");
+    const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
+    const itemElement = document.getElementById(itemId);
+
+    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
+      event.target.appendChild(itemElement);
+      itemElement.style.opacity = "1"; // Make it visible when placed
+      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
+    } else {
+      handleInvalidDrop(itemElement);
+      alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
     }
   }
 
-  function dropFryer(event) {
+  // Drop handler for the fryer (only certain items allowed)
+  function dropOnFryer(event) {
     event.preventDefault();
-    let itemId = event.dataTransfer.getData("text");
-    if (itemId === "pommes" && !itemId.endsWith("_fertig")) {
-      prepareOnStoveOrFryer(event, itemId);
+    const itemId = event.dataTransfer.getData("text");
+    const allowedItems = ["pommes"];
+    const itemElement = document.getElementById(itemId);
+
+    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
+      event.target.appendChild(itemElement);
+      itemElement.style.opacity = "1"; // Make it visible when placed
+      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
+    } else {
+      handleInvalidDrop(itemElement);
+      alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
     }
   }
 
-  function dropWarmer(event) {
+  // Function to move the item to the warmer after 5 seconds
+  function moveToWarmer(itemId) {
+    const itemElement = document.getElementById(itemId);
+    const newItemId = itemId + "_fertig";
+    itemElement.id = newItemId;  // Update the ID to mark the item as "done"
+
+    // Find an available warmer to place the item in
+    const warmers = document.querySelectorAll('.warmer');
+    const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
+
+    if (freeWarmer) {
+      freeWarmer.appendChild(itemElement); // Place it on the warmer
+    } else {
+      itemElement.remove(); // If no free warmer, remove the item
+    }
+  }
+
+  // Drop handler for the warmer (only "finished" items allowed)
+  function dropOnWarmer(event) {
     event.preventDefault();
-    let itemId = event.dataTransfer.getData("text");
+    const itemId = event.dataTransfer.getData("text");
+    const itemElement = document.getElementById(itemId);
+
     if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(document.getElementById(itemId));
+      event.target.appendChild(itemElement); // Place finished item on the warmer
+    } else {
+      handleInvalidDrop(itemElement);
+      alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
     }
   }
 
-  function dropTray(event) {
+  // Drop handler for the tray (only "finished" items allowed)
+  function dropOnTray(event) {
     event.preventDefault();
-    let itemId = event.dataTransfer.getData("text");
+    const itemId = event.dataTransfer.getData("text");
+    const itemElement = document.getElementById(itemId);
+
     if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(document.getElementById(itemId));
+      event.target.appendChild(itemElement); // Place finished item on the tray
+    } else {
+      handleInvalidDrop(itemElement);
+      alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
     }
   }
 
-  function prepareOnStoveOrFryer(event, itemId) {
-    let itemElement = document.getElementById(itemId);
-    setTimeout(() => {
-      let finishedItemId = itemId + "_fertig";
-      let finishedItem = itemElement.cloneNode(true);
-      finishedItem.id = finishedItemId;
-      finishedItem.innerHTML += " (fertig)";
-      finishedItem.draggable = true;
-      finishedItem.ondragstart = drag;
-      event.target.appendChild(finishedItem);
-
-      // Freigeben des Platzes für neue Zutat
-      itemElement.remove();
-    }, 5000);
+  // Handle invalid drops (items that cannot be placed in the current area)
+  function handleInvalidDrop(itemElement) {
+    if (originalParent && originalParent.classList.contains("items-container")) {
+      itemElement.remove(); // Remove if from the items container (not allowed to drop here)
+    } else {
+      originalParent.appendChild(itemElement); // Return it to the original parent
+    }
   }
 
+  // Prevent dropping in invalid zones (like the ingredients list)
+  function preventDefault(event) {
+    event.preventDefault();
+  }
+
+  // Function to prepare the dish and check if it matches a recipe
   function prepareDish() {
-    // Beispiel-Zubereitungsfunktion für das Gericht auf dem Tablett
-    let tray = document.getElementById("tray");
-    let dish = Array.from(tray.children).map(item => item.id).join(", ");
-    alert("Zubereitetes Gericht: " + dish);
-    tray.innerHTML = "<p>Tablett</p>";
+    const tray = document.getElementById("tray");
+    const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
+    const orderMatch = checkOrder(ingredients);
+
+    if (orderMatch) {
+      alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
+      tray.innerHTML = ""; // Clear the tray
+    } else {
+      alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
+    }
+  }
+
+  // Check if the ingredients on the tray match any known recipe
+  function checkOrder(ingredients) {
+    const recipes = {
+      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
+      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
+      "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
+      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
+      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+    };
+
+    for (const [dish, recipe] of Object.entries(recipes)) {
+      if (arraysEqual(recipe, ingredients)) return dish;
+    }
+    return null;
+  }
+
+  // Utility function to check if two arrays are equal
+  function arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
   }
 </script>
+
 </body>
 </html>
