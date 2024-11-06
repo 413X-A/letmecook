@@ -205,39 +205,41 @@
     document.body.appendChild(item);
   }
 
-  // Drop handler for the stove (only certain items allowed)
-  function dropOnStove(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
-    const itemElement = document.getElementById(itemId);
+  // Drop handler for the stove (only certain items allowed and not finished)
+function dropOnStove(event) {
+  event.preventDefault();
+  const itemId = event.dataTransfer.getData("text");
+  const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
+  const itemElement = document.getElementById(itemId);
 
-    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-      event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Make it visible when placed
-      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
-    }
+  // Check if the item is allowed and not finished (_fertig)
+  if (allowedItems.some(allowed => itemId.startsWith(allowed)) && !itemId.endsWith("_fertig")) {
+    event.target.appendChild(itemElement);
+    itemElement.style.opacity = "1"; // Make it visible when placed
+    setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
+  } else {
+    handleInvalidDrop(itemElement);
+    alert("Nur bestimmte Zutaten ohne '_fertig' dürfen auf den Herd gelegt werden.");
   }
+}
 
   // Drop handler for the fryer (only certain items allowed)
-  function dropOnFryer(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const allowedItems = ["pommes"];
-    const itemElement = document.getElementById(itemId);
+function dropOnFryer(event) {
+  event.preventDefault();
+  const itemId = event.dataTransfer.getData("text");
+  const allowedItems = ["pommes"];
+  const itemElement = document.getElementById(itemId);
 
-    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-      event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Make it visible when placed
-      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
-    }
+  // Check if the item is allowed and not finished (_fertig) 
+  if (allowedItems.includes(itemId) && !itemId.endsWith("_fertig")) {
+    event.target.appendChild(itemElement);
+    itemElement.style.opacity = "1"; // Make it visible when placed
+    setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
+  } else {
+    handleInvalidDrop(itemElement);
+    alert("Nur Pommes können in die Friteuse gelegt werden, und sie dürfen nicht fertig sein.");
   }
+}
 
   // Function to move the item to the warmer after 5 seconds
   function moveToWarmer(itemId) {
@@ -270,28 +272,35 @@
     }
   }
 
-  // Drop handler for the tray (only "finished" items allowed)
-  function dropOnTray(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
+      // Tablett
+function dropOnTray(event) {
+  event.preventDefault();
+  const itemId = event.dataTransfer.getData("text");
+  
+  // Liste der nicht fertigen Zutaten
+  const itemId_nichtfertig = ["mayonnaise", "ketchup", "zwiebeln", "currysauce", "burger_broetchen", "salat", "tomate", "kaese", "hotdog_broetchen", "mais"];
+  
+  const itemElement = document.getElementById(itemId);
 
-    if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement); // Place finished item on the tray
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
-    }
+  // Überprüfen, ob das Element fertig ist oder ob es in der Liste der nicht fertigen Zutaten ist
+  if (itemId.endsWith("_fertig") || itemId_nichtfertig.includes(itemId)) {
+    event.target.appendChild(itemElement); // Platziere fertige oder erlaubte Zutaten auf dem Tablett
+  } else {
+    handleInvalidDrop(itemElement);
+    alert("Nur fertige Zutaten oder erlaubte Zutaten können aufs Tablett gelegt werden.");
   }
+}
 
-  // Handle invalid drops (items that cannot be placed in the current area)
-  function handleInvalidDrop(itemElement) {
-    if (originalParent && originalParent.classList.contains("items-container")) {
-      itemElement.remove(); // Remove if from the items container (not allowed to drop here)
-    } else {
-      originalParent.appendChild(itemElement); // Return it to the original parent
-    }
+// Handle invalid drops (items that cannot be placed in the current area)
+function handleInvalidDrop(itemElement) {
+  // Überprüfen, ob das Element in seinem ursprünglichen Container ist und zurückgesetzt werden muss
+  if (originalParent && originalParent.classList.contains("items-container")) {
+    itemElement.remove(); // Entferne das Element, wenn es nicht in den Container gehört
+  } else {
+    originalParent.appendChild(itemElement); // Setze das Element zurück in den ursprünglichen Container
   }
+}
+
 
   // Prevent dropping in invalid zones (like the ingredients list)
   function preventDefault(event) {
