@@ -178,7 +178,7 @@
     </div>
   </div>
   
-  <script>
+<script>
   function allowDrop(event) {
     event.preventDefault();
   }
@@ -192,19 +192,18 @@
     const data = event.dataTransfer.getData("text");
     const item = document.getElementById(data);
 
-    // Verhindert, dass vorbereitete ("prepared") Zutaten auf das Tablett gelegt werden
-    if (item.classList.contains("prepared")) {
-      alert("Vorbereitete Zutaten können nicht direkt auf das Tablett gelegt werden.");
-      return;
+    // Überprüfen, ob die Zutat auf das Tablett darf
+    if (item.id.startsWith("vorrat_") || item.id.startsWith("fertig_") || item.id.startsWith("gericht_")) {
+      // Wenn die Zutat bereits auf dem Tablett ist, nichts tun
+      if (event.target.contains(item)) {
+        return;
+      }
+
+      // Zutat verschieben, nicht klonen
+      event.target.appendChild(item);
+    } else {
+      alert("Nur Zutaten mit den Prefixen 'vorrat_', 'fertig_' oder 'gericht_' dürfen auf das Tablett.");
     }
-
-    // Klonen und hinzufügen
-    const clone = item.cloneNode(true);
-    clone.id = `${item.id}_tray`; // Einzigartige ID für das Tablett-Item
-    event.target.appendChild(clone);
-
-    // Zutat aus der Zutatenleiste entfernen
-    item.parentNode.removeChild(item);
   }
 
   function dropOnWarmer(event) {
@@ -212,12 +211,15 @@
     const data = event.dataTransfer.getData("text");
     const item = document.getElementById(data);
 
-    if (item.classList.contains("prepared")) {
+    // Zutaten mit "fertig_" und "gericht_" dürfen auf den Speisewärmer
+    if (item.id.startsWith("fertig_") || item.id.startsWith("gericht_")) {
       if (event.target.children.length === 0) {
         event.target.appendChild(item);
       } else {
-        alert("Nur eine vorbereitete Zutat pro Wärmer.");
+        alert("Nur eine Zutat pro Wärmer.");
       }
+    } else {
+      alert("Nur fertig zubereitete oder fertige Gerichte dürfen auf den Speisewärmer.");
     }
   }
 
@@ -226,14 +228,12 @@
     const data = event.dataTransfer.getData("text");
     const item = document.getElementById(data);
 
-    if (["rindfleisch_patty", "wurst"].includes(item.id) && event.target.children.length === 0) {
-      const clone = item.cloneNode(true);
-      event.target.appendChild(clone);
-      item.parentNode.removeChild(item); // Entfernen aus der Zutatenleiste
-
-      startCooking(clone, event.target, "stove");
+    // Nur "vorbereiten_" Zutaten (außer "vorbereiten_pommes") dürfen auf den Herd
+    if (item.id.startsWith("vorbereiten_") && item.id !== "vorbereiten_pommes" && event.target.children.length === 0) {
+      event.target.appendChild(item);
+      startCooking(item, event.target, "stove");
     } else {
-      alert("Nur eine Zutat kann auf den Herd gelegt werden, und nur Fleisch- oder Wurst-Pattys sind erlaubt.");
+      alert("Nur vorbereitete Zutaten (außer Pommes) dürfen auf den Herd.");
     }
   }
 
@@ -242,21 +242,19 @@
     const data = event.dataTransfer.getData("text");
     const item = document.getElementById(data);
 
-    if (item.id === "pommes" && event.target.children.length === 0) {
-      const clone = item.cloneNode(true);
-      event.target.appendChild(clone);
-      item.parentNode.removeChild(item); // Entfernen aus der Zutatenleiste
-
-      startCooking(clone, event.target, "fryer");
+    // "vorbereiten_pommes" dürfen in die Fritteuse
+    if (item.id === "vorbereiten_pommes" && event.target.children.length === 0) {
+      event.target.appendChild(item);
+      startCooking(item, event.target, "fryer");
     } else {
-      alert("Nur eine Zutat kann in die Fritteuse gelegt werden, und nur Pommes sind erlaubt.");
+      alert("Nur Pommes dürfen in die Fritteuse.");
     }
   }
 
   function startCooking(item, station, type) {
     setTimeout(() => {
       item.classList.add("prepared");
-      item.id = `prepared_${item.id}`; // Kennzeichnung als vorbereitet
+      item.id = `fertig_${item.id}`; // Umbenennen der Zutat, wenn sie fertig ist
 
       const freeWarmer = findFreeWarmer();
       if (freeWarmer) {
@@ -278,12 +276,12 @@
   }
 
   const recipes = {
-    "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
-    "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
-    "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-    "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-    "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-    "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+    "Pommes Spezial": ["vorrat_pommes", "vorrat_pommes", "vorrat_pommes", "vorrat_mayonnaise", "vorrat_ketchup", "vorrat_zwiebeln"],
+    "Currywurst mit Pommes": ["vorrat_wurst", "vorrat_currysauce", "vorrat_pommes"],
+    "Hamburger": ["vorrat_burger_broetchen", "vorbereiten_rindfleisch_patty", "vorrat_salat", "vorrat_tomate", "vorrat_zwiebeln", "vorrat_ketchup"],
+    "Pommes mit Käse": ["vorrat_pommes", "vorrat_pommes", "vorrat_kaese", "vorrat_gurke"],
+    "Hotdog": ["vorrat_wurst", "vorrat_hotdog_broetchen", "vorrat_gurke", "vorrat_ketchup"],
+    "Mischsalat": ["vorrat_salat", "vorrat_tomate", "vorrat_gurke", "vorrat_mais"]
   };
 
   function prepareDish() {
@@ -316,6 +314,7 @@
     while (tray.firstChild) tray.removeChild(tray.firstChild);
   }
 </script>
+
 
 
 </body>
