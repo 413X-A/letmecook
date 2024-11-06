@@ -117,7 +117,7 @@
     /* Hintergrundbilder für Zutaten */
     #pommes { background-image: url('vorrat_pommes.jpeg'); }
     #mayonnaise { background-image: url('vorrat_mayonnaise.jpeg'); }
-    #ketchup { background-image: url('vorrat_ketchub.jpeg'); }
+    #ketchup { background-image: url('vorrat_ketchup.jpeg'); }
     #zwiebeln { background-image: url('vorrat_zwiebeln.jpeg'); }
     #wurst { background-image: url('vorrat_wurst.jpeg'); }
     #currysauce { background-image: url('vorrat_currysauce.jpeg'); }
@@ -171,7 +171,6 @@
       <div class="item" id="rindfleisch_patty" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="salat" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="tomate" draggable="true" ondragstart="drag(event)"></div>
-      <div class="item" id="gemuese_patty" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="kaese" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="gurke" draggable="true" ondragstart="drag(event)"></div>
       <div class="item" id="hotdog_broetchen" draggable="true" ondragstart="drag(event)"></div>
@@ -210,9 +209,11 @@
       event.preventDefault();
       const data = event.dataTransfer.getData("text");
       const item = document.getElementById(data);
-      if (item.id === "rindfleisch_patty" || item.id === "gemuese_patty" || item.id === "wurst") {
-        event.target.appendChild(item);
-        setTimeout(() => finishCooking(item, event.target), 5000);
+      if (["rindfleisch_patty", "wurst"].includes(item.id)) {
+        item.classList.add("prepared");
+        setTimeout(() => {
+          document.getElementById("tray").appendChild(item);
+        }, 5000);
       }
     }
 
@@ -221,31 +222,45 @@
       const data = event.dataTransfer.getData("text");
       const item = document.getElementById(data);
       if (item.id === "pommes") {
-        event.target.appendChild(item);
-        setTimeout(() => finishCooking(item, event.target), 5000);
+        item.classList.add("prepared");
+        setTimeout(() => {
+          document.getElementById("tray").appendChild(item);
+        }, 5000);
       }
     }
 
-    function finishCooking(item, station) {
-      item.classList.add("prepared");
-      item.id += "_fertig";
-      const warmer = document.querySelector(".station.warmer:not(:has(*))");
-      if (warmer) {
-        warmer.appendChild(item);
-      } else {
-        station.removeChild(item);
-      }
-    }
+    const recipes = {
+      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
+      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
+      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
+      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+    };
 
     function prepareDish() {
       const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id);
-      const recipe = "Pommes Spezial"; // Beispiel Rezept; hier mit Kunden-Logik verbinden
-      if (trayItems.join() === recipe) {
-        alert("Gericht ist fertig!");
-        clearTray();
-      } else {
-        alert("Zutaten entsprechen nicht dem Rezept.");
+      const customer = document.querySelector(".customer[data-order]");
+
+      if (!customer) {
+        alert("Kein Kunde wartet auf ein Gericht.");
+        return;
       }
+
+      const order = customer.dataset.order;
+      const requiredItems = recipes[order];
+      
+      if (arraysEqual(trayItems, requiredItems)) {
+        alert(`Das Gericht für ${order} ist fertig!`);
+        clearTray();
+        customer.remove();
+      } else {
+        alert("Die Zutaten stimmen nicht mit der Bestellung überein.");
+      }
+    }
+
+    function arraysEqual(arr1, arr2) {
+      return arr1.length === arr2.length && arr1.sort().every((value, index) => value === arr2.sort()[index]);
     }
 
     function clearTray() {
