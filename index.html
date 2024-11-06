@@ -184,50 +184,80 @@
   }
 
   function drag(event) {
-    // Kopiere die ID der Zutat zum Verschieben
     event.dataTransfer.setData("text", event.target.id);
   }
 
   function dropOnTray(event) {
     event.preventDefault();
     const data = event.dataTransfer.getData("text");
-    const item = document.getElementById(data).cloneNode(true);
-    item.classList.remove("prepared"); // Sicherstellen, dass es als neue Zutat gilt
-    event.target.appendChild(item);
+    const item = document.getElementById(data);
+
+    // Verhindert, dass vorbereitete ("prepared") Zutaten auf das Tablett gelegt werden
+    if (item.classList.contains("prepared")) {
+      alert("Vorbereitete Zutaten können nicht direkt auf das Tablett gelegt werden.");
+      return;
+    }
+
+    // Klonen und hinzufügen
+    const clone = item.cloneNode(true);
+    clone.id = `${item.id}_tray`; // Einzigartige ID für das Tablett-Item
+    event.target.appendChild(clone);
+
+    // Zutat aus der Zutatenleiste entfernen
+    item.parentNode.removeChild(item);
   }
 
   function dropOnWarmer(event) {
     event.preventDefault();
     const data = event.dataTransfer.getData("text");
-    const item = document.getElementById(data).cloneNode(true);
+    const item = document.getElementById(data);
+
     if (item.classList.contains("prepared")) {
-      event.target.appendChild(item);
+      if (event.target.children.length === 0) {
+        event.target.appendChild(item);
+      } else {
+        alert("Nur eine vorbereitete Zutat pro Wärmer.");
+      }
     }
   }
 
   function dropOnStove(event) {
     event.preventDefault();
     const data = event.dataTransfer.getData("text");
-    const item = document.getElementById(data).cloneNode(true);
-    if (["rindfleisch_patty", "wurst"].includes(item.id)) {
-      event.target.appendChild(item);
-      startCooking(item, event.target, "stove");
+    const item = document.getElementById(data);
+
+    if (["rindfleisch_patty", "wurst"].includes(item.id) && event.target.children.length === 0) {
+      const clone = item.cloneNode(true);
+      event.target.appendChild(clone);
+      item.parentNode.removeChild(item); // Entfernen aus der Zutatenleiste
+
+      startCooking(clone, event.target, "stove");
+    } else {
+      alert("Nur eine Zutat kann auf den Herd gelegt werden, und nur Fleisch- oder Wurst-Pattys sind erlaubt.");
     }
   }
 
   function dropOnFryer(event) {
     event.preventDefault();
     const data = event.dataTransfer.getData("text");
-    const item = document.getElementById(data).cloneNode(true);
-    if (item.id === "pommes") {
-      event.target.appendChild(item);
-      startCooking(item, event.target, "fryer");
+    const item = document.getElementById(data);
+
+    if (item.id === "pommes" && event.target.children.length === 0) {
+      const clone = item.cloneNode(true);
+      event.target.appendChild(clone);
+      item.parentNode.removeChild(item); // Entfernen aus der Zutatenleiste
+
+      startCooking(clone, event.target, "fryer");
+    } else {
+      alert("Nur eine Zutat kann in die Fritteuse gelegt werden, und nur Pommes sind erlaubt.");
     }
   }
 
   function startCooking(item, station, type) {
     setTimeout(() => {
       item.classList.add("prepared");
+      item.id = `prepared_${item.id}`; // Kennzeichnung als vorbereitet
+
       const freeWarmer = findFreeWarmer();
       if (freeWarmer) {
         freeWarmer.appendChild(item);
@@ -257,7 +287,7 @@
   };
 
   function prepareDish() {
-    const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id);
+    const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id.replace("_tray", ""));
     const customer = document.querySelector(".customer[data-order]");
 
     if (!customer) {
@@ -286,6 +316,7 @@
     while (tray.firstChild) tray.removeChild(tray.firstChild);
   }
 </script>
+
 
 </body>
 </html>
