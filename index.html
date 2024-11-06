@@ -179,94 +179,113 @@
   </div>
   
   <script>
-    function allowDrop(event) {
-      event.preventDefault();
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+
+  function drag(event) {
+    // Kopiere die ID der Zutat zum Verschieben
+    event.dataTransfer.setData("text", event.target.id);
+  }
+
+  function dropOnTray(event) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text");
+    const item = document.getElementById(data).cloneNode(true);
+    item.classList.remove("prepared"); // Sicherstellen, dass es als neue Zutat gilt
+    event.target.appendChild(item);
+  }
+
+  function dropOnWarmer(event) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text");
+    const item = document.getElementById(data).cloneNode(true);
+    if (item.classList.contains("prepared")) {
+      event.target.appendChild(item);
     }
+  }
 
-    function drag(event) {
-      event.dataTransfer.setData("text", event.target.id);
+  function dropOnStove(event) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text");
+    const item = document.getElementById(data).cloneNode(true);
+    if (["rindfleisch_patty", "wurst"].includes(item.id)) {
+      event.target.appendChild(item);
+      startCooking(item, event.target, "stove");
     }
+  }
 
-    function dropOnTray(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (!item.classList.contains("prepared")) {
-        event.target.appendChild(item);
-      }
+  function dropOnFryer(event) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text");
+    const item = document.getElementById(data).cloneNode(true);
+    if (item.id === "pommes") {
+      event.target.appendChild(item);
+      startCooking(item, event.target, "fryer");
     }
+  }
 
-    function dropOnWarmer(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item.classList.contains("prepared")) {
-        event.target.appendChild(item);
-      }
-    }
-
-    function dropOnStove(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (["rindfleisch_patty", "wurst"].includes(item.id)) {
-        item.classList.add("prepared");
-        setTimeout(() => {
-          document.getElementById("tray").appendChild(item);
-        }, 5000);
-      }
-    }
-
-    function dropOnFryer(event) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text");
-      const item = document.getElementById(data);
-      if (item.id === "pommes") {
-        item.classList.add("prepared");
-        setTimeout(() => {
-          document.getElementById("tray").appendChild(item);
-        }, 5000);
-      }
-    }
-
-    const recipes = {
-      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
-      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
-      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
-    };
-
-    function prepareDish() {
-      const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id);
-      const customer = document.querySelector(".customer[data-order]");
-
-      if (!customer) {
-        alert("Kein Kunde wartet auf ein Gericht.");
-        return;
-      }
-
-      const order = customer.dataset.order;
-      const requiredItems = recipes[order];
-      
-      if (arraysEqual(trayItems, requiredItems)) {
-        alert(`Das Gericht für ${order} ist fertig!`);
-        clearTray();
-        customer.remove();
+  function startCooking(item, station, type) {
+    setTimeout(() => {
+      item.classList.add("prepared");
+      const freeWarmer = findFreeWarmer();
+      if (freeWarmer) {
+        freeWarmer.appendChild(item);
       } else {
-        alert("Die Zutaten stimmen nicht mit der Bestellung überein.");
+        station.removeChild(item); // Zutat löschen, wenn kein Platz auf Speisewärmern frei
+      }
+    }, 5000);
+  }
+
+  function findFreeWarmer() {
+    const warmers = document.querySelectorAll(".warmer");
+    for (const warmer of warmers) {
+      if (warmer.children.length === 0) {
+        return warmer;
       }
     }
+    return null;
+  }
 
-    function arraysEqual(arr1, arr2) {
-      return arr1.length === arr2.length && arr1.sort().every((value, index) => value === arr2.sort()[index]);
+  const recipes = {
+    "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
+    "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
+    "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
+    "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
+    "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
+    "Mischsalat": ["salat", "tomate", "gurke", "mais"]
+  };
+
+  function prepareDish() {
+    const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id);
+    const customer = document.querySelector(".customer[data-order]");
+
+    if (!customer) {
+      alert("Kein Kunde wartet auf ein Gericht.");
+      return;
     }
 
-    function clearTray() {
-      const tray = document.getElementById("tray");
-      while (tray.firstChild) tray.removeChild(tray.firstChild);
+    const order = customer.dataset.order;
+    const requiredItems = recipes[order];
+    
+    if (arraysEqual(trayItems, requiredItems)) {
+      alert(`Das Gericht für ${order} ist fertig!`);
+      clearTray();
+      customer.remove();
+    } else {
+      alert("Die Zutaten stimmen nicht mit der Bestellung überein.");
     }
-  </script>
+  }
+
+  function arraysEqual(arr1, arr2) {
+    return arr1.length === arr2.length && arr1.sort().every((value, index) => value === arr2.sort()[index]);
+  }
+
+  function clearTray() {
+    const tray = document.getElementById("tray");
+    while (tray.firstChild) tray.removeChild(tray.firstChild);
+  }
+</script>
+
 </body>
 </html>
