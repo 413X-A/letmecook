@@ -183,29 +183,40 @@
   let originalParent = null;
 
   // Allow drop only in certain areas (not on the ingredient list or invalid zones)
-  function allowDrop(event) {
-    if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
-      event.preventDefault();
-    }
+function allowDrop(event) {
+  if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
+    event.preventDefault();
   }
+}
 
-  // Drag handler: Prepare the element for dragging
-  function drag(event) {
-    const item = event.target.cloneNode(true);  // Make a copy of the element
-    item.id += "_copy_" + new Date().getTime(); // Ensure a unique ID for the clone
-    item.classList.add("dragged");  // Add a class for identification
-    event.dataTransfer.setData("text", item.id);
+// Drag handler: Prepare the element for dragging
+function drag(event) {
+  const item = event.target.cloneNode(true);  // Make a copy of the element
+  item.id += "_copy_" + new Date().getTime(); // Ensure a unique ID for the clone
+  item.classList.add("dragged");  // Add a class for identification
+  event.dataTransfer.setData("text", item.id);
 
-    // Remember the original parent of the dragged item
-    originalParent = event.target.parentElement;
+  // Remember the original parent of the dragged item
+  originalParent = event.target.parentElement;
 
-    // Make the clone temporarily invisible and append to the body for dragging
-    item.style.position = "absolute";
-    item.style.opacity = "0";  // Initially invisible
-    document.body.appendChild(item);
-  }
+  // Make the clone temporarily invisible and append to the body for dragging
+  item.style.position = "absolute";
+  item.style.opacity = "0";  // Initially invisible
+  document.body.appendChild(item);
 
-  // Drop handler for the stove (only certain items allowed and not finished)
+  // Update the item position based on the mouse location
+  document.onmousemove = function (e) {
+    item.style.left = e.pageX + 'px';
+    item.style.top = e.pageY + 'px';
+  };
+
+  document.onmouseup = function () {
+    document.onmousemove = null;
+    document.onmouseup = null;
+  };
+}
+
+// Drop handler for the stove (only certain items allowed and not finished)
 function dropOnStove(event) {
   event.preventDefault();
   const itemId = event.dataTransfer.getData("text");
@@ -223,7 +234,7 @@ function dropOnStove(event) {
   }
 }
 
-  // Drop handler for the fryer (only certain items allowed)
+// Drop handler for the fryer (only certain items allowed)
 function dropOnFryer(event) {
   event.preventDefault();
   const itemId = event.dataTransfer.getData("text");
@@ -241,50 +252,49 @@ function dropOnFryer(event) {
   }
 }
 
-  // Function to move the item to the warmer after 5 seconds
-  function moveToWarmer(itemId) {
-    const itemElement = document.getElementById(itemId);
-    const newItemId = itemId + "_fertig";
-    itemElement.id = newItemId;  // Update the ID to mark the item as "done"
+// Function to move the item to the warmer after 5 seconds
+function moveToWarmer(itemId) {
+  const itemElement = document.getElementById(itemId);
+  const newItemId = itemId + "_fertig";
+  itemElement.id = newItemId;  // Update the ID to mark the item as "done"
 
-    // Find an available warmer to place the item in
-    const warmers = document.querySelectorAll('.warmer');
-    const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
+  // Find an available warmer to place the item in
+  const warmers = document.querySelectorAll('.warmer');
+  const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
 
-    if (freeWarmer) {
-      freeWarmer.appendChild(itemElement); // Place it on the warmer
-    } else {
-      itemElement.remove(); // If no free warmer, remove the item
-    }
+  if (freeWarmer) {
+    freeWarmer.appendChild(itemElement); // Place it on the warmer
+  } else {
+    itemElement.remove(); // If no free warmer, remove the item
   }
+}
 
-  // Drop handler for the warmer (only "finished" items allowed)
-  function dropOnWarmer(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
+// Drop handler for the warmer (only "finished" items allowed)
+function dropOnWarmer(event) {
+  event.preventDefault();
+  const itemId = event.dataTransfer.getData("text");
+  const itemElement = document.getElementById(itemId);
 
-    if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement); // Place finished item on the warmer
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
-    }
+  if (itemId.endsWith("_fertig")) {
+    event.target.appendChild(itemElement); // Place finished item on the warmer
+  } else {
+    handleInvalidDrop(itemElement);
+    alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
   }
+}
 
-      // Tablett
+// Drop handler for the tray (valid for finished and certain raw ingredients)
 function dropOnTray(event) {
   event.preventDefault();
   const itemId = event.dataTransfer.getData("text");
   
-  // Liste der nicht fertigen Zutaten
   const itemId_nichtfertig = ["mayonnaise", "ketchup", "zwiebeln", "currysauce", "burger_broetchen", "salat", "tomate", "kaese", "hotdog_broetchen", "mais"];
   
   const itemElement = document.getElementById(itemId);
 
-  // Überprüfen, ob das Element fertig ist oder ob es in der Liste der nicht fertigen Zutaten ist
+  // Check if the element is finished or in the list of allowed raw ingredients
   if (itemId.endsWith("_fertig") || itemId_nichtfertig.includes(itemId)) {
-    event.target.appendChild(itemElement); // Platziere fertige oder erlaubte Zutaten auf dem Tablett
+    event.target.appendChild(itemElement); // Place finished or allowed ingredients on the tray
   } else {
     handleInvalidDrop(itemElement);
     alert("Nur fertige Zutaten oder erlaubte Zutaten können aufs Tablett gelegt werden.");
