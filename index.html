@@ -179,166 +179,80 @@
       <div class="item" id="mais" draggable="true" ondragstart="drag(event)"></div>
     </div>
   </div>
-    <script>
-  let originalParent = null;
-
-  // Allow drop only in certain areas (not on the ingredient list or invalid zones)
-  function allowDrop(event) {
-    if (!event.target.classList.contains("items-container") && !event.target.classList.contains("drop-area")) {
+  
+  <script>
+    function allowDrop(event) {
       event.preventDefault();
     }
-  }
 
-  // Drag handler: Prepare the element for dragging
-  function drag(event) {
-    const item = event.target.cloneNode(true);  // Make a copy of the element
-    item.id += "_copy_" + new Date().getTime(); // Ensure a unique ID for the clone
-    item.classList.add("dragged");  // Add a class for identification
-    event.dataTransfer.setData("text", item.id);
-
-    // Remember the original parent of the dragged item
-    originalParent = event.target.parentElement;
-
-    // Make the clone temporarily invisible and append to the body for dragging
-    item.style.position = "absolute";
-    item.style.opacity = "0";  // Initially invisible
-    document.body.appendChild(item);
-  }
-
-  // Drop handler for the stove (only certain items allowed)
-  function dropOnStove(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const allowedItems = ["rindfleisch_patty", "gemuese_patty", "wurst"];
-    const itemElement = document.getElementById(itemId);
-
-    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-      event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Make it visible when placed
-      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur bestimmte Zutaten dürfen auf den Herd gelegt werden.");
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
     }
-  }
 
-  // Drop handler for the fryer (only certain items allowed)
-  function dropOnFryer(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const allowedItems = ["pommes"];
-    const itemElement = document.getElementById(itemId);
-
-    if (allowedItems.some(allowed => itemId.startsWith(allowed))) {
-      event.target.appendChild(itemElement);
-      itemElement.style.opacity = "1"; // Make it visible when placed
-      setTimeout(() => moveToWarmer(itemId), 5000); // Move to warmer after 5 seconds
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur bestimmte Zutaten dürfen in die Friteuse.");
+    function dropOnTray(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      if (!item.classList.contains("prepared")) {
+        event.target.appendChild(item);
+      }
     }
-  }
 
-  // Function to move the item to the warmer after 5 seconds
-  function moveToWarmer(itemId) {
-    const itemElement = document.getElementById(itemId);
-    const newItemId = itemId + "_fertig";
-    itemElement.id = newItemId;  // Update the ID to mark the item as "done"
-
-    // Find an available warmer to place the item in
-    const warmers = document.querySelectorAll('.warmer');
-    const freeWarmer = Array.from(warmers).find(warmer => warmer.childElementCount === 0);
-
-    if (freeWarmer) {
-      freeWarmer.appendChild(itemElement); // Place it on the warmer
-    } else {
-      itemElement.remove(); // If no free warmer, remove the item
+    function dropOnWarmer(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      if (item.classList.contains("prepared")) {
+        event.target.appendChild(item);
+      }
     }
-  }
 
-  // Drop handler for the warmer (only "finished" items allowed)
-  function dropOnWarmer(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
-
-    if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement); // Place finished item on the warmer
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur fertige Zutaten dürfen auf den Speisewärmer gelegt werden.");
+    function dropOnStove(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      if (item.id === "rindfleisch_patty" || item.id === "gemuese_patty" || item.id === "wurst") {
+        event.target.appendChild(item);
+        setTimeout(() => finishCooking(item, event.target), 5000);
+      }
     }
-  }
 
-  // Drop handler for the tray (only "finished" items allowed)
-  function dropOnTray(event) {
-    event.preventDefault();
-    const itemId = event.dataTransfer.getData("text");
-    const itemElement = document.getElementById(itemId);
-
-    if (itemId.endsWith("_fertig")) {
-      event.target.appendChild(itemElement); // Place finished item on the tray
-    } else {
-      handleInvalidDrop(itemElement);
-      alert("Nur fertige Zutaten können aufs Tablett gelegt werden.");
+    function dropOnFryer(event) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text");
+      const item = document.getElementById(data);
+      if (item.id === "pommes") {
+        event.target.appendChild(item);
+        setTimeout(() => finishCooking(item, event.target), 5000);
+      }
     }
-  }
 
-  // Handle invalid drops (items that cannot be placed in the current area)
-  function handleInvalidDrop(itemElement) {
-    if (originalParent && originalParent.classList.contains("items-container")) {
-      itemElement.remove(); // Remove if from the items container (not allowed to drop here)
-    } else {
-      originalParent.appendChild(itemElement); // Return it to the original parent
+    function finishCooking(item, station) {
+      item.classList.add("prepared");
+      item.id += "_fertig";
+      const warmer = document.querySelector(".station.warmer:not(:has(*))");
+      if (warmer) {
+        warmer.appendChild(item);
+      } else {
+        station.removeChild(item);
+      }
     }
-  }
 
-  // Prevent dropping in invalid zones (like the ingredients list)
-  function preventDefault(event) {
-    event.preventDefault();
-  }
-
-  // Function to prepare the dish and check if it matches a recipe
-  function prepareDish() {
-    const tray = document.getElementById("tray");
-    const ingredients = Array.from(tray.children).map(item => item.id.replace("_fertig", ""));
-    const orderMatch = checkOrder(ingredients);
-
-    if (orderMatch) {
-      alert(`Gericht ${orderMatch} erfolgreich zubereitet!`);
-      tray.innerHTML = ""; // Clear the tray
-    } else {
-      alert("Die Zutaten stimmen nicht mit einer Bestellung überein.");
+    function prepareDish() {
+      const trayItems = Array.from(document.querySelectorAll("#tray .item")).map(item => item.id);
+      const recipe = "Pommes Spezial"; // Beispiel Rezept; hier mit Kunden-Logik verbinden
+      if (trayItems.join() === recipe) {
+        alert("Gericht ist fertig!");
+        clearTray();
+      } else {
+        alert("Zutaten entsprechen nicht dem Rezept.");
+      }
     }
-  }
 
-  // Check if the ingredients on the tray match any known recipe
-  function checkOrder(ingredients) {
-    const recipes = {
-      "Pommes Spezial": ["pommes", "pommes", "pommes", "mayonnaise", "ketchup", "zwiebeln"],
-      "Currywurst mit Pommes": ["wurst", "currysauce", "pommes"],
-      "Hamburger": ["burger_broetchen", "rindfleisch_patty", "salat", "tomate", "zwiebeln", "ketchup"],
-      "Veggie Burger": ["burger_broetchen", "gemuese_patty", "salat", "tomate", "zwiebeln", "mayonnaise"],
-      "Pommes mit Käse": ["pommes", "pommes", "kaese", "gurke"],
-      "Hotdog": ["wurst", "hotdog_broetchen", "gurke", "ketchup"],
-      "Mischsalat": ["salat", "tomate", "gurke", "mais"]
-    };
-
-    for (const [dish, recipe] of Object.entries(recipes)) {
-      if (arraysEqual(recipe, ingredients)) return dish;
+    function clearTray() {
+      const tray = document.getElementById("tray");
+      while (tray.firstChild) tray.removeChild(tray.firstChild);
     }
-    return null;
-  }
-
-  // Utility function to check if two arrays are equal
-  function arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
-  }
-</script>
-
+  </script>
 </body>
 </html>
